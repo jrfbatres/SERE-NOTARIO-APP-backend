@@ -1,26 +1,111 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  --color-on-error-container: #93000a;
+  --color-outline: #73777e;
+  --color-secondary: #b59348;
+  --color-surface-container-low: #eff4ff;
+  --color-tertiary-fixed-dim: #d3c6a2;
+  --color-on-surface-variant: #42474d;
+  --color-on-secondary: #ffffff;
+  --color-primary-fixed: #cfe5ff;
+  --color-surface: #f8f9ff;
+  --color-on-tertiary-fixed-variant: #4f462b;
+  --color-secondary-fixed: #ffdf9e;
+  --color-secondary-container: #fcd583;
+  --color-error-container: #ffdad6;
+  --color-primary: #001629;
+  --color-on-secondary-fixed: #261a00;
+  --color-on-surface: #0b1c30;
+  --color-on-tertiary: #ffffff;
+  --color-on-error: #ffffff;
+  --color-outline-variant: #c3c7ce;
+  --color-primary-fixed-dim: #a8caef;
+  --color-background: #f8f9ff;
+  --color-surface-bright: #f8f9ff;
+  --color-surface-tint: #406182;
+  --color-on-primary-container: #7293b6;
+  --color-surface-container-highest: #d3e4fe;
+  --color-on-secondary-container: #775b14;
+  --color-on-tertiary-container: #9b8f6f;
+  --color-on-primary-fixed-variant: #274969;
+  --color-inverse-surface: #213145;
+  --color-on-background: #0b1c30;
+  --color-inverse-primary: #a8caef;
+  --color-secondary-fixed-dim: #e7c271;
+  --color-on-secondary-fixed-variant: #5b4300;
+  --color-on-primary: #ffffff;
+  --color-on-tertiary-fixed: #221b05;
+  --color-on-primary-fixed: #001d34;
+  --color-primary-container: #002b49;
+  --color-surface-container: #e5eeff;
+  --color-tertiary-fixed: #f0e2bd;
+  --color-surface-container-high: #dce9ff;
+  --color-error: #ba1a1a;
+  --color-surface-dim: #cbdbf5;
+  --color-tertiary: #1a1401;
+  --color-inverse-on-surface: #eaf1ff;
+  --color-tertiary-container: #302810;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-variant: #d3e4fe;
+  --color-navy-brand: #001629;
+  --color-gold-brand: #b59348;
+  --color-gold-light: #e5d7b3;
+  --color-sidebar-navy: #001629;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --spacing-sm: 12px;
+  --spacing-xs: 4px;
+  --spacing-base: 8px;
+  --spacing-container-max: 1200px;
+  --spacing-xl: 80px;
+  --spacing-md: 24px;
+  --spacing-lg: 48px;
+  --spacing-gutter: 24px;
+
+  --font-headline-lg: "Playfair Display", serif;
+  --font-caption: "Inter", sans-serif;
+  --font-body-lg: "Inter", sans-serif;
+  --font-headline-lg-mobile: "Playfair Display", serif;
+  --font-label-md: "Inter", sans-serif;
+  --font-headline-md: "Playfair Display", serif;
+  --font-body-md: "Inter", sans-serif;
+  --font-display-lg: "Playfair Display", serif;
+  --font-sans: "Inter", sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-image: radial-gradient(circle at 10% 20%, rgba(240, 226, 189, 0.15) 0%, transparent 40%),
+                    radial-gradient(circle at 90% 80%, rgba(240, 226, 189, 0.15) 0%, transparent 40%);
+  background-color: var(--color-background);
+  color: var(--color-on-background);
+  font-family: var(--font-body-md);
+  margin: 0;
+  min-height: 100vh;
 }
+
+/* Local Material Symbols Outlined */
+@font-face {
+  font-family: 'Material Symbols Outlined';
+  font-style: normal;
+  font-weight: 100 700;
+  font-display: swap;
+  src: url('/fonts/material-symbols-outlined.woff2') format('woff2');
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
