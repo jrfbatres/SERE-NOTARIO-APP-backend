@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '../ThemeContext';
 
-export default function LoginPage() {
+export default function RegistroPage() {
+  const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -13,25 +14,23 @@ export default function LoginPage() {
   const router = useRouter();
   const { isDarkMode } = useTheme();
 
-  const handleLogin = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch('/api/auth/registro', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ correo: email, clave: password }),
+        body: JSON.stringify({ nombre, correo: email, clave: password }),
       });
 
       const data = await res.json();
 
       if (res.ok) {
-        // Store token in localStorage
-        localStorage.setItem('token', data.token);
-        // Redirect to dashboard
-        router.push('/');
+        // Redirect to login after successful registration
+        router.push('/login');
       } else {
         setError(data.error + (data.details ? `: ${data.details}` : ''));
       }
@@ -61,7 +60,7 @@ export default function LoginPage() {
             className="h-28 md:h-32 mx-auto object-contain mb-sm transition-all duration-300"
             src={isDarkMode ? "/images/logo-oscuro.png" : "/images/logo.png"}
           />
-          <h1 className="hidden">Seré Notario</h1>
+          <h1 className="hidden">Registro Seré Notario</h1>
         </header>
 
         <section className={`${themeClasses.cardBg} w-full p-md md:p-lg border rounded-lg login-card transition-colors duration-300`}>
@@ -72,7 +71,23 @@ export default function LoginPage() {
             </div>
           )}
 
-          <form onSubmit={handleLogin} className="space-y-md">
+          <form onSubmit={handleRegister} className="space-y-md">
+            <div className="flex flex-col space-y-xs">
+              <label className={`font-label-md text-label-md ${themeClasses.label}`} htmlFor="nombre">Nombre Completo</label>
+              <div className="relative">
+                <span className="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-gray-400">person</span>
+                <input
+                  className={`w-full pl-10 pr-sm py-sm border rounded focus:ring-1 focus:ring-[#b59348] focus:border-[#b59348] transition-all outline-none font-body-md ${themeClasses.inputBg}`}
+                  id="nombre"
+                  placeholder="Juan Pérez"
+                  required
+                  type="text"
+                  value={nombre}
+                  onChange={(e) => setNombre(e.target.value)}
+                />
+              </div>
+            </div>
+
             <div className="flex flex-col space-y-xs">
               <label className={`font-label-md text-label-md ${themeClasses.label}`} htmlFor="email">Correo Electrónico</label>
               <div className="relative">
@@ -90,10 +105,7 @@ export default function LoginPage() {
             </div>
 
             <div className="flex flex-col space-y-xs">
-              <div className="flex justify-between items-center">
-                <label className={`font-label-md text-label-md ${themeClasses.label}`} htmlFor="password">Contraseña</label>
-                <a className="font-label-md text-label-md text-[#b59348] hover:underline" href="#">¿Olvidó su contraseña?</a>
-              </div>
+              <label className={`font-label-md text-label-md ${themeClasses.label}`} htmlFor="password">Contraseña</label>
               <div className="relative flex items-center">
                 <span className="material-symbols-outlined absolute left-sm text-gray-400">lock</span>
                 <input
@@ -122,15 +134,15 @@ export default function LoginPage() {
               type="submit"
               disabled={loading}
             >
-              <span>{loading ? 'Accediendo...' : 'Acceder al Portal'}</span>
-              <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>login</span>
+              <span>{loading ? 'Creando cuenta...' : 'Crear Cuenta'}</span>
+              <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>person_add</span>
             </button>
           </form>
 
           <div className="mt-lg pt-md border-t border-white/10 text-center">
             <p className={`font-body-md text-body-md ${themeClasses.label}`}>
-              ¿Aún no tiene una cuenta?
-              <a className="text-[#b59348] font-label-md text-label-md hover:underline ml-xs" href="/registro">Crear Cuenta</a>
+              ¿Ya tiene una cuenta?
+              <a className="text-[#b59348] font-label-md text-label-md hover:underline ml-xs" href="/login">Iniciar Sesión</a>
             </p>
           </div>
         </section>

@@ -15,7 +15,7 @@ export async function POST(request) {
 
     // Find user
     const text = `
-      SELECT id, nombre, correo, clave, ban_pago, fecha_vence 
+      SELECT id, nombre, correo, clave, ban_pago, fecha_vence, ban_cambiar_clave 
       FROM "notarioElite".usuarios 
       WHERE correo = $1
     `;
@@ -58,6 +58,7 @@ export async function POST(request) {
 
     return NextResponse.json({
       success: true,
+      requirePasswordChange: safeUser.ban_cambiar_clave === true,
       token,
       user: safeUser
     });

@@ -1,14 +1,16 @@
 const { Client } = require('pg');
-const c = new Client('postgres://postgres:admin@72.61.9.7:1521/batres');
+const client = new Client('postgres://postgres:admin@72.61.9.7:1521/batres');
 
-async function run() {
-  await c.connect();
-  const res = await c.query(`
-    SELECT column_name, data_type 
-    FROM information_schema.columns 
-    WHERE table_schema = 'notarioElite' AND table_name = 'nodos'
+client.connect().then(async () => {
+  const result = await client.query(`
+    SELECT id, nombre, padre_id, nivel 
+    FROM "notarioElite".nodos
+    WHERE ley_id = 1 AND nivel = 1
+    LIMIT 5
   `);
-  console.log(JSON.stringify(res.rows, null, 2));
-  await c.end();
-}
-run();
+  console.log('Nodos Nivel 1 Ley 1:', result.rows);
+  client.end();
+}).catch(err => {
+  console.error('DB Error:', err);
+  client.end();
+});

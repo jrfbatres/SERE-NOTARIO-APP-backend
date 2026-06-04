@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { getUserIdFromRequest } from '@/lib/auth';
+import { awardInvitations } from '@/lib/invitaciones';
 
 export async function POST(request) {
   try {
@@ -84,6 +85,58 @@ export async function POST(request) {
         actualizado_en = CURRENT_TIMESTAMP
     `, [userId, nodo_id, leyId, nota, completado]);
 
+    let invitationsAwarded = 0;
+    // Lógica de invitaciones
+    if (completado && (leyId === 1 || leyId === 9)) {
+      // Regla 5: Primer nodo completo
+      const r5 = await awardInvitations(userId, 2, `primer_nodo_ley_${leyId}`);
+      if (r5) invitationsAwarded += 2;
+
+      // Regla 6: Nodo padre completo
+      try {
+        const ancestorsRes = await query(`
+          WITH RECURSIVE Ancestors AS (
+            SELECT padre_id, id FROM "notarioElite".nodos WHERE id = $1
+            UNION ALL
+            SELECT n.padre_id, n.id FROM "notarioElite".nodos n
+            INNER JOIN Ancestors a ON n.id = a.padre_id
+          )
+          SELECT id FROM Ancestors WHERE id != $1
+        `, [nodo_id]);
+
+        const ancestors = ancestorsRes.rows.map(r => r.id);
+
+        for (const pId of ancestors) {
+          if (!pId) continue;
+          const leavesRes = await query(`
+            WITH RECURSIVE Leaves AS (
+              SELECT id, padre_id, total_preguntas FROM "notarioElite".nodos WHERE id = $1
+              UNION ALL
+              SELECT n.id, n.padre_id, n.total_preguntas FROM "notarioElite".nodos n
+              INNER JOIN Leaves l ON n.padre_id = l.id
+            )
+            SELECT id FROM Leaves WHERE total_preguntas > 0
+          `, [pId]);
+          
+          const leaves = leavesRes.rows.map(r => r.id);
+          
+          if (leaves.length > 0) {
+            const completedRes = await query(`
+              SELECT COUNT(*) as count FROM "notarioElite".usuario_nodos
+              WHERE usuario_id = $1 AND nodo_id = ANY($2) AND completado = TRUE
+            `, [userId, leaves]);
+            
+            if (parseInt(completedRes.rows[0].count, 10) === leaves.length) {
+              const r6 = await awardInvitations(userId, 2, `nodo_padre_${pId}`);
+              if (r6) invitationsAwarded += 2;
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Error calculando nodos padres:', e);
+      }
+    }
+
     // Ensure the user has an entry in usuario_leyes
     await query(`
       INSERT INTO "notarioElite".usuario_leyes (usuario_id, ley_id, nota)
@@ -106,7 +159,8 @@ export async function POST(request) {
 
     return NextResponse.json({
       success: true,
-      message: 'Progress and scores updated successfully'
+      message: 'Progress and scores updated successfully',
+      invitationsAwarded
     });
   } catch (error) {
     console.error('Error updating user progress:', error);

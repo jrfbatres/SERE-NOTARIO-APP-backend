@@ -200,9 +200,11 @@ export default function SimuladorPage() {
 
     const currentQ = questions[idx];
     let text = `Pregunta número ${idx + 1}. ${currentQ.pregunta}. `;
-    text += `Opción A. ${cleanOptionText(currentQ.opcion_a)}. `;
-    text += `Opción B. ${cleanOptionText(currentQ.opcion_b)}. `;
-    text += `Opción C. ${cleanOptionText(currentQ.opcion_c)}. `;
+    if (currentQ.opcion_a) text += `Opción A. ${cleanOptionText(currentQ.opcion_a)}. `;
+    if (currentQ.opcion_b) text += `Opción B. ${cleanOptionText(currentQ.opcion_b)}. `;
+    if (currentQ.opcion_c) text += `Opción C. ${cleanOptionText(currentQ.opcion_c)}. `;
+    if (currentQ.opcion_d) text += `Opción D. ${cleanOptionText(currentQ.opcion_d)}. `;
+    if (currentQ.opcion_e) text += `Opción E. ${cleanOptionText(currentQ.opcion_e)}. `;
     text += `¿Cuál es tu respuesta?`;
 
     speakHandsFreeText(text, () => {
@@ -365,6 +367,8 @@ export default function SimuladorPage() {
       if (/\b(opción a|letra a|la a|a)\b/.test(lowerTranscript)) chosenLabel = 'A';
       else if (/\b(opción b|letra b|la b|b)\b/.test(lowerTranscript)) chosenLabel = 'B';
       else if (/\b(opción c|letra c|la c|c)\b/.test(lowerTranscript)) chosenLabel = 'C';
+      else if (/\b(opción d|letra d|la d|d)\b/.test(lowerTranscript)) chosenLabel = 'D';
+      else if (/\b(opción e|letra e|la e|e)\b/.test(lowerTranscript)) chosenLabel = 'E';
 
       if (chosenLabel) {
         handsFreeStateRef.current = 'processing';
@@ -719,11 +723,11 @@ export default function SimuladorPage() {
                     
                     {!resp.isCorrect && (
                       <div className="text-xs text-rose-700 bg-rose-50/40 p-2 rounded-lg border border-rose-100/40 mb-1">
-                        <span className="font-bold">Tu respuesta:</span> {resp.selected === 'A' ? q.opcion_a : resp.selected === 'B' ? q.opcion_b : q.opcion_c}
+                        <span className="font-bold">Tu respuesta:</span> {q['opcion_' + resp.selected.toLowerCase()]}
                       </div>
                     )}
                     <div className="text-xs text-emerald-700 bg-emerald-50/40 p-2 rounded-lg border border-emerald-100/40">
-                      <span className="font-bold">Respuesta correcta:</span> {resp.correct === 'A' ? q.opcion_a : resp.correct === 'B' ? q.opcion_b : q.opcion_c}
+                      <span className="font-bold">Respuesta correcta:</span> {q['opcion_' + resp.correct.toLowerCase()]}
                     </div>
 
                     {q.explicacion && (
@@ -742,6 +746,18 @@ export default function SimuladorPage() {
       </div>
     );
   }
+
+  // Helper function to format options for rendering
+  const getShuffledOptions = (q) => {
+    if (!q) return [];
+    const opts = [];
+    if (q.opcion_a) opts.push({ label: 'A', text: q.opcion_a });
+    if (q.opcion_b) opts.push({ label: 'B', text: q.opcion_b });
+    if (q.opcion_c) opts.push({ label: 'C', text: q.opcion_c });
+    if (q.opcion_d) opts.push({ label: 'D', text: q.opcion_d });
+    if (q.opcion_e) opts.push({ label: 'E', text: q.opcion_e });
+    return opts;
+  };
 
   const currentQ = preguntas[currentIndex];
   
@@ -816,13 +832,15 @@ export default function SimuladorPage() {
         <div className="flex-1 flex flex-col overflow-y-auto p-4 md:p-8 lg:p-12 items-center justify-start">
           <div className="w-full max-w-3xl">
             {/* Context/Category Chip */}
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex flex-wrap items-center gap-2 mb-4">
               <span className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider ${isDarkMode ? 'bg-[#b59348]/20 text-[#b59348]' : 'bg-[#b59348]/10 text-[#b59348]'}`}>
                 {currentQ.ley_nombre || 'General'}
               </span>
-              <span className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider ${isDarkMode ? 'bg-[#002b49] text-white' : 'bg-[#002b49]/5 text-[#002b49]'}`}>
-                Nivel {currentQ.dificultad}
-              </span>
+              {currentQ.nivel_dificultad && (
+                <span className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider ${isDarkMode ? 'bg-[#002b49] text-white' : 'bg-[#002b49]/5 text-[#002b49]'}`}>
+                  Nivel {currentQ.nivel_dificultad}
+                </span>
+              )}
             </div>
 
             {/* Question Text */}
@@ -831,7 +849,7 @@ export default function SimuladorPage() {
             </h2>
 
             {/* Options */}
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {options.map((opt) => {
                 const isSelected = selectedOption === opt.label;
                 const isCorrectOpt = opt.label === currentQ.respuesta_correcta;
@@ -883,6 +901,36 @@ export default function SimuladorPage() {
 
         {/* Right Info Sidebar (Linked Articles & Feedback) */}
         <div className={`w-full lg:w-96 shrink-0 border-t lg:border-t-0 lg:border-l p-6 flex flex-col overflow-y-auto transition-colors duration-300 ${themeClasses.cardSidebarBg}`}>
+          
+          {/* Exam Source Info (Always visible at top of right panel) */}
+          {(currentQ.examen_titulo || currentQ.pdf_url) && (
+            <div className={`mb-6 p-4 rounded-xl border ${isDarkMode ? 'bg-[#001524] border-white/10' : 'bg-white border-gray-200'} shadow-sm`}>
+              <h3 className={`text-[11px] uppercase tracking-wider font-black mb-3 ${isDarkMode ? 'text-[#b59348]' : 'text-[#002b49]'}`}>Fuente de la Pregunta</h3>
+              <div className="flex flex-col gap-2">
+                {currentQ.examen_titulo && (
+                  <div className="flex items-start gap-2">
+                    <span className="material-symbols-outlined text-[16px] mt-0.5 text-gray-400">history_edu</span>
+                    <div className="flex flex-col">
+                      <span className={`text-[13px] font-bold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>{currentQ.examen_titulo}</span>
+                      {currentQ.orden && <span className={`text-[10px] uppercase font-bold ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>Pregunta Original: #{currentQ.orden}</span>}
+                    </div>
+                  </div>
+                )}
+                {currentQ.pdf_url && (
+                  <a 
+                    href={currentQ.pdf_url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className={`mt-2 flex items-center justify-center gap-1.5 w-full py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors border ${isDarkMode ? 'bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500/20' : 'bg-red-50 text-red-600 border-red-100 hover:bg-red-100'}`}
+                  >
+                    <span className="material-symbols-outlined text-[16px]">picture_as_pdf</span>
+                    Ver PDF Original
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
+
           {isAnswered ? (
             <div className="flex-1 flex flex-col justify-start">
               

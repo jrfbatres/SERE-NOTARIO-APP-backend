@@ -21,14 +21,14 @@ export async function GET(request) {
       const countHard = await query(`
         SELECT COUNT(*) as count 
         FROM "notarioElite".preguntas 
-        WHERE nivel IN ('dificil', 'trampa')
+        WHERE nivel IN ('dificil', 'trampa') AND ban_mostrar = 'S'
       `);
       
       if (parseInt(countHard.rows[0].count) < 30) {
         const countMed = await query(`
           SELECT COUNT(*) as count 
           FROM "notarioElite".preguntas 
-          WHERE nivel IN ('intermedio', 'dificil', 'trampa')
+          WHERE nivel IN ('intermedio', 'dificil', 'trampa') AND ban_mostrar = 'S'
         `);
         
         if (parseInt(countMed.rows[0].count) >= 30) {
@@ -43,7 +43,7 @@ export async function GET(request) {
         SELECT l.id, l.nombre, l.porcentaje, COUNT(p.id) as total_preguntas
         FROM "notarioElite".leyes l
         JOIN "notarioElite".preguntas p ON p.ley_id = l.id
-        WHERE p.nivel = ANY($1)
+        WHERE p.nivel = ANY($1) AND p.ban_mostrar = 'S'
         GROUP BY l.id, l.nombre, l.porcentaje
         HAVING COUNT(p.id) > 0
       `, [levels]);
@@ -117,13 +117,16 @@ export async function GET(request) {
               p.referencia_legal,
               p.articulo,
               p.ley_id,
+              p.orden,
+              (SELECT e.titulo FROM "notarioElite".examenes e WHERE e.id = p.examen_id) as examen_titulo,
+              (SELECT e.pdf_url FROM "notarioElite".examenes e WHERE e.id = p.examen_id) as pdf_url,
               $2 as ley_nombre,
               (
                 SELECT json_agg(
                   json_build_object(
                     'texto_opcion', o.texto_opcion,
                     'es_correcta', o.es_correcta
-                  ) ORDER BY o.id
+                  ) ORDER BY o.orden
                 )
                 FROM "notarioElite".opciones o
                 WHERE o.pregunta_id = p.id
@@ -139,7 +142,7 @@ export async function GET(request) {
             FROM "notarioElite".preguntas p
             LEFT JOIN "notarioElite".pregunta_articulos pa ON p.id = pa.pregunta_id
             LEFT JOIN "notarioElite".articulos a ON pa.articulo_id = a.id
-            WHERE p.ley_id = $1 AND p.nivel = ANY($3)
+            WHERE p.ley_id = $1 AND p.nivel = ANY($3) AND p.ban_mostrar = 'S'
             GROUP BY p.id
             ORDER BY RANDOM()
             LIMIT $4
@@ -163,13 +166,16 @@ export async function GET(request) {
           p.referencia_legal,
           p.articulo,
           p.ley_id,
+          p.orden,
+          (SELECT e.titulo FROM "notarioElite".examenes e WHERE e.id = p.examen_id) as examen_titulo,
+          (SELECT e.pdf_url FROM "notarioElite".examenes e WHERE e.id = p.examen_id) as pdf_url,
           (SELECT l.nombre FROM "notarioElite".leyes l WHERE l.id = p.ley_id) as ley_nombre,
           (
             SELECT json_agg(
               json_build_object(
                 'texto_opcion', o.texto_opcion,
                 'es_correcta', o.es_correcta
-              ) ORDER BY o.id
+              ) ORDER BY o.orden
             )
             FROM "notarioElite".opciones o
             WHERE o.pregunta_id = p.id
@@ -185,7 +191,7 @@ export async function GET(request) {
         FROM "notarioElite".preguntas p
         LEFT JOIN "notarioElite".pregunta_articulos pa ON p.id = pa.pregunta_id
         LEFT JOIN "notarioElite".articulos a ON pa.articulo_id = a.id
-        WHERE p.ley_id = $1
+        WHERE p.ley_id = $1 AND p.ban_mostrar = 'S'
         GROUP BY p.id
         ORDER BY RANDOM()
         LIMIT 20
@@ -203,13 +209,16 @@ export async function GET(request) {
           p.referencia_legal,
           p.articulo,
           p.ley_id,
+          p.orden,
+          (SELECT e.titulo FROM "notarioElite".examenes e WHERE e.id = p.examen_id) as examen_titulo,
+          (SELECT e.pdf_url FROM "notarioElite".examenes e WHERE e.id = p.examen_id) as pdf_url,
           (SELECT l.nombre FROM "notarioElite".leyes l WHERE l.id = p.ley_id) as ley_nombre,
           (
             SELECT json_agg(
               json_build_object(
                 'texto_opcion', o.texto_opcion,
                 'es_correcta', o.es_correcta
-              ) ORDER BY o.id
+              ) ORDER BY o.orden
             )
             FROM "notarioElite".opciones o
             WHERE o.pregunta_id = p.id
@@ -225,7 +234,7 @@ export async function GET(request) {
         FROM "notarioElite".preguntas p
         LEFT JOIN "notarioElite".pregunta_articulos pa ON p.id = pa.pregunta_id
         LEFT JOIN "notarioElite".articulos a ON pa.articulo_id = a.id
-        WHERE p.nodo_id IN (
+        WHERE p.ban_mostrar = 'S' AND p.nodo_id IN (
           WITH RECURSIVE subnodes AS (
               SELECT id FROM "notarioElite".nodos WHERE id = $1
               UNION ALL
@@ -245,19 +254,13 @@ export async function GET(request) {
     const mappedQuestions = rawRows.map(q => {
       let optionsArr = q.opciones || [];
 
-      // Ensure "todas las anteriores", "ninguna", etc. are always the last options
-      optionsArr.sort((a, b) => {
-        const pattern = /(todas las anteriores|ningun(a|o) de las?|a y b|a, b y c)/i;
-        const isSpecialA = pattern.test(a.texto_opcion);
-        const isSpecialB = pattern.test(b.texto_opcion);
-        if (isSpecialA && !isSpecialB) return 1;
-        if (!isSpecialA && isSpecialB) return -1;
-        return 0;
-      });
+      // No longer sorting in JS. Relying on ORDER BY o.orden from the DB.
 
       let opcion_a = '';
       let opcion_b = '';
       let opcion_c = '';
+      let opcion_d = '';
+      let opcion_e = '';
       let respuesta_correcta = 'A';
 
       optionsArr.forEach((opt, idx) => {
@@ -272,6 +275,12 @@ export async function GET(request) {
         } else if (idx === 2) {
           opcion_c = cleanText;
           if (opt.es_correcta) respuesta_correcta = 'C';
+        } else if (idx === 3) {
+          opcion_d = cleanText;
+          if (opt.es_correcta) respuesta_correcta = 'D';
+        } else if (idx === 4) {
+          opcion_e = cleanText;
+          if (opt.es_correcta) respuesta_correcta = 'E';
         }
       });
 
@@ -283,11 +292,16 @@ export async function GET(request) {
         opcion_a,
         opcion_b,
         opcion_c,
+        opcion_d,
+        opcion_e,
         respuesta_correcta,
         referencia_legal: q.referencia_legal,
         articulo: q.articulo,
         ley_id: q.ley_id,
         ley_nombre: q.ley_nombre,
+        examen_titulo: q.examen_titulo,
+        pdf_url: q.pdf_url,
+        orden: q.orden,
         articulos_vinculados: q.articulos_vinculados || []
       };
     });

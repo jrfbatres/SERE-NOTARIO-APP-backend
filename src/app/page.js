@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Treemap, ResponsiveContainer, Tooltip } from 'recharts';
+import { useTheme } from './ThemeContext';
+import UserProfilePopup from '../components/UserProfilePopup';
 
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
@@ -14,7 +16,7 @@ const CustomTooltip = ({ active, payload }) => {
         </p>
         <div className="flex items-center justify-between border-t border-white/10 pt-2 mt-1">
           <span className="text-[10px] text-white/60 font-bold uppercase tracking-wider">Porcentaje</span>
-          <span className="text-sm font-black text-gold-brand">{data.value}%</span>
+          <span className="text-sm font-black text-[#b59348]">{data.value}%</span>
         </div>
       </div>
     );
@@ -26,22 +28,22 @@ const CustomTreemapContent = (props) => {
   const { x, y, width, height, value, name, id, onClick } = props;
 
   const getFillColor = (val) => {
-    if (val >= 15) return '#001629'; // Crítico (Navy Dark)
-    if (val >= 10) return '#002b49'; // Alto (Navy Brand)
-    if (val >= 5) return '#765a13';  // Medio (Gold Metallic)
-    if (val >= 2) return '#b59348';  // Accent Gold (Medium-Low)
-    if (val >= 0.9) return '#e5d7b3'; // Intermedio Bajo (Light Gold)
-    return '#eff4ff';              // Muy Bajo (Light Slate/Blue)
+    if (val >= 15) return '#001629'; 
+    if (val >= 10) return '#002b49'; 
+    if (val >= 5) return '#765a13';  
+    if (val >= 2) return '#b59348';  
+    if (val >= 0.9) return '#e5d7b3'; 
+    return '#eff4ff';              
   };
 
   const isDarkColor = (val) => {
-    return val >= 5; // True for dark navy and gold metallic, false for light gold and slate
+    return val >= 5; 
   };
 
   const fillColor = getFillColor(value);
   const darkTheme = isDarkColor(value);
-  const textColor = darkTheme ? 'text-white' : 'text-navy-brand';
-  const textMutedColor = darkTheme ? 'text-white/60' : 'text-navy-brand/60';
+  const textColor = darkTheme ? 'text-white' : 'text-[#002b49]';
+  const textMutedColor = darkTheme ? 'text-white/60' : 'text-[#002b49]/60';
 
   if (width < 25 || height < 15) return null;
 
@@ -95,17 +97,18 @@ const CustomTreemapContent = (props) => {
   );
 };
 
-import { useTheme } from './ThemeContext';
-
 export default function DashboardPage() {
   const [leyes, setLeyes] = useState([]);
   const [globalGrade, setGlobalGrade] = useState(null);
   const [lastGrade, setLastGrade] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [toast, setToast] = useState(null);
   const router = useRouter();
 
   const { isDarkMode, toggleDarkMode } = useTheme();
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const carouselSlides = [
     {
@@ -134,7 +137,6 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
-    // Check auth
     const token = localStorage.getItem('token');
     if (!token) {
       router.push('/login');
@@ -154,12 +156,12 @@ export default function DashboardPage() {
           return res.json();
         });
 
-    // Fetch heatmap and global score in parallel
     Promise.all([
       fetchWithAuthCheck('/api/dashboard/heatmap'),
-      fetchWithAuthCheck('/api/usuario/nota-global')
+      fetchWithAuthCheck('/api/usuario/nota-global'),
+      fetchWithAuthCheck('/api/usuario/perfil')
     ])
-      .then(([heatmapData, gradeData]) => {
+      .then(([heatmapData, gradeData, profileData]) => {
         if (heatmapData.success) {
           const formatted = (heatmapData.data || []).map(item => ({
             name: item.nombre || 'Sin nombre',
@@ -172,6 +174,9 @@ export default function DashboardPage() {
           setGlobalGrade(gradeData.nota_global);
           setLastGrade(gradeData.nota_ultima);
         }
+        if (profileData && profileData.success) {
+          setUserProfile(profileData.data);
+        }
         setLoading(false);
       })
       .catch(err => {
@@ -181,186 +186,240 @@ export default function DashboardPage() {
   }, [router]);
 
   const goToStudy = (leyId) => {
+    if (userProfile && userProfile.rol === 'DEMO') {
+      const selectedLey = leyes.find(l => l.id === leyId);
+      if (!selectedLey || !selectedLey.name.toUpperCase().includes('CÓDIGO CIVIL')) {
+        setToast("Acceso Limitado. Como usuario DEMO, tu acceso está restringido al Código Civil. Actualiza tu plan para liberar todo el contenido.");
+        setTimeout(() => setToast(null), 5000);
+        return;
+      }
+    }
     router.push(`/estudio/${leyId}`);
   };
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center font-headline-md text-navy-brand">Cargando Mapa de Calor...</div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center font-headline-md text-[#002b49]">Cargando Mapa de Calor...</div>;
 
   const themeClasses = {
     bg: isDarkMode ? "bg-[#001524]" : "bg-[#f8f9ff]",
     text: isDarkMode ? "text-white" : "text-[#002b49]",
-    headerBg: isDarkMode ? "bg-[#001524]/90 border-white/10" : "bg-white/90 border-gray-200/80 shadow-sm",
-    headerLogoText: isDarkMode ? "text-white" : "text-navy-brand",
-    buttonBg: isDarkMode ? "bg-white/10 hover:bg-white/20 text-white border-white/10" : "bg-gray-100 hover:bg-gray-200 text-[#002b49] border-gray-200",
-    carouselText: isDarkMode ? "text-gray-300" : "text-on-surface-variant",
+    sidebarBg: isDarkMode ? "bg-[#001524]/95 border-white/10" : "bg-white/95 border-gray-200 shadow-xl",
+    menuItemHover: isDarkMode ? "hover:bg-white/5" : "hover:bg-gray-100",
+    buttonBg: isDarkMode ? "bg-white/5 border border-white/10" : "bg-gray-50 border border-gray-200",
+    carouselText: isDarkMode ? "text-gray-300" : "text-gray-600",
     carouselDots: isDarkMode ? "bg-white/20 hover:bg-white/40" : "bg-gray-300 hover:bg-gray-400",
     chartContainer: isDarkMode ? "bg-[#002b49]/50 border-white/5" : "bg-white border-gray-200 shadow-sm",
     chartStroke: isDarkMode ? "#001524" : "#fff"
   };
 
   return (
-    <div className={`min-h-screen flex flex-col font-body-md ${themeClasses.bg} ${themeClasses.text} transition-colors duration-300`}>
-      {/* TopAppBar */}
-      <header className={`fixed top-0 w-full z-50 backdrop-blur-xl border-b flex justify-between items-center px-gutter py-3 ${themeClasses.headerBg} transition-colors duration-300`}>
-        <div className="flex items-center gap-3">
-          <img
-            src={isDarkMode ? "/images/logo-oscuro.png" : "/images/logo.png"}
-            alt="Seré Notario Logo"
-            className="h-16 w-auto object-contain"
-            onError={(e) => {
-              e.currentTarget.style.display = 'none';
-            }}
-          />
-          <span className="text-[32px] md:text-[40px] font-bold leading-none hidden lg:block">
-            <span className={themeClasses.headerLogoText}>SERÉ</span> <span className="text-gold-brand">NOTARIO</span>
-          </span>
+    <div className={`min-h-screen flex font-body-md ${themeClasses.bg} ${themeClasses.text} transition-colors duration-300 overflow-hidden`}>
+      
+      {toast && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 bg-[#001524] text-white px-6 py-4 rounded-xl shadow-2xl z-[100] animate-in fade-in slide-in-from-top-4 font-bold text-center min-w-[320px] max-w-[90vw] md:max-w-md border border-[#b59348]">
+          <span className="material-symbols-outlined text-[#b59348] text-3xl mb-2 block">lock</span>
+          {toast}
         </div>
-        <div className="flex items-center gap-3 md:gap-4">
-          
-          {/* Top Bar Buttons (Desktop) */}
-          <div className="hidden lg:flex items-center gap-3 mr-4">
-            <div className={`flex items-center gap-2 px-4 py-2 rounded-xl border ${themeClasses.buttonBg}`}>
-              <span className="material-symbols-outlined text-[#b59348] text-[20px] font-bold">history</span>
-              <div className="flex flex-col text-left">
-                <span className="text-[8px] uppercase tracking-wider font-black opacity-70 leading-none mb-0.5">Última Nota</span>
-                <span className="text-sm font-black leading-none">
-                  {lastGrade !== null && lastGrade !== undefined ? `${lastGrade.toFixed(2)} / 10` : '--'}
-                </span>
+      )}
+
+      {/* Mobile Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden animate-fade-in"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar Panel */}
+      <aside className={`fixed inset-y-0 left-0 z-50 w-72 flex flex-col transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:relative lg:translate-x-0 transition-transform duration-300 ease-in-out ${themeClasses.sidebarBg} border-r`}>
+        
+        {/* Logo Section */}
+        <div className={`p-6 pb-4 border-b border-opacity-10 ${isDarkMode ? 'border-white' : 'border-gray-200'}`}>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-3">
+              <img
+                src={isDarkMode ? "/images/logo-oscuro.png" : "/images/logo.png"}
+                alt="Seré Notario Logo"
+                className="h-16 w-auto object-contain"
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+              />
+              <div className="text-[22px] font-black tracking-tight leading-none">
+                SERÉ<br/><span className="text-[#b59348]">NOTARIO</span>
               </div>
             </div>
-            
-            <button
-              onClick={() => router.push('/simulador/simulacro')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold transition-all active:scale-[0.98] cursor-pointer text-[11px] uppercase tracking-wider border ${themeClasses.buttonBg}`}
-            >
-              <span className="material-symbols-outlined text-[16px] font-bold">assignment</span>
-              <span>Simulacro General</span>
-            </button>
-            <button
-              onClick={() => router.push('/manos-libres')}
-              className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#001524] to-[#002b49] text-white border-2 border-[#b59348] hover:border-[#e5d7b3] rounded-xl font-black shadow-[0_0_15px_rgba(181,147,72,0.4)] hover:shadow-[0_0_25px_rgba(181,147,72,0.6)] transition-all duration-300 active:scale-[0.98] cursor-pointer text-[12px] uppercase tracking-widest relative overflow-hidden group animate-[pulse_3s_ease-in-out_infinite]"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#b59348]/20 to-transparent translate-x-[-100%] animate-[shimmer_2s_infinite]" />
-              <span className="material-symbols-outlined text-[18px] text-[#b59348] group-hover:text-[#e5d7b3] transition-colors drop-shadow-md">headphones</span>
-              <span>Modo Manos Libres</span>
-            </button>
-            
-            <button
-              onClick={() => router.push('/planes')}
-              className="flex items-center gap-2 px-4 py-2 bg-[#b59348] hover:bg-[#a1813b] text-[#002b49] rounded-xl font-black shadow hover:shadow-md transition-all active:scale-[0.98] cursor-pointer text-[11px] uppercase tracking-wider"
-            >
-              <span className="material-symbols-outlined text-[16px] font-bold">credit_card</span>
-              <span>Planes de Pago</span>
+            <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden p-1 rounded-full hover:bg-gray-500/20 text-gray-400">
+              <span className="material-symbols-outlined">close</span>
             </button>
           </div>
-
-          <button 
-            onClick={toggleDarkMode}
-            className={`material-symbols-outlined transition-colors ${isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-navy-brand'}`}
-            title={isDarkMode ? 'Cambiar a Modo Claro' : 'Cambiar a Modo Oscuro'}
-          >
-            {isDarkMode ? 'light_mode' : 'dark_mode'}
-          </button>
-          <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full border overflow-hidden flex items-center justify-center ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-gray-100 border-gray-200'}`}>
-            <span className={`material-symbols-outlined ${isDarkMode ? 'text-white' : 'text-[#002b49]'}`}>person</span>
-          </div>
-          <button 
-            onClick={() => { localStorage.removeItem('token'); router.push('/login'); }} 
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border hover:bg-red-500/20 hover:text-red-500 transition-all font-bold text-xs uppercase tracking-wider ${isDarkMode ? 'border-white/10 text-gray-400' : 'border-gray-200 text-gray-500'}`}
-          >
-            <span className="material-symbols-outlined text-[16px]">logout</span>
-            <span className="hidden sm:inline">Salir</span>
-          </button>
         </div>
-      </header>
 
-      {/* Main Content Area */}
-      <main className="mt-24 p-gutter flex-1 flex flex-col gap-4 max-w-7xl mx-auto w-full">
-        
-        {/* Carousel Content */}
-        <section className="flex flex-col text-left pt-0 min-h-[50px] justify-center relative w-full lg:w-2/3 mx-auto text-center">
-          <div className="transition-opacity duration-500 ease-in-out">
-            <h1 className="text-[14px] md:text-[17px] font-bold mb-1 leading-tight">
-              {carouselSlides[currentSlide].title}
-            </h1>
-            <p className={`text-[11px] md:text-[12px] w-full leading-tight ${themeClasses.carouselText}`}>
-              {carouselSlides[currentSlide].text}
-            </p>
-          </div>
-          {/* Carousel Indicators */}
-          <div className="flex items-center justify-center gap-1.5 mt-1.5">
-            {carouselSlides.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => setCurrentSlide(idx)}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  idx === currentSlide ? 'w-6 bg-[#b59348]' : `w-2 ${themeClasses.carouselDots}`
-                }`}
-                aria-label={`Ir al mensaje ${idx + 1}`}
-              />
-            ))}
-          </div>
-        </section>
+        {/* User Profile - Placed outside scrollable nav to prevent clipping */}
+        <div className="hidden lg:flex justify-center pt-6 pb-2">
+          <UserProfilePopup userProfile={userProfile} position="right" />
+        </div>
 
-        {/* Heat Map Treemap Graphic - Full Width */}
-        <section className={`${themeClasses.chartContainer} rounded-3xl p-5 flex flex-col items-center justify-center w-full transition-colors duration-300 mt-2`}>
-          <div className="h-[55vh] min-h-[300px] w-full">
-            {leyes.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <Treemap
-                  key={`treemap-${isDarkMode}-${JSON.stringify(leyes.map(l => l.id))}`}
-                  data={leyes}
-                  dataKey="value"
-                  aspectRatio={16 / 9}
-                  stroke={themeClasses.chartStroke}
-                  isAnimationActive={false}
-                  content={<CustomTreemapContent onClick={goToStudy} />}
-                >
-                  <Tooltip content={<CustomTooltip />} />
-                </Treemap>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-full flex items-center justify-center text-gray-400 font-medium">
-                No hay leyes marcadas para estudio.
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* Mobile Action Buttons */}
-        <div className="flex lg:hidden flex-col gap-3 w-full mt-2 pb-6">
+        {/* Navigation Menu */}
+        <nav className="flex-1 overflow-y-auto px-4 py-2 space-y-2">
+          
           <button
-            onClick={() => router.push('/manos-libres')}
-            className="w-full flex items-center justify-center gap-3 px-5 py-5 bg-gradient-to-r from-[#001524] to-[#002b49] text-white border-2 border-[#b59348] hover:border-[#e5d7b3] rounded-2xl font-black shadow-[0_0_15px_rgba(181,147,72,0.4)] hover:shadow-[0_0_25px_rgba(181,147,72,0.6)] transition-all duration-300 active:scale-[0.98] cursor-pointer text-[14px] uppercase tracking-widest relative overflow-hidden group animate-[pulse_3s_ease-in-out_infinite]"
+            onClick={() => router.push('/simulador/simulacro')}
+            className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all active:scale-[0.98] text-[13px] uppercase tracking-wider ${themeClasses.menuItemHover}`}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#b59348]/20 to-transparent translate-x-[-100%] animate-[shimmer_2s_infinite]" />
-            <span className="material-symbols-outlined text-[24px] text-[#b59348] group-hover:text-[#e5d7b3] transition-colors drop-shadow-md">headphones</span>
-            <span>Modo Manos Libres</span>
+            <span className="material-symbols-outlined text-[20px] text-[#b59348]">assignment</span>
+            <span className="flex-1 text-left">Simulacro General</span>
           </button>
           
-          <div className="flex flex-col sm:flex-row gap-3 w-full">
+          <button
+            onClick={() => router.push('/manos-libres')}
+            className="w-full flex items-center gap-3 px-4 py-3.5 bg-gradient-to-r from-[#001524] to-[#002b49] text-white rounded-xl font-black shadow-[0_0_15px_rgba(181,147,72,0.3)] transition-all active:scale-[0.98] text-[13px] uppercase tracking-wider relative overflow-hidden group border border-[#b59348]"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#b59348]/20 to-transparent translate-x-[-100%] animate-[shimmer_2s_infinite]" />
+            <span className="material-symbols-outlined text-[20px] text-[#b59348] group-hover:text-[#e5d7b3]">headphones</span>
+            <span className="flex-1 text-left">Manos Libres</span>
+          </button>
+
+          <button
+            onClick={() => router.push('/estadistica')}
+            className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all active:scale-[0.98] text-[13px] uppercase tracking-wider ${themeClasses.menuItemHover}`}
+          >
+            <span className="material-symbols-outlined text-[20px] text-[#b59348]">bar_chart</span>
+            <span className="flex-1 text-left">Estadísticas</span>
+          </button>
+
+          <button
+            onClick={() => router.push('/ranking')}
+            className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all active:scale-[0.98] text-[13px] uppercase tracking-wider ${themeClasses.menuItemHover}`}
+          >
+            <span className="material-symbols-outlined text-[20px] text-[#b59348]">emoji_events</span>
+            <span className="flex-1 text-left">Ranking</span>
+          </button>
+          
+          <button
+            onClick={() => router.push('/planes')}
+            className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all active:scale-[0.98] text-[13px] uppercase tracking-wider ${themeClasses.menuItemHover}`}
+          >
+            <span className="material-symbols-outlined text-[20px] text-[#b59348]">credit_card</span>
+            <span className="flex-1 text-left">Planes de Pago</span>
+          </button>
+
+          {userProfile?.rol === 'Administrador' && (
             <button
-              onClick={() => router.push('/simulador/simulacro')}
-              className={`flex-1 flex items-center justify-center gap-2 px-5 py-4 rounded-xl font-bold border transition-all active:scale-[0.98] cursor-pointer text-[12px] uppercase tracking-wider ${themeClasses.buttonBg}`}
+              onClick={() => router.push('/admin/auditoria')}
+              className={`w-full flex items-center gap-3 px-4 py-3.5 mt-4 rounded-xl font-bold transition-all active:scale-[0.98] text-[13px] uppercase tracking-wider border border-[#ba1a1a]/40 ${isDarkMode ? 'bg-[#ba1a1a]/10 hover:bg-[#ba1a1a]/20 text-[#ffdad6]' : 'bg-[#ba1a1a]/10 hover:bg-[#ba1a1a]/20 text-[#93000a]'}`}
             >
-              <span className="material-symbols-outlined text-[18px]">assignment</span>
-              <span>Simulacro General</span>
+              <span className="material-symbols-outlined text-[20px]">admin_panel_settings</span>
+              <span className="flex-1 text-left">Auditoría Admin</span>
             </button>
-            <button
-              onClick={() => router.push('/planes')}
-              className="flex-1 flex items-center justify-center gap-2 px-5 py-4 bg-[#b59348] hover:bg-[#a1813b] text-[#002b49] rounded-xl font-black shadow transition-all active:scale-[0.98] cursor-pointer text-[12px] uppercase tracking-wider"
+          )}
+
+        </nav>
+
+        {/* Footer Area (User, Dark Mode, Last Grade) */}
+        <div className={`p-5 border-t border-opacity-10 space-y-4 ${isDarkMode ? 'border-white' : 'border-gray-200'}`}>
+          
+          {/* Last Grade Display */}
+          <div className={`flex items-center justify-between p-3 rounded-xl border ${themeClasses.buttonBg}`}>
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-[#b59348] text-[20px]">history</span>
+              <span className="text-xs uppercase tracking-wider font-bold opacity-80">Última Nota</span>
+            </div>
+            <span className="text-sm font-black">
+              {lastGrade !== null && lastGrade !== undefined ? `${lastGrade.toFixed(2)} / 10` : '--'}
+            </span>
+          </div>
+
+          <div className="flex items-center justify-center mt-4">
+            <button 
+              onClick={toggleDarkMode}
+              className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl border font-bold transition-colors ${isDarkMode ? 'border-white/10 text-yellow-400 hover:bg-white/10' : 'border-gray-200 text-[#002b49] hover:bg-gray-100'}`}
+              title={isDarkMode ? 'Cambiar a Modo Claro' : 'Cambiar a Modo Oscuro'}
             >
-              <span className="material-symbols-outlined text-[18px]">credit_card</span>
-              <span>Planes de Pago</span>
+              <span className="material-symbols-outlined">{isDarkMode ? 'light_mode' : 'dark_mode'}</span>
+              <span>{isDarkMode ? 'Modo Claro' : 'Modo Oscuro'}</span>
             </button>
           </div>
+          
         </div>
+      </aside>
 
-        {/* Footer Disclaimer */}
-        <div className="w-full text-center mt-6 mb-8 px-4 opacity-50">
-          <p className="text-[10px] md:text-xs uppercase tracking-wider font-bold">
-            Nota: Las preguntas y las respuestas han sido sacadas de los exámenes de notariado y cuestionarios publicados por la <span className="font-black">CORTE SUPREMA DE JUSTICIA</span>.
-          </p>
+      {/* Main Content Area */}
+      <main className="flex-1 flex flex-col h-screen overflow-y-auto">
+        
+        {/* Mobile Header (Hidden on Desktop) */}
+        <header className={`lg:hidden flex items-center justify-between p-4 sticky top-0 z-30 backdrop-blur-md border-b ${isDarkMode ? 'bg-[#001524]/90 border-white/10' : 'bg-white/90 border-gray-200'}`}>
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => setIsSidebarOpen(true)}
+              className="p-1 rounded-md hover:bg-gray-500/20 transition-colors"
+            >
+              <span className="material-symbols-outlined text-2xl">menu</span>
+            </button>
+            <img
+              src={isDarkMode ? "/images/logo-oscuro.png" : "/images/logo.png"}
+              alt="Seré Notario Logo"
+              className="h-8 w-auto object-contain"
+            />
+          </div>
+          <UserProfilePopup userProfile={userProfile} />
+        </header>
+
+        <div className="p-4 md:p-8 flex-1 flex flex-col gap-6 max-w-6xl mx-auto w-full">
+          
+          {/* Carousel */}
+          <section className="flex flex-col text-left justify-center relative w-full lg:w-3/4 mx-auto text-center mt-2">
+            <div className="transition-opacity duration-500 ease-in-out min-h-[60px] md:min-h-[70px]">
+              <h1 className="text-[15px] md:text-[18px] font-bold mb-1.5 leading-tight">
+                {carouselSlides[currentSlide].title}
+              </h1>
+              <p className={`text-[12px] md:text-[13px] w-full leading-tight ${themeClasses.carouselText}`}>
+                {carouselSlides[currentSlide].text}
+              </p>
+            </div>
+            <div className="flex items-center justify-center gap-1.5 mt-2">
+              {carouselSlides.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentSlide(idx)}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    idx === currentSlide ? 'w-6 bg-[#b59348]' : `w-2 ${themeClasses.carouselDots}`
+                  }`}
+                  aria-label={`Ir al mensaje ${idx + 1}`}
+                />
+              ))}
+            </div>
+          </section>
+
+          {/* Treemap */}
+          <section className={`${themeClasses.chartContainer} rounded-3xl p-5 flex flex-col items-center justify-center w-full transition-colors duration-300 flex-1 min-h-[400px]`}>
+            <div className="h-full w-full">
+              {leyes.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <Treemap
+                    key={`treemap-${isDarkMode}-${JSON.stringify(leyes.map(l => l.id))}`}
+                    data={leyes}
+                    dataKey="value"
+                    aspectRatio={16 / 9}
+                    stroke={themeClasses.chartStroke}
+                    isAnimationActive={false}
+                    content={<CustomTreemapContent onClick={goToStudy} />}
+                  >
+                    <Tooltip content={<CustomTooltip />} />
+                  </Treemap>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full flex items-center justify-center text-gray-400 font-medium">
+                  No hay leyes marcadas para estudio.
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* Footer Disclaimer */}
+          <div className="w-full text-center mt-auto pb-4 opacity-50">
+            <p className="text-[10px] md:text-xs uppercase tracking-wider font-bold">
+              Nota: Las preguntas y respuestas son extraídas de los exámenes publicados por la <span className="font-black">CORTE SUPREMA DE JUSTICIA</span>.
+            </p>
+          </div>
+
         </div>
       </main>
     </div>

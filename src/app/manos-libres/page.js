@@ -26,9 +26,11 @@ export default function ManosLibresPage() {
   // VIEW STATES
   const [viewState, setViewState] = useState('MENU'); // 'MENU' | 'PLAYER'
   const [leyesMenu, setLeyesMenu] = useState([]);
+  const [userProfile, setUserProfile] = useState(null);
   const [menuLoading, setMenuLoading] = useState(true);
   const [selectedLey, setSelectedLey] = useState(null);
   const [comingSoon, setComingSoon] = useState(null);
+  const [blockedLaw, setBlockedLaw] = useState(null);
   // STAGES
   const [stage, setStage] = useState('LOADING_MAP');
   const [mapa, setMapa] = useState(null);
@@ -40,6 +42,12 @@ export default function ManosLibresPage() {
   const [correctCount, setCorrectCount] = useState(0);
   const [selectedOption, setSelectedOption] = useState(null);
   const [feedback, setFeedback] = useState(null);
+
+  // BLOCK STATES
+  const [blocksTotal, setBlocksTotal] = useState(1);
+  const [currentBlock, setCurrentBlock] = useState(0);
+  const [allPreguntas, setAllPreguntas] = useState([]);
+  const [wonInvitations, setWonInvitations] = useState(0);
   
   const [toast, setToast] = useState(null);
   const synthesisRef = useRef(null);
@@ -50,6 +58,13 @@ export default function ManosLibresPage() {
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef(null);
 
+  // PAUSE & TIMER STATES
+  const [isPaused, setIsPaused] = useState(false);
+  const [waitingSeconds, setWaitingSeconds] = useState(0);
+  const isSpeakingRef = useRef(false);
+  const audioContextRef = useRef(null);
+  const clockIntervalRef = useRef(null);
+
   const showToast = (msg) => {
     setToast(msg);
     setTimeout(() => setToast(null), 4000);
@@ -58,6 +73,7 @@ export default function ManosLibresPage() {
   const speakText = useCallback((text, onEnd) => {
     if (typeof window === 'undefined') return;
     window.speechSynthesis.cancel();
+    isSpeakingRef.current = true;
     
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'es-MX';
@@ -71,9 +87,14 @@ export default function ManosLibresPage() {
     utterance.rate = 0.95;
     utterance.pitch = 0.95;
 
-    if (onEnd) {
-      utterance.onend = onEnd;
-    }
+    utterance.onend = () => {
+      isSpeakingRef.current = false;
+      if (onEnd) onEnd();
+    };
+
+    utterance.onerror = () => {
+      isSpeakingRef.current = false;
+    };
     
     synthesisRef.current = utterance;
     window.speechSynthesis.speak(utterance);
@@ -121,8 +142,20 @@ export default function ManosLibresPage() {
     }
   }, []);
 
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.speechSynthesis.cancel();
+      }
+      if (recognitionRef.current) {
+        try { recognitionRef.current.abort(); } catch(e) {}
+      }
+    };
+  }, []);
+
   const startListening = () => {
-    if (!recognitionRef.current || micError) return;
+    if (!recognitionRef.current || micError || isPaused) return;
     try {
       recognitionRef.current.start();
       setIsListening(true);
@@ -156,7 +189,13 @@ export default function ManosLibresPage() {
     });
     setStage('QUIZ_FEEDBACK');
 
-    let fbText = isCorrect ? "Correcto. " : `Incorrecto. La respuesta correcta era la opción ${q.respuesta_correcta}. `;
+    let fbText = '';
+    if (isCorrect) {
+      fbText = "Correcto. ";
+    } else {
+      const correctAnswerText = cleanOptionText(q['opcion_' + q.respuesta_correcta.toLowerCase()]);
+      fbText = `Incorrecto. La respuesta correcta es la opción ${q.respuesta_correcta}... ${correctAnswerText}. `;
+    }
     fbText += `Base legal: ${q.referencia_legal || 'No especificada'}.`;
     
     speakText(fbText, () => {
@@ -187,6 +226,8 @@ export default function ManosLibresPage() {
       const matchA = transcript.match(/\b(a|la a|opción a|opcion a)\b/i);
       const matchB = transcript.match(/\b(b|la b|opción b|opcion b)\b/i);
       const matchC = transcript.match(/\b(c|la c|opción c|opcion c)\b/i);
+      const matchD = transcript.match(/\b(d|la d|opción d|opcion d)\b/i);
+      const matchE = transcript.match(/\b(e|la e|opción e|opcion e)\b/i);
 
       if (matchA) {
         setSelectedOption('A');
@@ -197,6 +238,12 @@ export default function ManosLibresPage() {
       } else if (matchC) {
         setSelectedOption('C');
         submitAnswer('C', quizIndex, preguntas);
+      } else if (matchD) {
+        setSelectedOption('D');
+        submitAnswer('D', quizIndex, preguntas);
+      } else if (matchE) {
+        setSelectedOption('E');
+        submitAnswer('E', quizIndex, preguntas);
       } else {
         // If it didn't match, maybe restart listening to try again if we want to force hands-free
         if (!micError) startListening();
@@ -208,6 +255,33 @@ export default function ManosLibresPage() {
   useEffect(() => {
     handleVoiceCommandRef.current = handleVoiceCommand;
   }, [handleVoiceCommand]);
+
+  // CLOCK LOGIC
+  const playTickSound = useCallback(() => {
+    try {
+      if (!audioContextRef.current) {
+        audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      const ctx = audioContextRef.current;
+      if (ctx.state === 'suspended') ctx.resume();
+      
+      const osc = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+      
+      osc.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(1000, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
+      
+      gainNode.gain.setValueAtTime(0.2, ctx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
+      
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.05);
+    } catch(e) { console.error('AudioContext error:', e); }
+  }, []);
 
   const getStudySequence = (node) => {
     if (!node) return [];
@@ -238,11 +312,16 @@ export default function ManosLibresPage() {
         router.push('/login');
         return;
       }
-      fetch('/api/dashboard/heatmap', { headers: { 'Authorization': `Bearer ${token}` } })
-        .then(r => r.json())
-        .then(data => {
-          if (data.success && data.data) {
-            setLeyesMenu(data.data);
+      Promise.all([
+        fetch('/api/dashboard/heatmap', { headers: { 'Authorization': `Bearer ${token}` }, cache: 'no-store' }).then(r => r.json()),
+        fetch('/api/usuario/perfil', { headers: { 'Authorization': `Bearer ${token}` }, cache: 'no-store' }).then(r => r.json())
+      ])
+        .then(([heatmapData, profileData]) => {
+          if (heatmapData.success && heatmapData.data) {
+            setLeyesMenu(heatmapData.data);
+          }
+          if (profileData.success && profileData.data) {
+            setUserProfile(profileData.data);
           }
           setMenuLoading(false);
         })
@@ -265,7 +344,8 @@ export default function ManosLibresPage() {
     if (stage === 'LOADING_MAP') {
       const url = selectedLey ? `/api/nodos/mapa?root=${selectedLey}` : '/api/nodos/mapa';
       fetch(url, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 'Authorization': `Bearer ${token}` },
+        cache: 'no-store'
       })
       .then(r => r.json())
       .then(data => {
@@ -289,15 +369,52 @@ export default function ManosLibresPage() {
     const token = localStorage.getItem('token');
     if (viewState === 'PLAYER' && stage === 'LOADING_NODE' && currentNode) {
       Promise.all([
-        fetch(`/api/nodos/${currentNode.id}/contenido`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json()),
-        fetch(`/api/simulador/preguntas?nodo_id=${currentNode.id}`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json())
-      ]).then(([contentData, quizData]) => {
+        fetch(`/api/nodos/${currentNode.id}/contenido?_t=${Date.now()}`, { headers: { 'Authorization': `Bearer ${token}` }, cache: 'no-store' }).then(r => r.json()),
+        fetch(`/api/simulador/preguntas?nodo_id=${currentNode.id}&_t=${Date.now()}`, { headers: { 'Authorization': `Bearer ${token}` }, cache: 'no-store' }).then(r => r.json()),
+        fetch(`/api/usuario/bloque?nodo_id=${currentNode.id}&_t=${Date.now()}`, { headers: { 'Authorization': `Bearer ${token}` }, cache: 'no-store' }).then(r => r.json())
+      ]).then(([contentData, quizData, blockData]) => {
         if (contentData.success) {
           setNodeContent(contentData.data);
         }
         if (quizData.success && quizData.data) {
-          const shuffled = [...quizData.data].sort(() => 0.5 - Math.random());
-          setPreguntas(shuffled.slice(0, 5));
+          let questions = quizData.data || [];
+          
+          for (let i = questions.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [questions[i], questions[j]] = [questions[j], questions[i]];
+          }
+          
+          const TQ = questions.length;
+          let bCount = 1;
+          let totalQ = TQ;
+          
+          if (TQ <= 5) {
+            bCount = 1;
+            totalQ = TQ;
+          } else if (TQ <= 10) {
+            bCount = 1;
+            totalQ = 5;
+          } else if (TQ <= 20) {
+            bCount = 2;
+            totalQ = 10;
+          } else if (TQ <= 30) {
+            bCount = 3;
+            totalQ = 15;
+          } else {
+            bCount = 4;
+            totalQ = 20;
+          }
+          
+          const selectedQuestions = questions.slice(0, totalQ);
+          setAllPreguntas(selectedQuestions);
+          setBlocksTotal(bCount);
+          
+          const savedBlock = blockData.success ? parseInt(blockData.data, 10) : 0;
+          let startBlock = savedBlock < bCount ? savedBlock : 0;
+          setCurrentBlock(startBlock);
+          
+          const blockSize = TQ <= 5 ? TQ : 5;
+          setPreguntas(selectedQuestions.slice(startBlock * 5, startBlock * 5 + blockSize));
         }
         setStage('READING_NODE');
       });
@@ -306,22 +423,48 @@ export default function ManosLibresPage() {
 
   const readQuestion = useCallback(() => {
     stopListening();
+    setWaitingSeconds(0);
     if (preguntas.length === 0) return;
     const q = preguntas[quizIndex];
     let text = `Pregunta ${quizIndex + 1}. ${q.pregunta}. `;
-    text += `Opción A. ${cleanOptionText(q.opcion_a)}. `;
-    text += `Opción B. ${cleanOptionText(q.opcion_b)}. `;
-    text += `Opción C. ${cleanOptionText(q.opcion_c)}. `;
+    if (q.opcion_a) text += `Opción A. ${cleanOptionText(q.opcion_a)}. `;
+    if (q.opcion_b) text += `Opción B. ${cleanOptionText(q.opcion_b)}. `;
+    if (q.opcion_c) text += `Opción C. ${cleanOptionText(q.opcion_c)}. `;
+    if (q.opcion_d) text += `Opción D. ${cleanOptionText(q.opcion_d)}. `;
+    if (q.opcion_e) text += `Opción E. ${cleanOptionText(q.opcion_e)}. `;
     speakText(text, () => {
-      // Start microphone right after reading question if no error
-      if (!micError) {
+      if (!micError && !isPaused) {
         startListening();
       }
     });
-  }, [preguntas, quizIndex, speakText, micError]);
+  }, [preguntas, quizIndex, speakText, micError, isPaused]);
+
+  // CLOCK EFFECT
+  useEffect(() => {
+    if (stage === 'QUIZ_QUESTION' && isListening && !isPaused && !isSpeakingRef.current) {
+      clockIntervalRef.current = setInterval(() => {
+        setWaitingSeconds(prev => {
+          if (prev >= 60) {
+            readQuestion();
+            return 0;
+          }
+          playTickSound();
+          return prev + 1;
+        });
+      }, 1000);
+    } else {
+      if (clockIntervalRef.current) {
+        clearInterval(clockIntervalRef.current);
+        clockIntervalRef.current = null;
+      }
+    }
+    return () => {
+      if (clockIntervalRef.current) clearInterval(clockIntervalRef.current);
+    };
+  }, [stage, isListening, isPaused, playTickSound, readQuestion]);
 
   useEffect(() => {
-    if (viewState !== 'PLAYER') return;
+    if (viewState !== 'PLAYER' || isPaused) return;
 
     if (stage === 'READING_NODE' && nodeContent) {
       let textToRead = `Tema: ${nodeContent.nombre}. `;
@@ -347,58 +490,134 @@ export default function ManosLibresPage() {
     if (stage === 'QUIZ_QUESTION' && preguntas.length > 0) {
       readQuestion();
     }
-  }, [stage, nodeContent, quizIndex, preguntas, viewState, readQuestion, speakText]);
+  }, [stage, nodeContent, quizIndex, preguntas, viewState, readQuestion, speakText, isPaused]);
 
   useEffect(() => {
-    if (viewState !== 'PLAYER') return;
+    if (viewState !== 'PLAYER' || isPaused) return;
 
     if (stage === 'QUIZ_RESULT') {
-      const score = (correctCount / preguntas.length) * 10;
+      const score = (correctCount / (preguntas.length || 5)) * 10;
       const passed = score >= 8.0;
-
-      let resultText = `Simulacro terminado. Tuviste ${correctCount} respuestas correctas de ${preguntas.length}. `;
-      resultText += `Tu calificación es de ${score.toFixed(1)} puntos. `;
 
       const token = localStorage.getItem('token');
       const leyObj = leyesMenu.find(l => l.id === selectedLey);
-      
-      if (token && currentNode) {
-        fetch('/api/usuario/progreso', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            nodo_id: currentNode.id,
-            nota: score,
-            completado: passed,
-            ley: leyObj ? leyObj.nombre : 'civil' // Use active law name or fallback
-          })
-        });
-      }
 
-      if (passed) {
-        resultText += "¡Felicidades, has aprobado este tema! Pasaremos al siguiente.";
+      if (passed && currentBlock + 1 < blocksTotal) {
+        // Passed intermediate block
+        let resultText = `Excelente trabajo, tuviste ${correctCount} de ${preguntas.length} correctas. ¡Has aprobado este bloque con ${score.toFixed(1)} puntos! `;
+        
+        if (blocksTotal >= 4) {
+          resultText += "Este tema es muy importante porque históricamente se han preguntado muchas cosas sobre él en el examen. Por lo tanto, pasaremos al siguiente bloque de preguntas para dominarlo y mejorar tus probabilidades de éxito.";
+        } else if (blocksTotal === 3) {
+          resultText += "Este tema suele evaluarse moderadamente en el examen, por lo que realizaremos otro bloque para que aseguremos este conocimiento.";
+        } else {
+          resultText += "Aunque este tema sale con menor frecuencia, es importante dominarlo por completo, así que continuaremos con el siguiente bloque de preguntas.";
+        }
+
+        if (token && currentNode) {
+          fetch('/api/usuario/bloque', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ nodo_id: currentNode.id, bloque_actual: currentBlock + 1 })
+          })
+          .then(r => r.json())
+          .then(data => {
+            if (data.invitationAwarded) {
+              setWonInvitations(prev => prev + 1);
+            }
+          });
+        }
+
+        speakText(resultText, () => {
+          const nextBlock = currentBlock + 1;
+          setCurrentBlock(nextBlock);
+          const blockSize = allPreguntas.length <= 5 ? allPreguntas.length : 5;
+          setPreguntas(allPreguntas.slice(nextBlock * 5, nextBlock * 5 + blockSize));
+          setStage('QUIZ_INTRO');
+        });
+
+      } else if (passed && currentBlock + 1 === blocksTotal) {
+        // Passed final block
+        let resultText = `Simulacro terminado. Tuviste ${correctCount} respuestas correctas de ${preguntas.length}. `;
+        resultText += `Tu calificación es de ${score.toFixed(1)} puntos. `;
+        resultText += "¡Felicidades, has dominado todo este tema! Pasaremos al siguiente.";
+      
+        if (token && currentNode) {
+          fetch('/api/usuario/progreso', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              nodo_id: currentNode.id,
+              nota: score,
+              completado: true,
+              ley: leyObj ? leyObj.nombre : 'civil'
+            })
+          })
+          .then(r => r.json())
+          .then(data => {
+            if (data.success && data.invitationsAwarded && data.invitationsAwarded > 0) {
+              setWonInvitations(prev => prev + data.invitationsAwarded);
+            }
+            fetch('/api/usuario/bloque', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+              body: JSON.stringify({ nodo_id: currentNode.id, bloque_actual: 0 })
+            });
+          });
+        }
+
         speakText(resultText, () => {
           setStage('LOADING_MAP');
         });
       } else {
-        resultText += "No has alcanzado la nota mínima de 8 puntos. Repasemos el tema de nuevo.";
+        // Failed
+        let resultText = `Simulacro terminado. Tuviste ${correctCount} respuestas correctas de ${preguntas.length}. `;
+        resultText += `Tu calificación es de ${score.toFixed(1)} puntos. `;
+        resultText += "No has alcanzado la nota mínima de 8 puntos. Repasemos el tema de nuevo para lograrlo.";
         speakText(resultText, () => {
           setStage('READING_NODE');
         });
       }
     }
-  }, [stage, correctCount, preguntas, currentNode, viewState, leyesMenu, selectedLey, speakText]);
+  }, [stage, correctCount, preguntas, currentNode, viewState, leyesMenu, selectedLey, speakText, currentBlock, blocksTotal, allPreguntas]);
+
+  const togglePause = () => {
+    if (isPaused) {
+      setIsPaused(false);
+      if (typeof window !== 'undefined' && window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
+      if (stage === 'QUIZ_QUESTION' && !isSpeakingRef.current && !micError) {
+        startListening();
+      }
+    } else {
+      setIsPaused(true);
+      if (typeof window !== 'undefined' && window.speechSynthesis.speaking) {
+        window.speechSynthesis.pause();
+      }
+      stopListening();
+    }
+  };
 
   const leaveHandsFree = () => {
+    setIsPaused(false);
     stopSpeech();
     stopListening();
     router.push('/');
   };
 
   const handleLeyClick = (ley) => {
+    if (userProfile && userProfile.rol === 'DEMO') {
+      if (!ley.nombre.toUpperCase().includes('CÓDIGO CIVIL')) {
+        setBlockedLaw(ley);
+        speakText("Acceso Limitado. Esta ley está bloqueada. Como usuario DEMO, tu acceso está restringido al Código Civil.");
+        return;
+      }
+    }
+
     // total_preguntas comes from the API now. If 0, it means no questions loaded in DB.
     if (!ley.total_preguntas || parseInt(ley.total_preguntas) === 0) {
       setComingSoon(ley);
@@ -421,7 +640,7 @@ export default function ManosLibresPage() {
     return (
       <div className="min-h-screen bg-[#191c1e] text-[#eff1f3] flex flex-col font-body-md items-center py-10 px-4 relative overflow-y-auto">
         <button 
-          onClick={() => router.push('/')}
+          onClick={() => { stopSpeech(); stopListening(); router.push('/'); }}
           className="absolute top-4 left-4 sm:top-6 sm:left-6 flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#191c1e] shadow-[4px_4px_8px_#0a0b0c,-4px_-4px_8px_#282d30] active:shadow-[inset_2px_2px_4px_#0a0b0c,inset_-2px_-2px_4px_#282d30] text-[#c6c6cd] hover:text-[#ffe088] transition-all z-50 border border-transparent"
           title="Volver al Inicio"
         >
@@ -480,7 +699,7 @@ export default function ManosLibresPage() {
           </div>
           
           <button 
-            onClick={() => router.push('/')}
+            onClick={() => { stopSpeech(); stopListening(); router.push('/'); }}
             className="mt-12 px-8 py-4 rounded-xl bg-[#191c1e] shadow-[8px_8px_16px_#0a0b0c,-8px_-8px_16px_#282d30] active:shadow-[inset_4px_4px_8px_#0a0b0c,inset_-4px_-4px_8px_#282d30] text-[#c6c6cd] hover:text-[#ffe088] transition-all font-bold uppercase tracking-widest text-xs flex items-center gap-3"
           >
             <span className="material-symbols-outlined text-[18px]">arrow_back</span>
@@ -516,6 +735,43 @@ export default function ManosLibresPage() {
             </div>
           </div>
         )}
+
+        {/* Blocked Law Modal */}
+        {blockedLaw && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
+            <div className="bg-[#191c1e] w-[90vw] max-w-[400px] rounded-3xl p-6 border border-[#ffe088]/30 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.9)] flex flex-col items-center text-center relative overflow-hidden shrink-0">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 bg-[#ffe088] rounded-full blur-[80px] opacity-10 pointer-events-none"></div>
+              
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-[#ffe088] to-[#998651] flex items-center justify-center mb-5 sm:mb-6 shadow-lg text-[#191c1e] shrink-0">
+                <span className="material-symbols-outlined text-3xl sm:text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>lock</span>
+              </div>
+              
+              <h2 className="text-xl sm:text-2xl font-black text-[#eff1f3] mb-2 sm:mb-3 tracking-tight">Acceso Limitado</h2>
+              
+              <p className="text-[#c6c6cd] text-xs sm:text-sm mb-6 sm:mb-8 leading-relaxed px-2">
+                La ley <strong className="text-[#ffe088]">{blockedLaw.nombre}</strong> está bloqueada. Como usuario DEMO, tu acceso está restringido al Código Civil. Actualiza tu plan para liberar todo el contenido.
+              </p>
+              
+              <div className="flex flex-col gap-3 w-full">
+                <button 
+                  onClick={() => router.push('/planes')}
+                  className="w-full py-3 sm:py-4 rounded-xl font-bold uppercase tracking-widest text-[10px] sm:text-xs bg-[#ffe088] text-[#191c1e] shadow-[4px_4px_8px_#0a0b0c,-4px_-4px_8px_#282d30] active:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.5)] transition-all shrink-0"
+                >
+                  Ver Planes
+                </button>
+                <button 
+                  onClick={() => {
+                    stopSpeech();
+                    setBlockedLaw(null);
+                  }}
+                  className="w-full py-3 sm:py-4 rounded-xl font-bold uppercase tracking-widest text-[10px] sm:text-xs bg-[#191c1e] text-[#c6c6cd] hover:text-[#ffe088] transition-all shrink-0"
+                >
+                  Cerrar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -526,7 +782,7 @@ export default function ManosLibresPage() {
   return (
     <div className="h-screen bg-[#191c1e] text-[#eff1f3] flex flex-col font-body-md overflow-hidden relative">
       {toast && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 bg-[#ba1a1a] text-[#ffffff] px-6 py-3 rounded-xl shadow-[8px_8px_16px_#0a0b0c,-8px_-8px_16px_#282d30] z-50 animate-in fade-in slide-in-from-top-4 font-bold text-center w-[90%] max-w-sm">
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 bg-[#ba1a1a] text-[#ffffff] px-6 py-3 rounded-xl shadow-[8px_8px_16px_#0a0b0c,-8px_-8px_16px_#282d30] z-[100] animate-in fade-in slide-in-from-top-4 font-bold text-center min-w-[320px] max-w-[90vw] md:max-w-md">
           {toast}
         </div>
       )}
@@ -535,7 +791,7 @@ export default function ManosLibresPage() {
       <header className="flex items-center justify-between p-3 sm:p-4 border-b border-[#c6c6cd]/10 shrink-0 bg-[#191c1e] relative z-10 shadow-[0_4px_8px_#0a0b0c]">
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <button 
-            onClick={() => router.push('/')}
+            onClick={() => { stopSpeech(); stopListening(); router.push('/'); }}
             className="w-10 h-10 shrink-0 rounded-full bg-[#191c1e] shadow-[4px_4px_8px_#0a0b0c,-4px_-4px_8px_#282d30] active:shadow-[inset_2px_2px_4px_#0a0b0c,inset_-2px_-2px_4px_#282d30] flex items-center justify-center text-[#c6c6cd] hover:text-[#ffe088] transition-all"
             title="Home"
           >
@@ -551,9 +807,22 @@ export default function ManosLibresPage() {
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <button 
+            onClick={togglePause}
+            className={`flex items-center justify-center px-4 h-10 rounded-xl transition-colors text-[10px] font-bold uppercase tracking-wider mr-1 shadow-[4px_4px_8px_#0a0b0c,-4px_-4px_8px_#282d30] active:shadow-[inset_2px_2px_4px_#0a0b0c,inset_-2px_-2px_4px_#282d30] ${
+              isPaused 
+                ? 'bg-[#ffe088] text-[#191c1e] animate-pulse' 
+                : 'bg-[#191c1e] text-[#ffe088] border border-[#ffe088]/20'
+            }`}
+          >
+            <span className="material-symbols-outlined mr-2">{isPaused ? 'play_arrow' : 'pause'}</span>
+            {isPaused ? 'Reanudar' : 'Pausar'}
+          </button>
+          
+          <button 
             onClick={() => {
               stopSpeech();
               stopListening();
+              setIsPaused(false);
               setViewState('MENU');
             }}
             className="flex items-center justify-center px-3 h-10 rounded-xl bg-[#191c1e] shadow-[4px_4px_8px_#0a0b0c,-4px_-4px_8px_#282d30] active:shadow-[inset_2px_2px_4px_#0a0b0c,inset_-2px_-2px_4px_#282d30] text-[#c6c6cd] hover:text-[#ffe088] transition-colors text-[10px] font-bold uppercase tracking-wider mr-2"
@@ -608,9 +877,9 @@ export default function ManosLibresPage() {
           <div className="w-full max-w-4xl flex flex-col h-full justify-between">
             {/* Question Header */}
             <div className="text-center space-y-2 px-2 w-full shrink-0">
-              <div className="flex items-center justify-center gap-4 mb-2">
+              <div className="flex flex-col items-center justify-center gap-2 mb-2">
                 <span className="inline-block px-4 py-1.5 rounded-full bg-[#191c1e] shadow-[inset_4px_4px_8px_#0a0b0c,inset_-4px_-4px_8px_#282d30] text-[#ffe088] font-black text-[10px] sm:text-xs uppercase tracking-[0.2em]">
-                  Pregunta {quizIndex + 1} de {preguntas.length}
+                  Bloque {currentBlock + 1} de {blocksTotal} • Pregunta {quizIndex + 1} de {preguntas.length}
                 </span>
                 {stage === 'QUIZ_QUESTION' && (
                   <button onClick={readQuestion} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#191c1e] shadow-[4px_4px_8px_#0a0b0c,-4px_-4px_8px_#282d30] active:shadow-[inset_2px_2px_4px_#0a0b0c,inset_-2px_-2px_4px_#282d30] text-[#c6c6cd] hover:text-[#ffe088]" title="Repetir Pregunta">
@@ -618,14 +887,36 @@ export default function ManosLibresPage() {
                   </button>
                 )}
               </div>
+              {/* Exam Info & PDF Link */}
+              {(preguntas[quizIndex].examen_titulo || preguntas[quizIndex].pdf_url) && (
+                <div className="flex flex-wrap items-center justify-center gap-2 mb-2">
+                  {preguntas[quizIndex].examen_titulo && (
+                    <span className="text-[10px] sm:text-[11px] font-bold text-[#c6c6cd] uppercase tracking-wider bg-[#191c1e] border border-[#c6c6cd]/20 px-2 py-0.5 rounded-md">
+                      {preguntas[quizIndex].examen_titulo} {preguntas[quizIndex].orden ? `(#${preguntas[quizIndex].orden})` : ''}
+                    </span>
+                  )}
+                  {preguntas[quizIndex].pdf_url && (
+                    <a 
+                      href={preguntas[quizIndex].pdf_url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-[10px] sm:text-[11px] font-bold text-[#ffdad6] hover:text-white transition-colors bg-[#310002] border border-[#93000a]/30 px-2 py-0.5 rounded-md uppercase tracking-wider"
+                    >
+                      <span className="material-symbols-outlined text-[14px]">picture_as_pdf</span>
+                      Ver PDF
+                    </a>
+                  )}
+                </div>
+              )}
+
               <h2 className="text-base sm:text-xl font-bold leading-snug text-[#eff1f3] tracking-tight w-full px-2 max-h-[80px] sm:max-h-[100px] overflow-y-auto">
                 {preguntas[quizIndex].pregunta}
               </h2>
             </div>
 
             {/* Options */}
-            <div className="flex flex-col gap-3 flex-1 justify-center w-full px-2 mt-2 mb-2 overflow-y-auto">
-              {['A', 'B', 'C'].map((optKey) => {
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full px-2 mt-2 mb-2 overflow-y-auto content-center flex-1">
+              {['A', 'B', 'C', 'D', 'E'].map((optKey) => {
                 const optText = preguntas[quizIndex][`opcion_${optKey.toLowerCase()}`];
                 if (!optText) return null;
                 
@@ -694,18 +985,18 @@ export default function ManosLibresPage() {
                   <div className="flex items-center gap-3 text-[#c6c6cd]">
                     <button 
                       onClick={isListening ? stopListening : startListening}
-                      disabled={micError && !micSupported}
-                      className={`w-12 h-12 rounded-full flex items-center justify-center shadow-[4px_4px_8px_#0a0b0c,-4px_-4px_8px_#282d30] active:shadow-[inset_2px_2px_4px_#0a0b0c,inset_-2px_-2px_4px_#282d30] transition-colors border-2 ${isListening ? 'bg-[#002116] border-[#479175] text-[#a6f2d1] animate-pulse' : micError ? 'bg-[#310002] border-[#93000a] text-[#ffdad6] opacity-50' : 'bg-[#191c1e] border-transparent hover:text-[#ffe088]'}`}
-                      title={micError ? "Micrófono no disponible" : isListening ? "Escuchando... clic para detener" : "Clic para hablar"}
+                      disabled={micError && !micSupported || isPaused}
+                      className={`w-12 h-12 rounded-full flex items-center justify-center shadow-[4px_4px_8px_#0a0b0c,-4px_-4px_8px_#282d30] active:shadow-[inset_2px_2px_4px_#0a0b0c,inset_-2px_-2px_4px_#282d30] transition-colors border-2 ${isPaused ? 'bg-[#191c1e] opacity-50 border-transparent' : isListening ? 'bg-[#002116] border-[#479175] text-[#a6f2d1] animate-pulse' : micError ? 'bg-[#310002] border-[#93000a] text-[#ffdad6] opacity-50' : 'bg-[#191c1e] border-transparent hover:text-[#ffe088]'}`}
+                      title={isPaused ? "Pausado" : micError ? "Micrófono no disponible" : isListening ? "Escuchando... clic para detener" : "Clic para hablar"}
                     >
-                      <span className="material-symbols-outlined">{micError ? 'mic_off' : 'mic'}</span>
+                      <span className="material-symbols-outlined">{isPaused ? 'pause_circle' : micError ? 'mic_off' : 'mic'}</span>
                     </button>
                     <div className="flex flex-col">
                       <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-[#ffe088]">
-                        {isListening ? 'Escuchando tu respuesta...' : micError ? 'Micrófono desactivado' : 'Activa el micrófono'}
+                        {isPaused ? 'PAUSADO' : isListening ? `Escuchando tu respuesta... (${60 - waitingSeconds}s)` : micError ? 'Micrófono desactivado' : 'Activa el micrófono'}
                       </span>
                       <span className="text-[8px] sm:text-[9px] uppercase tracking-wider opacity-70">
-                        {micError ? 'Usa doble clic para responder' : 'Di "Opción A", "Opción B", etc. o haz doble clic'}
+                        {isPaused ? 'Haz clic en reanudar' : micError ? 'Usa doble clic para responder' : 'Di "Opción A", "Opción B", etc.'}
                       </span>
                     </div>
                   </div>
@@ -784,6 +1075,48 @@ export default function ManosLibresPage() {
           );
         })()}
       </main>
+
+      {/* Pop-up de Invitaciones Ganadas */}
+      {wonInvitations > 0 && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-[#191c1e] rounded-2xl p-8 max-w-sm w-full shadow-[0_20px_60px_-15px_rgba(0,0,0,0.9)] relative overflow-hidden text-center transform scale-100 animate-slide-up border-2 border-[#b59348]">
+            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#b59348] via-[#ffd700] to-[#b59348]"></div>
+            
+            <div className="mx-auto w-20 h-20 bg-gradient-to-br from-[#191c1e] to-[#0a0b0c] rounded-full flex items-center justify-center mb-6 shadow-[inset_4px_4px_8px_rgba(0,0,0,0.8),inset_-4px_-4px_8px_rgba(255,255,255,0.05)] border border-[#b59348]/30">
+              <span className="text-4xl">🎫</span>
+            </div>
+            
+            <h2 className="text-2xl font-black text-white mb-2 leading-tight">
+              ¡Felicidades Fundador!
+            </h2>
+            
+            <p className="text-sm font-medium text-[#b59348] mb-4 uppercase tracking-widest">
+              Has ganado {wonInvitations} {wonInvitations === 1 ? 'invitación' : 'invitaciones'}
+            </p>
+            
+            <p className="text-[#c6c6cd] mb-8 text-[15px] leading-relaxed">
+              Gracias por tu dedicación. Ahora tienes el poder de invitar a un amigo a la plataforma <strong>Notario Élite</strong>, otorgándole 2 meses de acceso gratuito.
+            </p>
+            
+            <div className="flex flex-col gap-3">
+              <button 
+                onClick={() => { stopSpeech(); stopListening(); router.push('/invitaciones'); }}
+                className="w-full bg-[#ffe088] hover:bg-[#fed65b] text-[#191c1e] font-bold py-3 px-6 rounded-xl transition-all shadow-md hover:shadow-lg active:scale-95"
+              >
+                Invitar a un amigo ahora
+              </button>
+              
+              <button 
+                onClick={() => setWonInvitations(0)}
+                className="w-full bg-[#191c1e] hover:bg-[#282d30] border border-[#c6c6cd]/20 text-[#c6c6cd] font-semibold py-3 px-6 rounded-xl transition-all"
+              >
+                Continuar estudiando
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

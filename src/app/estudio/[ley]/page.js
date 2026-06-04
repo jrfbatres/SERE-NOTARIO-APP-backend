@@ -114,6 +114,7 @@ export default function EstudioPage() {
   const { isDarkMode, toggleDarkMode } = useTheme();
 
   const [mapa, setMapa] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
   const [selectedNodeId, setSelectedNodeId] = useState(ley);
   const [nodeContent, setNodeContent] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -127,6 +128,7 @@ export default function EstudioPage() {
   const [showLeftSidebar, setShowLeftSidebar] = useState(false);
   const [showRightSidebar, setShowRightSidebar] = useState(false);
   const [sidebarTab, setSidebarTab] = useState('glosario'); // 'glosario' | 'articulos'
+  const [wonInvitations, setWonInvitations] = useState(0);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -175,27 +177,41 @@ export default function EstudioPage() {
   const isBaseNodeUnlocked = (nodeId) => {
     if (!mapa) return false;
     
-    // Find the first uncompleted node in the study sequence
+    // Premium and Administrador bypass all locks
+    const rol = userProfile?.rol;
+    if (rol === 'Premium' || rol === 'Administrador') {
+      return true;
+    }
+
     const firstUncompleted = studySequence.find(n => !n.completado);
-    if (!firstUncompleted) return true; // If everything is completed, all are unlocked
     
-    // If the node itself is the first uncompleted, it's unlocked
+    // Vencido logic: only completed nodes are unlocked
+    if (rol === 'Vencido') {
+      const index = studySequence.findIndex(n => n.id === nodeId);
+      if (index === -1) return true;
+      return !!studySequence[index].completado;
+    }
+
+    // DEMO logic: limit to first 4 questions nodes
+    if (rol === 'DEMO') {
+      const index = studySequence.findIndex(n => n.id === nodeId);
+      if (index >= 4) {
+        return false; // Force lock from 5th node onwards
+      }
+    }
+
+    if (!firstUncompleted) return true; // If everything is completed, all are unlocked
     if (nodeId === firstUncompleted.id) return true;
     
-    // If the node has no questions, it's always unlocked
     const index = studySequence.findIndex(n => n.id === nodeId);
     if (index === -1) return true;
-    
-    // If the node is already completed, it's unlocked
     if (studySequence[index].completado) return true;
     
-    // If the node is an ancestor of the first uncompleted node, it's unlocked
     const ancestorsOfActive = findAncestorIds(mapa, firstUncompleted.id);
     if (ancestorsOfActive && ancestorsOfActive.includes(nodeId)) {
       return true;
     }
     
-    // Otherwise, check that ALL previous nodes in the sequence are completed
     for (let i = 0; i < index; i++) {
       if (!studySequence[i].completado) {
         return false;
@@ -243,11 +259,16 @@ export default function EstudioPage() {
   };
 
   // Tabs state
-  const [activeTab, setActiveTab] = useState('info'); // 'info' | 'slides' | 'simulacro'
+  const [activeTab, setActiveTab] = useState('info'); // 'info' | 'slides' | 'simulacro' | 'preguntas_asociadas'
   const [showDerogados, setShowDerogados] = useState(false);
+  const [preguntasAsociadas, setPreguntasAsociadas] = useState([]);
+  const [loadingPreguntasAsociadas, setLoadingPreguntasAsociadas] = useState(false);
 
   // Mini-Simulacro states
   const [miniPreguntas, setMiniPreguntas] = useState([]);
+  const [allMiniPreguntas, setAllMiniPreguntas] = useState([]);
+  const [miniBlocksTotal, setMiniBlocksTotal] = useState(1);
+  const [miniCurrentBlock, setMiniCurrentBlock] = useState(0);
   const [miniLoading, setMiniLoading] = useState(false);
   const [miniIndex, setMiniIndex] = useState(0);
   const [miniSelected, setMiniSelected] = useState(null);
@@ -593,7 +614,9 @@ export default function EstudioPage() {
     let text = `Las opciones son: `;
     text += `Opción A. ${cleanOptionText(currentQ.opcion_a)}. `;
     text += `Opción B. ${cleanOptionText(currentQ.opcion_b)}. `;
-    text += `Opción C. ${cleanOptionText(currentQ.opcion_c)}. `;
+    if (currentQ.opcion_c) text += `Opción C. ${cleanOptionText(currentQ.opcion_c)}. `;
+    if (currentQ.opcion_d) text += `Opción D. ${cleanOptionText(currentQ.opcion_d)}. `;
+    if (currentQ.opcion_e) text += `Opción E. ${cleanOptionText(currentQ.opcion_e)}. `;
     text += `¿Cuál es tu respuesta?`;
 
     speakHandsFreeText(text, () => {
@@ -623,10 +646,12 @@ export default function EstudioPage() {
     }
 
     const currentQ = questions[idx];
-    let text = `Pregunta número ${idx + 1}. ${currentQ.pregunta}. `;
+    let text = `Pregunta número ${idx + 1}. ${currentQ.pregunta}. \n`;
     text += `Opción A. ${cleanOptionText(currentQ.opcion_a)}. `;
     text += `Opción B. ${cleanOptionText(currentQ.opcion_b)}. `;
-    text += `Opción C. ${cleanOptionText(currentQ.opcion_c)}. `;
+    if (currentQ.opcion_c) text += `Opción C. ${cleanOptionText(currentQ.opcion_c)}. `;
+    if (currentQ.opcion_d) text += `Opción D. ${cleanOptionText(currentQ.opcion_d)}. `;
+    if (currentQ.opcion_e) text += `Opción E. ${cleanOptionText(currentQ.opcion_e)}. `;
     text += `¿Cuál es tu respuesta?`;
 
     speakHandsFreeText(text, () => {
@@ -967,7 +992,7 @@ export default function EstudioPage() {
       const totalCount = questions.length;
       const score = (correctCount / totalCount) * 10;
 
-      let endingText = `Mini simulacro terminado. Tuviste ${correctCount} respuestas correctas de ${totalCount}. `;
+      let endingText = `Evaluación de tema terminada. Tuviste ${correctCount} respuestas correctas de ${totalCount}. `;
       endingText += `Tu calificación final es de ${score.toFixed(1)} puntos. `;
       if (score >= 8.0) {
         endingText += "¡Felicidades, has aprobado este tema!";
@@ -1218,18 +1243,24 @@ export default function EstudioPage() {
     }
     const headers = { 'Authorization': `Bearer ${token}` };
 
-    fetch(`/api/nodos/mapa?root=${ley}&_t=${Date.now()}`, { headers, cache: 'no-store' })
-      .then(res => {
+    Promise.all([
+      fetch(`/api/nodos/mapa?root=${ley}&_t=${Date.now()}`, { headers, cache: 'no-store' }).then(res => {
         if (res.status === 401) {
           localStorage.removeItem('token');
           router.push('/login');
           return { success: false };
         }
         return res.json();
-      })
-      .then(data => {
-        if (data.success) {
-          const rootNode = data.data;
+      }),
+      fetch('/api/usuario/perfil', { headers, cache: 'no-store' }).then(res => res.json())
+    ])
+      .then(([mapData, profileData]) => {
+        if (profileData && profileData.success) {
+          setUserProfile(profileData.data);
+        }
+
+        if (mapData.success) {
+          const rootNode = mapData.data;
           setMapa(rootNode);
           
           // Calculate study sequence to find the first uncompleted node
@@ -1345,10 +1376,53 @@ export default function EstudioPage() {
       })
       .then(data => {
         if (data.success) {
-          const isParent = selectedNode && selectedNode.children && selectedNode.children.length > 0;
-          const limit = isParent ? 20 : 5;
-          setMiniPreguntas(data.data.slice(0, limit));
+          const allQuestions = data.data || [];
+          
+          // Randomize questions
+          for (let i = allQuestions.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [allQuestions[i], allQuestions[j]] = [allQuestions[j], allQuestions[i]];
+          }
+
+          const TQ = allQuestions.length;
+          let blocksCount = 1;
+          let totalQuizQuestions = TQ;
+          
+          if (TQ <= 5) {
+            blocksCount = 1;
+            totalQuizQuestions = TQ;
+          } else if (TQ <= 10) {
+            blocksCount = 1;
+            totalQuizQuestions = 5;
+          } else if (TQ <= 20) {
+            blocksCount = 2;
+            totalQuizQuestions = 10;
+          } else if (TQ <= 30) {
+            blocksCount = 3;
+            totalQuizQuestions = 15;
+          } else {
+            blocksCount = 4;
+            totalQuizQuestions = 20;
+          }
+          
+          const selectedQuestions = allQuestions.slice(0, totalQuizQuestions);
+          setAllMiniPreguntas(selectedQuestions);
+          setMiniBlocksTotal(blocksCount);
+          
+          // Obtener bloque de BD en vez de localStorage
+          return fetch(`/api/usuario/bloque?nodo_id=${selectedNodeId}&_t=${Date.now()}`, { headers, cache: 'no-store' })
+            .then(bRes => bRes.json())
+            .then(bData => {
+              const savedBlock = bData.success ? parseInt(bData.data, 10) : 0;
+              let startBlock = savedBlock < blocksCount ? savedBlock : 0;
+              setMiniCurrentBlock(startBlock);
+              
+              const blockSize = TQ <= 5 ? TQ : 5;
+              setMiniPreguntas(selectedQuestions.slice(startBlock * 5, startBlock * 5 + blockSize));
+            });
         }
+      })
+      .then(() => {
         setMiniLoading(false);
       })
       .catch(err => {
@@ -1362,6 +1436,30 @@ export default function EstudioPage() {
       loadMiniQuiz();
     }
   }, [activeTab]);
+
+  useEffect(() => {
+    if (activeTab === 'preguntas_asociadas' && selectedNodeId) {
+      setLoadingPreguntasAsociadas(true);
+      const token = localStorage.getItem('token');
+      if (!token) {
+        router.push('/login');
+        return;
+      }
+      const headers = { 'Authorization': `Bearer ${token}` };
+      fetch(`/api/nodos/${selectedNodeId}/preguntas_asociadas?_t=${Date.now()}`, { headers, cache: 'no-store' })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            setPreguntasAsociadas(data.data);
+          }
+          setLoadingPreguntasAsociadas(false);
+        })
+        .catch(err => {
+          console.error("Error loading preguntas asociadas:", err);
+          setLoadingPreguntasAsociadas(false);
+        });
+    }
+  }, [activeTab, selectedNodeId, router]);
 
   // Handle automatic question reading in hands-free mode
   useEffect(() => {
@@ -1450,7 +1548,9 @@ export default function EstudioPage() {
         explicacion: currentQ.explicacion,
         opcion_a: currentQ.opcion_a,
         opcion_b: currentQ.opcion_b,
-        opcion_c: currentQ.opcion_c
+        opcion_c: currentQ.opcion_c,
+        opcion_d: currentQ.opcion_d,
+        opcion_e: currentQ.opcion_e
       }
     ]);
   };
@@ -1464,37 +1564,72 @@ export default function EstudioPage() {
       setMiniSelected(null);
       setMiniAnswered(false);
     } else {
-      const finalScore = (miniCorrectCount / miniPreguntas.length) * 10;
+      const ratio = miniCorrectCount / (miniPreguntas.length || 5);
+      const passed = ratio >= 0.8;
       
-      const token = localStorage.getItem('token');
-      if (token) {
-        fetch('/api/usuario/progreso', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            nodo_id: selectedNodeId,
-            nota: finalScore,
-            completado: finalScore >= 8
+      if (passed && miniCurrentBlock + 1 < miniBlocksTotal) {
+        const nextBlock = miniCurrentBlock + 1;
+        const token = localStorage.getItem('token');
+        if (token) {
+          fetch('/api/usuario/bloque', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ nodo_id: selectedNodeId, bloque_actual: nextBlock })
           })
-        })
-        .then(res => {
-          if (res.status === 401) {
-            localStorage.removeItem('token');
-            router.push('/login');
-            return { success: false };
-          }
-          return res.json();
-        })
-        .then(() => {
-          refreshSidebarMap();
-        })
-        .catch(err => console.error("Error saving progress:", err));
+          .then(res => res.json())
+          .then(data => {
+            if (data.invitationAwarded) {
+              setWonInvitations(prev => prev + 1);
+            }
+          })
+          .catch(err => console.error("Error saving block:", err));
+        }
+        setMiniFinished(true); // Will show intermediate screen
+      } else if (passed && miniCurrentBlock + 1 === miniBlocksTotal) {
+        // Passed final block
+        const finalScore = ratio * 10;
+        const token = localStorage.getItem('token');
+        if (token) {
+          fetch('/api/usuario/progreso', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              nodo_id: selectedNodeId,
+              nota: finalScore,
+              completado: true
+            })
+          })
+          .then(res => {
+            if (res.status === 401) {
+              localStorage.removeItem('token');
+              router.push('/login');
+              return { success: false };
+            }
+            return res.json();
+          })
+          .then(data => {
+            if (data.success && data.invitationsAwarded && data.invitationsAwarded > 0) {
+              setWonInvitations(prev => prev + data.invitationsAwarded);
+            }
+            refreshSidebarMap();
+            // Reset bloque to 0
+            fetch('/api/usuario/bloque', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+              body: JSON.stringify({ nodo_id: selectedNodeId, bloque_actual: 0 })
+            }).catch(e => console.error(e));
+          })
+          .catch(err => console.error("Error saving progress:", err));
+        }
+        
+        setMiniFinished(true);
+      } else {
+        // Failed
+        setMiniFinished(true);
       }
-      
-      setMiniFinished(true);
     }
   };
 
@@ -1537,6 +1672,17 @@ export default function EstudioPage() {
     return 1;
   };
 
+  const getRecursiveQuestionCount = (node) => {
+    if (!node) return 0;
+    let total = parseInt(node.total_preguntas || 0);
+    if (node.children && node.children.length > 0) {
+      for (const child of node.children) {
+        total += getRecursiveQuestionCount(child);
+      }
+    }
+    return total;
+  };
+
   const renderTree = (node, depth = 0) => {
     const hasChildren = node.children && node.children.length > 0;
     const isExpanded = !!expandedNodes[node.id];
@@ -1546,6 +1692,7 @@ export default function EstudioPage() {
     // Use the actual percentage of questions from the database
     const pct = parseFloat(node.porcentaje_preguntas || 0);
     const fireCount = getFireCount(pct, node.total_preguntas, depth);
+    const recursiveTotal = getRecursiveQuestionCount(node);
 
 
     return (
@@ -1577,11 +1724,12 @@ export default function EstudioPage() {
             <span className="flex items-center gap-1.5 min-w-0">
               {node.total_preguntas > 0 && (
                 <span 
-                  className={`material-symbols-outlined text-[13px] font-black shrink-0 ${
+                  className={`material-symbols-outlined text-[12px] shrink-0 ${
                     isLocked ? 'text-white/30' : 
                     (node.usuario_completado ? 'text-emerald-400' : 
                     (node.usuario_nota !== null ? 'text-red-400' : 'text-emerald-400'))
                   }`} 
+                  style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}
                   title={isLocked ? 'Tema bloqueado' : (node.usuario_completado ? 'Aprobado' : (node.usuario_nota !== null ? 'Reprobado' : 'Tema desbloqueado'))}
                 >
                   {isLocked ? 'lock' : 
@@ -1595,7 +1743,7 @@ export default function EstudioPage() {
             </span>
             {node.total_preguntas > 0 && (
               <span className="text-[10px] font-bold leading-none flex items-center gap-1.5 whitespace-nowrap shrink-0">
-                <span className="flex items-center gap-0.5 bg-gold-brand/10 px-1.5 py-0.5 rounded-full border border-gold-brand/20 shadow-sm shrink-0">
+                <span className="flex items-center gap-0.5 bg-gold-brand/10 px-1.5 py-0.5 rounded-full border border-gold-brand/20 shadow-sm shrink-0" title={`Impacto en el examen: ${parseFloat(node.porcentaje_preguntas || 0).toFixed(2)}%`}>
                   {Array.from({ length: fireCount }).map((_, i) => (
                     <FlameIcon
                       key={i}
@@ -1665,7 +1813,27 @@ export default function EstudioPage() {
             }}
           />
           <div className={`h-5 w-[1px] ${isDarkMode ? 'bg-white/20' : 'bg-outline-variant'}`}></div>
-          <span className={`font-headline-sm font-bold tracking-tight ${isDarkMode ? 'text-white' : 'text-navy-brand'}`}>{mapa?.nombre || 'Estudio Élite'}</span>
+          <div className="flex items-center gap-3">
+            <span className={`font-headline-sm font-bold tracking-tight ${isDarkMode ? 'text-white' : 'text-navy-brand'}`}>
+              {mapa?.nombre || 'Estudio Élite'} {nodeContent?.nombre && `/ ${nodeContent.nombre}`}
+            </span>
+            {nodeContent?.nombre && activeTab === 'info' && (
+              <button
+                onClick={() => toggleSpeech(nodeContent)}
+                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg border text-[10px] font-black uppercase tracking-wider transition-all duration-200 cursor-pointer ${
+                  isPlayingSpeech
+                    ? 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'
+                    : 'bg-white text-navy-brand border-outline-variant hover:border-navy-brand'
+                }`}
+                title={isPlayingSpeech ? 'Detener lectura' : 'Escuchar tema completo'}
+              >
+                <span className="material-symbols-outlined text-[16px] font-bold">
+                  {isPlayingSpeech ? 'stop' : 'volume_up'}
+                </span>
+                <span className="hidden sm:inline">{isPlayingSpeech ? 'Detener' : 'Oír'}</span>
+              </button>
+            )}
+          </div>
         </div>
         <div className="flex items-center gap-3">
           <button 
@@ -1873,10 +2041,9 @@ export default function EstudioPage() {
           />
         )}
 
-        {/* Left Sidebar: Ruta Estratégica de Estudio */}
         <aside 
-          className={`bg-navy-brand text-white overflow-y-auto custom-scrollbar transition-all duration-300 z-40
-            absolute inset-y-0 left-0 xl:static xl:translate-x-0 h-full flex flex-col
+          className={`bg-navy-brand text-white overflow-y-auto overflow-x-hidden custom-scrollbar transition-all duration-300 z-40
+            absolute inset-y-0 left-0 xl:static h-full flex flex-col
             ${showLeftSidebar 
               ? 'translate-x-0 w-96 p-4 border-r border-white/10 shadow-2xl xl:shadow-none' 
               : '-translate-x-full w-96 p-0 border-r-0 xl:w-0 xl:opacity-0 xl:pointer-events-none xl:p-0 xl:border-r-0'
@@ -1888,6 +2055,21 @@ export default function EstudioPage() {
           </div>
         </aside>
 
+        {/* Edge Toggle Button (Desktop Only) */}
+        <button
+          onClick={() => setShowLeftSidebar(!showLeftSidebar)}
+          className={`absolute top-1/2 -translate-y-1/2 z-40 p-1.5 py-4 rounded-r-xl shadow-lg border border-l-0 transition-all duration-300 hidden xl:flex items-center justify-center cursor-pointer
+            ${showLeftSidebar 
+              ? `left-96 ${isDarkMode ? 'bg-[#002b49] text-gold-brand border-white/10 hover:bg-[#003b60]' : 'bg-navy-brand text-gold-brand border-gold-brand/20 hover:bg-navy-brand/90'}` 
+              : `left-0 ${isDarkMode ? 'bg-[#002b49] text-gold-brand border-gold-brand/30 hover:bg-[#003b60]' : 'bg-navy-brand text-gold-brand border-gold-brand/30 hover:bg-navy-brand/90'}`
+            }`}
+          title={showLeftSidebar ? "Ocultar panel de estudio" : "Mostrar panel de estudio"}
+        >
+          <span className="material-symbols-outlined text-xl">
+            {showLeftSidebar ? 'chevron_left' : 'chevron_right'}
+          </span>
+        </button>
+
         {/* Center: Zona de Lectura */}
         <main className="flex-1 overflow-y-auto p-8 relative">
           {contentLoading ? (
@@ -1896,97 +2078,7 @@ export default function EstudioPage() {
               <p className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-white/60' : 'text-navy-brand/60'}`}>Cargando contenido...</p>
             </div>
           ) : nodeContent ? (
-            <div className="max-w-3xl mx-auto pb-24">
-
-              {/* Header */}
-              <div className="mb-8 border-b border-outline-variant pb-4 text-left">
-                {displayPct > 0 && (
-                  <div className="flex items-center gap-2 flex-wrap mb-3">
-                    <span className={`bg-gold-brand/10 ${isDarkMode ? 'text-gold-brand' : 'text-navy-brand'} text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1 border border-gold-brand/20`}>
-                      <FlameIcon className="w-3.5 h-3.5 text-gold-brand" />
-                      Impacto en Examen: {displayPct.toFixed(2)}%
-                    </span>
-                    
-                    {/* Brand gold fires indicator */}
-                    <span className="flex items-center gap-0.5 bg-gold-brand/10 px-2 py-1 rounded-full border border-gold-brand/20 shadow-sm shrink-0">
-                      {Array.from({ length: getFireCount(displayPct, displayTotalQ, selectedNodeId === ley ? 0 : 1) }).map((_, i) => (
-                        <FlameIcon
-                          key={i}
-                          className="w-4 h-4 text-gold-brand select-none"
-                        />
-                      ))}
-                    </span>
-                  </div>
-                )}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-4">
-                  <h1 className={`text-4xl font-headline-lg font-bold ${isDarkMode ? 'text-white' : 'text-navy-brand'}`}>{nodeContent.nombre}</h1>
-                  <button
-                    onClick={() => toggleSpeech(nodeContent)}
-                    className={`flex items-center gap-1.5 px-4 py-2 rounded-xl border text-xs font-black uppercase tracking-wider transition-all duration-200 cursor-pointer self-start sm:self-auto ${
-                      isPlayingSpeech
-                        ? 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'
-                        : 'bg-white text-navy-brand border-outline-variant hover:border-navy-brand'
-                    }`}
-                    title={isPlayingSpeech ? 'Detener lectura' : 'Escuchar tema completo'}
-                  >
-                    <span className="material-symbols-outlined text-[18px] font-bold">
-                      {isPlayingSpeech ? 'stop' : 'volume_up'}
-                    </span>
-                    <span>{isPlayingSpeech ? 'Detener' : 'Oír'}</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Progress Banner in Central View */}
-              {selectedNode && selectedNode.total_preguntas > 0 && !(activeTab === 'simulacro' && miniPreguntas.length > 0 && !miniFinished) && (
-                <div className={`mb-8 p-4 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-300 shadow-sm ${
-                  selectedNode.usuario_completado 
-                    ? 'bg-emerald-50/40 border-emerald-200/80 text-emerald-900' 
-                    : selectedNode.usuario_nota !== null 
-                      ? 'bg-red-50/40 border-red-200/80 text-red-900' 
-                      : 'bg-slate-50/50 border-slate-200/80 text-slate-800'
-                }`}>
-                  <div className="flex items-center gap-3 text-left">
-                    <span className={`material-symbols-outlined text-2xl shrink-0 ${
-                      selectedNode.usuario_completado 
-                        ? 'text-emerald-600' 
-                        : selectedNode.usuario_nota !== null 
-                          ? 'text-red-500' 
-                          : 'text-slate-400'
-                    }`} style={{ fontVariationSettings: "'FILL' 1" }}>
-                      {selectedNode.usuario_completado 
-                        ? 'check_circle' 
-                        : selectedNode.usuario_nota !== null 
-                          ? 'cancel' 
-                          : 'help'
-                      }
-                    </span>
-                    <div>
-                      <span className="text-[10px] font-black uppercase tracking-wider opacity-75 block">Estado del Tema</span>
-                      <span className="text-xs font-bold block">
-                        {selectedNode.usuario_completado 
-                          ? 'Aprobado · Completado ✓' 
-                          : selectedNode.usuario_nota !== null 
-                            ? 'No Aprobado · Requiere Nota 8.0 o superior' 
-                            : 'Evaluación Pendiente · Toma el Mini Simulacro'
-                        }
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center sm:text-right justify-between sm:justify-end gap-6 border-t sm:border-t-0 border-black/5 pt-3 sm:pt-0">
-                    <div className="text-left sm:text-right">
-                      <span className="text-[10px] font-black uppercase tracking-wider opacity-75 block">Última Calificación</span>
-                      <span className="text-base font-black block">
-                        {selectedNode.usuario_nota !== null ? parseFloat(selectedNode.usuario_nota).toFixed(1) : '--'} / 10.0
-                      </span>
-                    </div>
-                    <div className="bg-white/70 backdrop-blur-sm px-3 py-1 rounded-lg border border-black/5 text-center shrink-0">
-                      <span className="text-[9px] font-black uppercase tracking-wider text-navy-brand/60 block">Nota Mínima</span>
-                      <span className="text-xs font-bold text-navy-brand block">8.0</span>
-                    </div>
-                  </div>
-                </div>
-              )}
+            <div className="max-w-5xl mx-auto pb-24">
 
               {/* Tabs Navigation */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-outline-variant mb-6 pb-2 gap-4">
@@ -1995,6 +2087,7 @@ export default function EstudioPage() {
                     onClick={() => {
                       setActiveTab('info');
                       setSidebarTab('glosario');
+                      setShowLeftSidebar(false);
                     }}
                     className={`py-2 px-4 rounded-lg font-bold text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 ${
                       activeTab === 'info'
@@ -2009,30 +2102,32 @@ export default function EstudioPage() {
                     onClick={() => {
                       const isTabLocked = selectedNode && selectedNode.children && selectedNode.children.length > 0 && !areDescendantsCompleted(selectedNode);
                       if (isTabLocked) {
-                        showToast("Debes completar y aprobar todos los subtemas antes de poder realizar el mini simulacro de este tema principal.");
+                        showToast("Debes completar y aprobar todos los subtemas antes de poder realizar evaluar este tema principal.");
                         return;
                       }
                       setActiveTab('simulacro');
                       setSidebarTab('articulos');
+                      setShowLeftSidebar(false);
                       if (typeof window !== 'undefined' && window.innerWidth >= 1280) {
                         setShowRightSidebar(true);
                       }
                     }}
-                    className={`py-2 px-4 rounded-lg font-bold text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 ${
+                    className={`py-2 px-4 rounded-lg font-black text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 border-2 ${
                       activeTab === 'simulacro'
-                        ? 'bg-gold-brand text-navy-brand font-black shadow-sm'
-                        : isDarkMode ? 'text-white/60 hover:text-white/80 hover:bg-white/5' : 'text-navy-brand/60 hover:text-navy-brand/80 hover:bg-navy-brand/5'
+                        ? 'bg-navy-brand border-navy-brand text-white shadow-md'
+                        : isDarkMode ? 'border-gold-brand text-gold-brand hover:bg-gold-brand/10 shadow-sm' : 'border-navy-brand text-navy-brand hover:bg-navy-brand/5 shadow-sm'
                     } ${selectedNode && selectedNode.children && selectedNode.children.length > 0 && !areDescendantsCompleted(selectedNode) ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
-                    <span className="material-symbols-outlined text-[18px]">
+                    <span className="material-symbols-outlined text-[14px]">
                       {selectedNode && selectedNode.children && selectedNode.children.length > 0 && !areDescendantsCompleted(selectedNode) ? 'lock' : 'quiz'}
                     </span>
-                    Mini Simulacro
+                    Evaluar Tema
                   </button>
                   <button
                     onClick={() => {
                       setActiveTab('slides');
                       setSidebarTab('glosario');
+                      setShowLeftSidebar(false);
                     }}
                     className={`py-2 px-4 rounded-lg font-bold text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 ${
                       activeTab === 'slides'
@@ -2043,48 +2138,85 @@ export default function EstudioPage() {
                     <span className="material-symbols-outlined text-[18px]">article</span>
                     Listado de Artículos
                   </button>
+                  <button
+                    onClick={() => {
+                      setActiveTab('preguntas_asociadas');
+                      setSidebarTab('glosario');
+                      setShowLeftSidebar(false);
+                    }}
+                    className={`py-2 px-4 rounded-lg font-bold text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 ${
+                      activeTab === 'preguntas_asociadas'
+                        ? 'bg-gold-brand text-navy-brand font-black shadow-sm'
+                        : isDarkMode ? 'text-white/60 hover:text-white/80 hover:bg-white/5' : 'text-navy-brand/60 hover:text-navy-brand/80 hover:bg-navy-brand/5'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[18px]">list_alt</span>
+                    Preguntas Asociadas
+                  </button>
                 </div>
-
-                {activeTab === 'slides' && (
-                  <div className="flex items-center gap-4 pb-2 sm:pb-0 sm:pr-4 flex-wrap">
-                    <button
-                      type="button"
-                      onClick={toggleSpeechAllArticles}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[11px] font-bold uppercase tracking-wider transition-colors cursor-pointer ${
-                        playingArticleId === 'all' 
-                          ? (isDarkMode ? 'bg-red-900/30 text-red-400 border-red-800 hover:bg-red-900/50' : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100')
-                          : (isDarkMode ? 'bg-[#b59348]/20 text-[#b59348] border-[#b59348]/40 hover:bg-[#b59348]/30' : 'bg-white text-navy-brand border-outline-variant hover:border-navy-brand hover:bg-navy-brand/5')
-                      }`}
-                    >
-                      <span className="material-symbols-outlined text-[16px]">
-                        {playingArticleId === 'all' ? 'stop' : 'volume_up'}
-                      </span>
-                      {playingArticleId === 'all' ? 'Detener lectura' : 'Leer todos los artículos'}
-                    </button>
-                    <div className={`flex items-center gap-2 border-l pl-4 ${isDarkMode ? 'border-white/20' : 'border-outline-variant/60'}`}>
-                      <span className={`text-xs font-bold ${isDarkMode ? 'text-gray-300' : 'text-navy-brand/80'}`}>Artículos Derogados</span>
-                      <button 
-                        type="button"
-                        onClick={() => setShowDerogados(!showDerogados)}
-                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                          showDerogados ? 'bg-gold-brand' : (isDarkMode ? 'bg-white/20' : 'bg-outline-variant/60')
-                        }`}
-                      >
-                        <span
-                          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full shadow ring-0 transition duration-200 ease-in-out ${
-                            showDerogados ? 'translate-x-5 bg-navy-brand' : (isDarkMode ? 'translate-x-0 bg-gray-300' : 'translate-x-0 bg-white')
-                          }`}
-                        />
-                      </button>
-                    </div>
-                  </div>
-                )}
               </div>
 
               {/* Tab Content */}
               {activeTab === 'info' ? (
                 /* Concepto, Análisis y Tips Didácticos */
                 <div className="space-y-4 text-left animate-in fade-in duration-300">
+                  {/* Progress Banner Moved to Info Tab */}
+                  {selectedNode && selectedNode.total_preguntas > 0 && (
+                    <div className={`p-4 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-300 shadow-sm ${
+                      selectedNode.usuario_completado 
+                        ? 'bg-emerald-50/40 border-emerald-200/80 text-emerald-900' 
+                        : selectedNode.usuario_nota !== null 
+                          ? 'bg-red-50/40 border-red-200/80 text-red-900' 
+                          : 'bg-slate-50/50 border-slate-200/80 text-slate-800'
+                    }`}>
+                      <div className="flex items-center gap-3 text-left">
+                        <span className={`material-symbols-outlined text-2xl shrink-0 ${
+                          selectedNode.usuario_completado 
+                            ? 'text-emerald-600' 
+                            : selectedNode.usuario_nota !== null 
+                              ? 'text-red-500' 
+                              : 'text-slate-400'
+                        }`} style={{ fontVariationSettings: "'FILL' 1" }}>
+                          {selectedNode.usuario_completado 
+                            ? 'check_circle' 
+                            : selectedNode.usuario_nota !== null 
+                              ? 'cancel' 
+                              : 'help'
+                          }
+                        </span>
+                        <div>
+                          <span className="text-[10px] font-black uppercase tracking-wider opacity-75 block">Estado del Tema</span>
+                          <span className="text-xs font-bold block">
+                            {selectedNode.usuario_completado 
+                              ? 'Aprobado · Completado ✓' 
+                              : selectedNode.usuario_nota !== null 
+                                ? 'No Aprobado · Requiere Nota 8.0 o superior' 
+                                : 'Evaluación Pendiente · Evalúa el Tema'
+                            }
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center sm:text-right justify-between sm:justify-end gap-6 border-t sm:border-t-0 border-black/5 pt-3 sm:pt-0">
+                        <div className="text-left sm:text-right border-r border-black/10 pr-6 mr-2">
+                          <span className="text-[10px] font-black uppercase tracking-wider opacity-75 block">Total Preguntas</span>
+                          <span className="text-base font-black block">
+                            {getRecursiveQuestionCount(selectedNode)}
+                          </span>
+                        </div>
+                        <div className="text-left sm:text-right">
+                          <span className="text-[10px] font-black uppercase tracking-wider opacity-75 block">Última Calificación</span>
+                          <span className="text-base font-black block">
+                            {selectedNode.usuario_nota !== null ? parseFloat(selectedNode.usuario_nota).toFixed(1) : '--'} / 10.0
+                          </span>
+                        </div>
+                        <div className="bg-white/70 backdrop-blur-sm px-3 py-1 rounded-lg border border-black/5 text-center shrink-0">
+                          <span className="text-[9px] font-black uppercase tracking-wider text-navy-brand/60 block">Nota Mínima</span>
+                          <span className="text-xs font-bold text-navy-brand block">8.0</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {nodeContent.concepto && (
                     <div className={`p-5 rounded-2xl border shadow-sm ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-white border-outline-variant/80'}`}>
                       <div className="flex items-center gap-2 mb-2 text-gold-brand">
@@ -2119,6 +2251,44 @@ export default function EstudioPage() {
                     </div>
                   )}
                 </div>
+              ) : activeTab === 'preguntas_asociadas' ? (
+                <div className="space-y-4 text-left animate-in fade-in duration-300">
+                  {loadingPreguntasAsociadas ? (
+                    <div className="flex flex-col items-center justify-center p-8 text-center">
+                      <div className="w-8 h-8 border-4 border-gold-brand border-t-transparent rounded-full animate-spin mb-4"></div>
+                      <p className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-white/60' : 'text-navy-brand/60'}`}>Cargando preguntas...</p>
+                    </div>
+                  ) : preguntasAsociadas.length === 0 ? (
+                    <div className={`flex flex-col items-center justify-center p-8 rounded-2xl border text-center ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-white border-outline-variant/60 shadow-sm'}`}>
+                      <span className="material-symbols-outlined text-[48px] text-gold-brand mb-4 opacity-80">sentiment_dissatisfied</span>
+                      <h4 className={`text-sm font-bold uppercase tracking-wider mb-2 ${isDarkMode ? 'text-white' : 'text-navy-brand'}`}>Sin preguntas asociadas</h4>
+                      <p className={`text-[12px] leading-relaxed max-w-[450px] ${isDarkMode ? 'text-white/60' : 'text-navy-brand/60'}`}>
+                        No se encontraron preguntas registradas para este nodo específico.
+                      </p>
+                    </div>
+                  ) : (
+                    preguntasAsociadas.map((grupo, idx) => (
+                      <div key={idx} className={`p-5 rounded-2xl border shadow-sm mb-4 ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-white border-outline-variant/80'}`}>
+                        <div className="flex items-center justify-between mb-4 pb-2 border-b border-outline-variant/50">
+                          <h3 className={`text-sm font-bold tracking-tight ${isDarkMode ? 'text-white' : 'text-navy-brand'}`}>
+                            {grupo.examen_titulo}
+                          </h3>
+                          <span className="bg-gold-brand/10 text-gold-brand px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider">
+                            {grupo.cantidad} Pregunta{grupo.cantidad !== 1 ? 's' : ''}
+                          </span>
+                        </div>
+                        <ul className="space-y-3 list-none pl-0 m-0">
+                          {grupo.preguntas.map((pregunta, pIdx) => (
+                            <li key={pIdx} className="flex gap-3 items-start">
+                              <span className="material-symbols-outlined text-gold-brand/80 text-[16px] shrink-0 mt-0.5">help</span>
+                              <span className={`text-[13px] leading-relaxed ${isDarkMode ? 'text-white/90' : 'text-navy-brand/85'}`}>{pregunta}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))
+                  )}
+                </div>
               ) : activeTab === 'slides' ? (
                 /* Slides (Artículos) */
                 (() => {
@@ -2127,9 +2297,45 @@ export default function EstudioPage() {
                     return !isArticleDerogado(art);
                   });
 
-                  if (filteredArticulos.length > 0) {
-                    return (
-                      <div className="space-y-4 text-left animate-in fade-in duration-300">
+                  return (
+                    <div className="animate-in fade-in duration-300">
+                      {nodeContent.articulos && nodeContent.articulos.length > 0 && (
+                        <div className="flex items-center gap-4 mb-4 flex-wrap">
+                          <button
+                            type="button"
+                            onClick={toggleSpeechAllArticles}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[11px] font-bold uppercase tracking-wider transition-colors cursor-pointer ${
+                              playingArticleId === 'all' 
+                                ? (isDarkMode ? 'bg-red-900/30 text-red-400 border-red-800 hover:bg-red-900/50' : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100')
+                                : (isDarkMode ? 'bg-[#b59348]/20 text-[#b59348] border-[#b59348]/40 hover:bg-[#b59348]/30' : 'bg-white text-navy-brand border-outline-variant hover:border-navy-brand hover:bg-navy-brand/5')
+                            }`}
+                          >
+                            <span className="material-symbols-outlined text-[16px]">
+                              {playingArticleId === 'all' ? 'stop' : 'volume_up'}
+                            </span>
+                            {playingArticleId === 'all' ? 'Detener lectura' : 'Leer todos los artículos'}
+                          </button>
+                          <div className={`flex items-center gap-2 border-l pl-4 ${isDarkMode ? 'border-white/20' : 'border-outline-variant/60'}`}>
+                            <span className={`text-xs font-bold ${isDarkMode ? 'text-gray-300' : 'text-navy-brand/80'}`}>Artículos Derogados</span>
+                            <button 
+                              type="button"
+                              onClick={() => setShowDerogados(!showDerogados)}
+                              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                                showDerogados ? 'bg-gold-brand' : (isDarkMode ? 'bg-white/20' : 'bg-outline-variant/60')
+                              }`}
+                            >
+                              <span
+                                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full shadow ring-0 transition duration-200 ease-in-out ${
+                                  showDerogados ? 'translate-x-5 bg-navy-brand' : (isDarkMode ? 'translate-x-0 bg-gray-300' : 'translate-x-0 bg-white')
+                                }`}
+                              />
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {filteredArticulos.length > 0 ? (
+                        <div className="space-y-4 text-left">
                         {/* Info banner: articles identified via questions */}
                         {nodeContent.articulos_via_preguntas && (
                           <div className="flex items-start gap-2.5 bg-[#002b49]/5 border border-[#002b49]/15 px-4 py-3 rounded-xl">
@@ -2177,44 +2383,39 @@ export default function EstudioPage() {
                             </div>
                           );
                         })}
-                      </div>
-                    );
-                  }
-
-                  if (nodeContent.articulos && nodeContent.articulos.length > 0) {
-                    return (
-                      <div className="bg-red-50/20 border border-red-200/50 p-6 rounded-2xl text-left">
-                        <p className="text-navy-brand font-semibold text-sm mb-1">Todos los artículos de este tema están derogados.</p>
-                        <p className="text-on-surface-variant text-xs">
-                          Activa la opción <span className="font-bold">&quot;Artículos Derogados&quot;</span> en la parte superior para visualizarlos.
-                        </p>
-                      </div>
-                    );
-                  }
-
-                  return (
-                    <div className={`flex flex-col items-center justify-center p-8 mt-4 rounded-2xl border text-center ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-white border-outline-variant/60 shadow-sm'}`}>
-                      <span className="material-symbols-outlined text-[48px] text-gold-brand mb-4 opacity-80">gavel</span>
-                      <h4 className={`text-sm font-bold uppercase tracking-wider mb-2 ${isDarkMode ? 'text-white' : 'text-navy-brand'}`}>Actualización en proceso</h4>
-                      <p className={`text-[12px] leading-relaxed max-w-[450px] ${isDarkMode ? 'text-white/60' : 'text-navy-brand/60'}`}>
-                        Estamos trabajando con dedicación en la carga de los artículos de la ley y el material de estudio para este tema. Te invitamos a regresar pronto.
-                      </p>
+                        </div>
+                      ) : (nodeContent.articulos && nodeContent.articulos.length > 0) ? (
+                        <div className="bg-red-50/20 border border-red-200/50 p-6 rounded-2xl text-left">
+                          <p className="text-navy-brand font-semibold text-sm mb-1">Todos los artículos de este tema están derogados.</p>
+                          <p className="text-on-surface-variant text-xs">
+                            Activa la opción <span className="font-bold">&quot;Artículos Derogados&quot;</span> en la parte superior para visualizarlos.
+                          </p>
+                        </div>
+                      ) : (
+                        <div className={`flex flex-col items-center justify-center p-8 mt-4 rounded-2xl border text-center ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-white border-outline-variant/60 shadow-sm'}`}>
+                          <span className="material-symbols-outlined text-[48px] text-gold-brand mb-4 opacity-80">gavel</span>
+                          <h4 className={`text-sm font-bold uppercase tracking-wider mb-2 ${isDarkMode ? 'text-white' : 'text-navy-brand'}`}>Actualización en proceso</h4>
+                          <p className={`text-[12px] leading-relaxed max-w-[450px] ${isDarkMode ? 'text-white/60' : 'text-navy-brand/60'}`}>
+                            Estamos trabajando con dedicación en la carga de los artículos de la ley y el material de estudio para este tema. Te invitamos a regresar pronto.
+                          </p>
+                        </div>
+                      )}
                     </div>
                   );
                 })()
               ) : (
-                /* Mini Simulacro */
+                /* Evaluar Tema */
                 <div className="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/60">
                   {!isNodeUnlocked(selectedNodeId) ? (
                     <div className="text-center py-12 px-4 w-full max-w-[576px] mx-auto animate-in fade-in duration-300">
-                      <div className="w-16 h-16 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
-                        <span className="material-symbols-outlined text-[32px] text-slate-400 font-bold">
+                      <div className="w-12 h-12 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
+                        <span className="material-symbols-outlined text-[24px] text-slate-400 font-bold">
                           lock
                         </span>
                       </div>
                       <h3 className="text-lg font-black text-navy-brand mb-2">Evaluador Bloqueado</h3>
                       <p className="text-xs text-on-surface-variant/80 leading-relaxed mb-6 font-semibold">
-                        Para desbloquear este Mini Simulacro, primero debes aprobar el tema anterior de la ruta de aprendizaje:
+                        Para desbloquear la evaluación de este tema, primero debes aprobar el tema anterior de la ruta de aprendizaje:
                       </p>
                       
                       {(() => {
@@ -2287,18 +2488,20 @@ export default function EstudioPage() {
                         {/* Right Side: Stats & Actions */}
                         <div className="flex-1 w-full flex flex-col justify-between">
                           <div>
-                            <h3 className="text-xl font-black text-navy-brand mb-1">¡Mini Simulacro Completado!</h3>
-                            <p className="text-[11px] text-on-surface-variant/80 mb-4 font-semibold">Tu progreso ha sido guardado de forma segura.</p>
+                            <h3 className="text-xl font-black text-navy-brand mb-1">{(miniCorrectCount / (miniPreguntas.length || 5)) >= 0.8 ? (miniCurrentBlock + 1 < miniBlocksTotal ? "¡Bloque Superado!" : "¡Evaluación de Tema Completada!") : "Bloque No Aprobado"}</h3>
+                            <p className="text-[11px] text-on-surface-variant/80 mb-4 font-semibold">{(miniCorrectCount / (miniPreguntas.length || 5)) >= 0.8 ? "Tu progreso ha sido guardado de forma segura." : "Debes superar este bloque para avanzar."}</p>
                             
                             {(miniCorrectCount / (miniPreguntas.length || 5)) >= 0.8 ? (
                               <div className="text-xs font-bold text-green-700 bg-green-50 p-3 rounded-xl border border-green-200 w-full mb-4">
                                 ¡Aprobado con {((miniCorrectCount / (miniPreguntas.length || 5)) * 100).toFixed(0)}%! <br/>
-                                <span className="text-[10px] font-normal text-green-600 block mt-1">Este tema ha sido marcado como estudiado ✓</span>
+                                <span className="text-[10px] font-normal text-green-600 block mt-1">
+                                  {miniCurrentBlock + 1 < miniBlocksTotal ? `Bloque ${miniCurrentBlock + 1} de ${miniBlocksTotal} superado ✓` : "Este tema ha sido marcado como estudiado ✓"}
+                                </span>
                               </div>
                             ) : (
                               <div className="text-xs font-bold text-red-700 bg-red-50 p-3 rounded-xl border border-red-200 w-full mb-4">
                                 No aprobado ({((miniCorrectCount / (miniPreguntas.length || 5)) * 100).toFixed(0)}%) <br/>
-                                <span className="text-[10px] font-normal text-red-600 block mt-1">Necesitas 80% o más ({Math.ceil((miniPreguntas.length || 5) * 0.8)} correctas) para marcar como estudiado.</span>
+                                <span className="text-[10px] font-normal text-red-600 block mt-1">Necesitas 80% o más ({Math.ceil((miniPreguntas.length || 5) * 0.8)} correctas) para pasar este bloque.</span>
                               </div>
                             )}
                           </div>
@@ -2314,20 +2517,45 @@ export default function EstudioPage() {
                             </div>
                           </div>
 
-                          <button
-                            onClick={() => {
-                              setMiniFinished(false);
-                              setMiniIndex(0);
-                              setMiniCorrectCount(0);
-                              setMiniSelected(null);
-                              setMiniAnswered(false);
-                              setMiniResponses([]);
-                              loadMiniQuiz();
-                            }}
-                            className="bg-navy-brand text-white hover:bg-gold-brand hover:text-navy-brand w-full py-2.5 rounded-xl font-bold uppercase text-xs tracking-wider transition-all duration-200 cursor-pointer text-center"
-                          >
-                            Reiniciar Mini Simulacro
-                          </button>
+                          {(miniCorrectCount / (miniPreguntas.length || 5)) >= 0.8 && miniCurrentBlock + 1 < miniBlocksTotal ? (
+                            <button
+                              onClick={() => {
+                                const nextBlock = miniCurrentBlock + 1;
+                                setMiniCurrentBlock(nextBlock);
+                                setMiniIndex(0);
+                                setMiniCorrectCount(0);
+                                setMiniSelected(null);
+                                setMiniAnswered(false);
+                                setMiniResponses([]);
+                                setMiniFinished(false);
+                                const blockSize = allMiniPreguntas.length <= 5 ? allMiniPreguntas.length : 5;
+                                setMiniPreguntas(allMiniPreguntas.slice(nextBlock * 5, nextBlock * 5 + blockSize));
+                              }}
+                              className="bg-gold-brand text-navy-brand hover:bg-navy-brand hover:text-white w-full py-2.5 rounded-xl font-bold uppercase text-xs tracking-wider transition-all duration-200 cursor-pointer text-center"
+                            >
+                              Siguiente Bloque
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => {
+                                setMiniFinished(false);
+                                setMiniIndex(0);
+                                setMiniCorrectCount(0);
+                                setMiniSelected(null);
+                                setMiniAnswered(false);
+                                setMiniResponses([]);
+                                const currentQuestions = [...miniPreguntas];
+                                for (let i = currentQuestions.length - 1; i > 0; i--) {
+                                  const j = Math.floor(Math.random() * (i + 1));
+                                  [currentQuestions[i], currentQuestions[j]] = [currentQuestions[j], currentQuestions[i]];
+                                }
+                                setMiniPreguntas(currentQuestions);
+                              }}
+                              className="bg-navy-brand text-white hover:bg-gold-brand hover:text-navy-brand w-full py-2.5 rounded-xl font-bold uppercase text-xs tracking-wider transition-all duration-200 cursor-pointer text-center"
+                            >
+                              {(miniCorrectCount / (miniPreguntas.length || 5)) >= 0.8 && miniCurrentBlock + 1 === miniBlocksTotal ? "Volver a practicar" : "Reiniciar Bloque"}
+                            </button>
+                          )}
                         </div>
                       </div>
 
@@ -2341,11 +2569,11 @@ export default function EstudioPage() {
                             </div>
                             <div className="space-y-1.5 mb-3">
                               <div className={`text-[11px] font-bold ${resp.selected === resp.correct ? 'text-green-700' : 'text-error'}`}>
-                                Tu respuesta: {cleanOptionText(resp.selected === 'A' ? resp.opcion_a : resp.selected === 'B' ? resp.opcion_b : resp.opcion_c)}
+                                Tu respuesta: {cleanOptionText(resp.selected === 'A' ? resp.opcion_a : resp.selected === 'B' ? resp.opcion_b : resp.selected === 'C' ? resp.opcion_c : resp.selected === 'D' ? resp.opcion_d : resp.opcion_e)}
                               </div>
                               {!resp.isCorrect && (
                                 <div className="text-[11px] font-bold text-green-700">
-                                  Respuesta correcta: {cleanOptionText(resp.correct === 'A' ? resp.opcion_a : resp.correct === 'B' ? resp.opcion_b : resp.opcion_c)}
+                                  Respuesta correcta: {cleanOptionText(resp.correct === 'A' ? resp.opcion_a : resp.correct === 'B' ? resp.opcion_b : resp.correct === 'C' ? resp.opcion_c : resp.correct === 'D' ? resp.opcion_d : resp.opcion_e)}
                                 </div>
                               )}
                             </div>
@@ -2362,63 +2590,6 @@ export default function EstudioPage() {
                   ) : miniPreguntas.length > 0 ? (
                     /* Question Play Screen */
                     <div className="text-left">
-                      {/* Quiz Header Info */}
-                      <div className="flex justify-between items-center mb-6 pb-3 border-b border-outline-variant/60">
-                        <span className="text-[10px] font-black uppercase text-navy-brand/60 tracking-wider">
-                          Pregunta {miniIndex + 1} de {miniPreguntas.length}
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={toggleHandsFree}
-                            className={`px-3 py-1 border rounded-lg font-bold uppercase text-[9px] tracking-wider flex items-center gap-1.5 transition-all duration-200 cursor-pointer ${
-                              isHandsFreeActive
-                                ? 'bg-red-600 text-white border-red-600 font-black shadow-sm'
-                                : 'bg-white text-navy-brand border-outline-variant hover:border-navy-brand'
-                            }`}
-                            title={isHandsFreeActive ? 'Desactivar Manos Libres' : 'Activar Manos Libres'}
-                          >
-                            <span className="material-symbols-outlined text-[14px]">
-                              {isHandsFreeActive ? 'mic' : 'mic_off'}
-                            </span>
-                            <span>
-                              {isHandsFreeActive ? 'Manos Libres Activo' : 'Manos Libres'}
-                            </span>
-                          </button>
-                           <button
-                            onClick={isMicTesting ? stopMicTest : runMicTest}
-                            className={`hidden px-3 py-1 border rounded-lg font-bold uppercase text-[9px] tracking-wider flex items-center gap-1.5 transition-all duration-200 cursor-pointer ${
-                              isMicTesting
-                                ? 'bg-amber-500 text-white border-amber-500 font-black shadow-sm animate-pulse'
-                                : 'bg-white text-navy-brand border-outline-variant hover:border-navy-brand'
-                            }`}
-                            title={isMicTesting ? 'Cerrar Prueba de Micrófono' : 'Probar si tu micrófono funciona correctamente'}
-                          >
-                            <span className="material-symbols-outlined text-[14px]">
-                              settings_voice
-                            </span>
-                            <span>
-                              {isMicTesting ? 'Probando...' : 'Probar Micro'}
-                            </span>
-                          </button>
-                          {miniPreguntas[miniIndex].nivel_dificultad && (
-                            <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded ${
-                              miniPreguntas[miniIndex].nivel_dificultad === 'Trampa'
-                                ? 'bg-red-500 text-white animate-pulse'
-                                : miniPreguntas[miniIndex].nivel_dificultad === 'Difícil'
-                                  ? 'bg-orange-500 text-white'
-                                  : miniPreguntas[miniIndex].nivel_dificultad === 'Intermedio'
-                                    ? 'bg-blue-500 text-white'
-                                    : 'bg-green-500 text-white'
-                            }`}>
-                              {miniPreguntas[miniIndex].nivel_dificultad}
-                            </span>
-                          )}
-                          <span className="text-[10px] font-black uppercase bg-gold-brand/20 text-navy-brand px-2 py-0.5 rounded">
-                            Mini Evaluador
-                          </span>
-                        </div>
-                      </div>
-
                       {/* Microphone Test Panel */}
                       {isMicTesting && (
                         <div className="mb-6 bg-slate-50 border border-outline-variant/60 p-4 rounded-xl text-left shadow-sm space-y-3 animate-in fade-in duration-300">
@@ -2496,18 +2667,76 @@ export default function EstudioPage() {
                       )}
 
                       {/* Question Text */}
+                      <div className="flex flex-wrap items-center justify-between gap-4 mb-2">
+                        {miniPreguntas[miniIndex].examen_titulo && (
+                          <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider border ${isDarkMode ? 'bg-white/10 text-white/70 border-white/20' : 'bg-slate-100 text-slate-600 border-slate-200'}`}>
+                            {miniPreguntas[miniIndex].examen_titulo}
+                            {miniPreguntas[miniIndex].orden ? ` • Pregunta #${miniPreguntas[miniIndex].orden}` : ''}
+                          </span>
+                        )}
+                        <div className="flex items-center gap-2">
+                          {miniPreguntas[miniIndex].pdf_url && (
+                            <button
+                              onClick={() => {
+                                const baseUrl = ''; 
+                                const hashParam = miniPreguntas[miniIndex].orden ? `#search="Pregunta ${miniPreguntas[miniIndex].orden}"` : '';
+                                const pdfUrl = baseUrl + miniPreguntas[miniIndex].pdf_url + hashParam;
+                                window.open(pdfUrl, '_blank');
+                              }}
+                              className={`px-3 py-1 border rounded-lg font-bold uppercase text-[9px] tracking-wider flex items-center gap-1.5 transition-all duration-200 cursor-pointer ${isDarkMode ? 'bg-white/10 text-white/90 border-white/20 hover:bg-white/20' : 'bg-white text-navy-brand border-outline-variant hover:bg-slate-50'}`}
+                              title="Abre el PDF original del examen en una nueva pestaña"
+                            >
+                              <span className="material-symbols-outlined text-[14px]">picture_as_pdf</span>
+                              <span>PDF</span>
+                            </button>
+                          )}
+                          <button
+                            onClick={toggleHandsFree}
+                            className={`p-1.5 border rounded-lg font-bold uppercase text-[9px] tracking-wider flex items-center transition-all duration-200 cursor-pointer ${
+                              isHandsFreeActive
+                                ? 'bg-red-600 text-white border-red-600 font-black shadow-sm'
+                                : 'bg-white text-navy-brand border-outline-variant hover:border-navy-brand'
+                            }`}
+                            title={isHandsFreeActive ? 'Desactivar Manos Libres' : 'Activar Manos Libres'}
+                          >
+                            <span className="material-symbols-outlined text-[16px]">
+                              {isHandsFreeActive ? 'mic' : 'mic_off'}
+                            </span>
+                          </button>
+                           <button
+                            onClick={isMicTesting ? stopMicTest : runMicTest}
+                            className={`hidden px-3 py-1 border rounded-lg font-bold uppercase text-[9px] tracking-wider flex items-center gap-1.5 transition-all duration-200 cursor-pointer ${
+                              isMicTesting
+                                ? 'bg-amber-500 text-white border-amber-500 font-black shadow-sm animate-pulse'
+                                : 'bg-white text-navy-brand border-outline-variant hover:border-navy-brand'
+                            }`}
+                            title={isMicTesting ? 'Cerrar Prueba de Micrófono' : 'Probar si tu micrófono funciona correctamente'}
+                          >
+                            <span className="material-symbols-outlined text-[14px]">
+                              settings_voice
+                            </span>
+                            <span>
+                              {isMicTesting ? 'Probando...' : 'Probar Micro'}
+                            </span>
+                          </button>
+                        </div>
+                      </div>
                       <h4 className="text-sm font-bold text-navy-brand mb-6 leading-relaxed">
                         {miniPreguntas[miniIndex].pregunta}
                       </h4>
 
                       {/* Answer Choices */}
-                      <div className="space-y-3 mb-6">
-                        {['A', 'B', 'C'].map((opt) => {
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+                        {['A', 'B', 'C', 'D', 'E'].map((opt) => {
                           const optionText = opt === 'A' 
                             ? miniPreguntas[miniIndex].opcion_a 
                             : opt === 'B' 
                               ? miniPreguntas[miniIndex].opcion_b 
-                              : miniPreguntas[miniIndex].opcion_c;
+                              : opt === 'C'
+                                ? miniPreguntas[miniIndex].opcion_c
+                                : opt === 'D'
+                                  ? miniPreguntas[miniIndex].opcion_d
+                                  : miniPreguntas[miniIndex].opcion_e;
                           
                           if (!optionText) return null;
 
@@ -2547,30 +2776,19 @@ export default function EstudioPage() {
                         })}
                       </div>
 
-                      {/* Correct / Incorrect Feedback Alert */}
-                      {miniAnswered && (
-                        <div className={`p-4 rounded-xl mb-6 border text-left ${
-                          miniSelected === miniPreguntas[miniIndex].respuesta_correcta
-                            ? 'bg-green-50 border-green-200 text-green-900'
-                            : 'bg-error-container/10 border-error/20 text-error'
-                        }`}>
-                          <div className="flex items-center gap-2 font-bold text-xs mb-1">
-                            <span className="material-symbols-outlined text-[18px]">
-                              {miniSelected === miniPreguntas[miniIndex].respuesta_correcta ? 'check_circle' : 'cancel'}
-                            </span>
-                            {miniSelected === miniPreguntas[miniIndex].respuesta_correcta ? '¡Respuesta Correcta!' : 'Respuesta Incorrecta'}
-                          </div>
-                          
+                      {/* Correct Feedback Alert */}
+                      {miniAnswered && miniSelected === miniPreguntas[miniIndex].respuesta_correcta && (miniPreguntas[miniIndex].base_legal || miniPreguntas[miniIndex].explicacion) && (
+                        <div className="p-4 rounded-xl mb-6 border text-left bg-green-50 border-green-200 text-green-900">
                           {/* Base Legal */}
                           {miniPreguntas[miniIndex].base_legal && (
-                            <div className="text-[10px] font-black uppercase text-navy-brand/70 mt-2 mb-1">
+                            <div className="text-[10px] font-black uppercase text-navy-brand/70 mb-1">
                               Base Legal: {miniPreguntas[miniIndex].base_legal}
                             </div>
                           )}
 
                           {/* Explicación */}
                           {miniPreguntas[miniIndex].explicacion && (
-                            <p className="text-[11px] leading-relaxed opacity-90 mt-1">
+                            <p className="text-[11px] leading-relaxed opacity-90">
                               {miniPreguntas[miniIndex].explicacion}
                             </p>
                           )}
@@ -2593,13 +2811,15 @@ export default function EstudioPage() {
                             Responder
                           </button>
                         ) : (
-                          <button
-                            onClick={handleMiniNext}
-                            className="bg-navy-brand text-white hover:bg-gold-brand hover:text-navy-brand px-6 py-2.5 rounded font-bold uppercase text-xs tracking-wider transition-all flex items-center gap-1.5 cursor-pointer"
-                          >
-                            <span>Siguiente</span>
-                            <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
-                          </button>
+                          <>
+                            <button
+                              onClick={handleMiniNext}
+                              className="bg-navy-brand text-white hover:bg-gold-brand hover:text-navy-brand px-6 py-2.5 rounded font-bold uppercase text-xs tracking-wider transition-all flex items-center gap-1.5 cursor-pointer"
+                            >
+                              <span>Siguiente</span>
+                              <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                            </button>
+                          </>
                         )}
                       </div>
                     </div>
@@ -2648,6 +2868,19 @@ export default function EstudioPage() {
           {sidebarTab === 'articulos' ? (
             <>
               <div className="p-5 shrink-0 pb-2">
+                {activeTab === 'simulacro' && miniBlocksTotal > 1 && (
+                  <div className="mb-4 pb-4 border-b border-outline-variant/30 flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase text-navy-brand/70 tracking-wider">Bloques</span>
+                    <div className="flex items-center gap-1 bg-navy-brand/5 px-2 py-1 rounded-lg border border-navy-brand/10">
+                      {Array.from({ length: miniBlocksTotal }).map((_, i) => (
+                        <span key={i} className={`material-symbols-outlined text-[12px] ${i < miniCurrentBlock ? 'text-emerald-500' : i === miniCurrentBlock ? 'text-gold-brand animate-pulse' : 'text-slate-400'}`}>
+                          {i < miniCurrentBlock ? 'lock_open' : 'lock'}
+                        </span>
+                      ))}
+                      <span className="text-[8px] font-bold uppercase text-navy-brand/70 tracking-wider ml-1">{miniCurrentBlock + 1}/{miniBlocksTotal}</span>
+                    </div>
+                  </div>
+                )}
                 <div className="flex flex-col mb-4 text-left">
                   <div className="flex items-center gap-2 text-navy-brand">
                     <span className="material-symbols-outlined text-gold-brand">menu_book</span>
@@ -2663,7 +2896,7 @@ export default function EstudioPage() {
               <div className="flex-1 overflow-y-auto p-5 pt-2 custom-scrollbar space-y-3.5 pb-20 text-left">
                 {!isNodeUnlocked(selectedNodeId) ? (
                   <div className="text-center py-10 text-on-surface-variant/60 text-xs italic">
-                    El Mini Simulacro está bloqueado. Aprueba el tema anterior para desbloquearlo y ver sus artículos de apoyo.
+                    La evaluación del tema está bloqueada. Aprueba el tema anterior para desbloquearlo y ver sus artículos de apoyo.
                   </div>
                 ) : miniLoading ? (
                   <div className="flex flex-col items-center justify-center py-12 gap-2 text-navy-brand/60">
@@ -2956,10 +3189,52 @@ export default function EstudioPage() {
       {/* Toast container */}
       {toast && (
         <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 bg-[#002b49] text-white px-5 py-3.5 rounded-xl border border-white/10 shadow-2xl flex items-center gap-3 animate-in fade-in slide-in-from-bottom-4 duration-300">
-          <span className="material-symbols-outlined text-slate-300 text-lg font-bold">lock</span>
+          <span className="material-symbols-outlined text-slate-300 text-[14px] font-bold">lock</span>
           <span className="text-xs font-bold">{toast}</span>
         </div>
       )}
+
+      {/* Pop-up de Invitaciones Ganadas */}
+      {wonInvitations > 0 && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white dark:bg-[#1E293B] rounded-2xl p-8 max-w-sm w-full shadow-2xl relative overflow-hidden text-center transform scale-100 animate-slide-up border-2 border-[#b59348]">
+            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#b59348] via-[#ffd700] to-[#b59348]"></div>
+            
+            <div className="mx-auto w-20 h-20 bg-gradient-to-br from-[#fdfbf6] to-[#f5f1e5] dark:from-slate-800 dark:to-slate-900 rounded-full flex items-center justify-center mb-6 shadow-inner border border-[#b59348]/30">
+              <span className="text-4xl">🎫</span>
+            </div>
+            
+            <h2 className="text-2xl font-black text-navy-brand dark:text-white mb-2 leading-tight">
+              ¡Felicidades Fundador!
+            </h2>
+            
+            <p className="text-sm font-medium text-[#b59348] mb-4 uppercase tracking-widest">
+              Has ganado {wonInvitations} {wonInvitations === 1 ? 'invitación' : 'invitaciones'}
+            </p>
+            
+            <p className="text-on-surface-variant dark:text-slate-300 mb-8 text-[15px] leading-relaxed">
+              Gracias por tu dedicación. Ahora tienes el poder de invitar a un amigo a la plataforma <strong>Notario Élite</strong>, otorgándole 2 meses de acceso gratuito.
+            </p>
+            
+            <div className="flex flex-col gap-3">
+              <button 
+                onClick={() => router.push('/invitaciones')}
+                className="w-full bg-navy-brand hover:bg-navy-brand/90 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-md hover:shadow-lg active:scale-95"
+              >
+                Invitar a un amigo ahora
+              </button>
+              
+              <button 
+                onClick={() => setWonInvitations(0)}
+                className="w-full bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 text-on-surface-variant dark:text-slate-400 font-semibold py-3 px-6 rounded-xl transition-all"
+              >
+                Continuar estudiando
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
