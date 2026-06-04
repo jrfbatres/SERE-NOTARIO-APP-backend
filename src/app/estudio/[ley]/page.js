@@ -617,16 +617,12 @@ export default function EstudioPage() {
     if (currentQ.opcion_c) text += `Opción C. ${cleanOptionText(currentQ.opcion_c)}. `;
     if (currentQ.opcion_d) text += `Opción D. ${cleanOptionText(currentQ.opcion_d)}. `;
     if (currentQ.opcion_e) text += `Opción E. ${cleanOptionText(currentQ.opcion_e)}. `;
-    text += `¿Cuál es tu respuesta?`;
+    text += `Selecciona tu respuesta en la pantalla.`;
 
     speakHandsFreeText(text, () => {
-      if (isHandsFreeActiveRef.current) {
-        startListeningForResponse();
-      }
+      handsFreeStateRef.current = 'idle';
     }, () => {
-      if (isHandsFreeActiveRef.current) {
-        startListeningForResponse();
-      }
+      handsFreeStateRef.current = 'idle';
     });
   };
 
@@ -652,130 +648,19 @@ export default function EstudioPage() {
     if (currentQ.opcion_c) text += `Opción C. ${cleanOptionText(currentQ.opcion_c)}. `;
     if (currentQ.opcion_d) text += `Opción D. ${cleanOptionText(currentQ.opcion_d)}. `;
     if (currentQ.opcion_e) text += `Opción E. ${cleanOptionText(currentQ.opcion_e)}. `;
-    text += `¿Cuál es tu respuesta?`;
+    text += `Selecciona tu respuesta en la pantalla.`;
 
     speakHandsFreeText(text, () => {
-      if (isHandsFreeActiveRef.current) {
-        startListeningForResponse();
-      }
+      handsFreeStateRef.current = 'idle';
     }, () => {
-      if (isHandsFreeActiveRef.current) {
-        startListeningForResponse();
-      }
+      handsFreeStateRef.current = 'idle';
     });
   };
 
   // Starts SpeechRecognition listening (recreating instance each time for browser stability)
   const startListeningForResponse = () => {
-    if (!isHandsFreeActiveRef.current) return;
-    if (micDisabledRef.current) return;
-
-    handsFreeStateRef.current = 'listening';
-    setHandsFreeTranscript('');
-
-    if (typeof window === 'undefined') return;
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      showToast("Tu navegador no soporta reconocimiento de voz nativo. Continuará solo lectura.");
-      micDisabledRef.current = true;
-      return;
-    }
-
-    // Cancel synthesis just in case
-    window.speechSynthesis.cancel();
-
-    // Clean up previous timers/intervals
-    if (handsFreeTickIntervalRef.current) clearInterval(handsFreeTickIntervalRef.current);
-    if (handsFreeTimeoutRef.current) clearTimeout(handsFreeTimeoutRef.current);
-
-    // Clean up previous instance if any to prevent browser state bugs
-    if (recognitionRef.current) {
-      try {
-        recognitionRef.current.onresult = null;
-        recognitionRef.current.onerror = null;
-        recognitionRef.current.onend = null;
-        recognitionRef.current.abort();
-      } catch (e) {}
-    }
-
-    const rec = new SpeechRecognition();
-    rec.lang = 'es-MX';
-    rec.interimResults = true;
-    rec.continuous = true;
-    rec.maxAlternatives = 1;
-
-    rec.onresult = (event) => {
-      if (!isHandsFreeActiveRef.current) return;
-      
-      let resultText = '';
-      for (let i = event.resultIndex; i < event.results.length; ++i) {
-        resultText += event.results[i][0].transcript;
-      }
-      
-      console.log("Audio capturado (interim/final):", resultText);
-      setHandsFreeTranscript(resultText);
-      handleSpeechInput(resultText);
-    };
-
-    rec.onerror = (event) => {
-      console.error("SpeechRecognition error:", event.error);
-      if (event.error === 'not-allowed') {
-        showToast("Micrófono denegado. Se desactiva la captura de voz, pero continuará la lectura.");
-        micDisabledRef.current = true;
-        if (handsFreeTickIntervalRef.current) clearInterval(handsFreeTickIntervalRef.current);
-        if (handsFreeTimeoutRef.current) clearTimeout(handsFreeTimeoutRef.current);
-        return;
-      }
-      
-      if (event.error === 'network') {
-        showToast("Error de red. Se desactiva la captura de voz, pero continuará la lectura.");
-        micDisabledRef.current = true;
-        if (handsFreeTickIntervalRef.current) clearInterval(handsFreeTickIntervalRef.current);
-        if (handsFreeTimeoutRef.current) clearTimeout(handsFreeTimeoutRef.current);
-        return;
-      }
-      
-      // Show other error types to facilitate debugging
-      if (event.error !== 'no-speech') {
-        showToast(`Estado de voz: ${event.error}`);
-      }
-
-      if (isHandsFreeActiveRef.current && event.error === 'no-speech') {
-        if (handsFreeTimeoutRef.current) clearTimeout(handsFreeTimeoutRef.current);
-        handsFreeTimeoutRef.current = setTimeout(() => {
-          startListeningForResponse();
-        }, 1500);
-      }
-    };
-
-    rec.onend = () => {
-      if (isHandsFreeActiveRef.current && handsFreeStateRef.current === 'listening') {
-        startListeningForResponse();
-      }
-    };
-
-    recognitionRef.current = rec;
-
-    // Start ticking audio
-    playTickSound();
-    handsFreeTickIntervalRef.current = setInterval(() => {
-      if (isHandsFreeActiveRef.current && handsFreeStateRef.current === 'listening') {
-        playTickSound();
-      } else {
-        if (handsFreeTickIntervalRef.current) clearInterval(handsFreeTickIntervalRef.current);
-      }
-    }, 1000);
-
-    // Set 10-second silence timeout
-    handsFreeTimeoutRef.current = setTimeout(() => {
-      handleSilenceTimeout();
-    }, 10000);
-
-    try {
-      rec.start();
-    } catch (e) {
-      console.error("Failed to start speech recognition:", e);
-    }
+    // Micrófono desactivado por petición del usuario (solo lectura)
+    handsFreeStateRef.current = 'idle';
   };
 
   // Handles silence timeout after 10 seconds

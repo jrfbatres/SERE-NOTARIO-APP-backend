@@ -155,13 +155,7 @@ export default function ManosLibresPage() {
   }, []);
 
   const startListening = () => {
-    if (!recognitionRef.current || micError || isPaused) return;
-    try {
-      recognitionRef.current.start();
-      setIsListening(true);
-    } catch(e) {
-      console.error("Error starting mic:", e);
-    }
+    // Micrófono desactivado por petición del usuario (solo lectura)
   };
 
   const stopListening = () => {
@@ -477,7 +471,7 @@ export default function ManosLibresPage() {
     }
 
     if (stage === 'QUIZ_INTRO') {
-      const introText = "Iniciando simulacro. Escucha atentamente la pregunta y responde con Opción A, B, o C.";
+      const introText = "Iniciando simulacro. Escucha atentamente y selecciona tu respuesta en la pantalla.";
       speakText(introText, () => {
         setQuizIndex(0);
         setCorrectCount(0);

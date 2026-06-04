@@ -205,65 +205,18 @@ export default function SimuladorPage() {
     if (currentQ.opcion_c) text += `Opción C. ${cleanOptionText(currentQ.opcion_c)}. `;
     if (currentQ.opcion_d) text += `Opción D. ${cleanOptionText(currentQ.opcion_d)}. `;
     if (currentQ.opcion_e) text += `Opción E. ${cleanOptionText(currentQ.opcion_e)}. `;
-    text += `¿Cuál es tu respuesta?`;
+    text += `Selecciona tu respuesta en la pantalla.`;
 
     speakHandsFreeText(text, () => {
-      if (isHandsFreeActiveRef.current) startListeningForResponse();
+      handsFreeStateRef.current = 'idle';
     }, () => {
-      if (isHandsFreeActiveRef.current) startListeningForResponse();
+      handsFreeStateRef.current = 'idle';
     });
   };
 
   const startListeningForResponse = () => {
-    if (!isHandsFreeActiveRef.current) return;
-
-    handsFreeStateRef.current = 'listening';
-    setHandsFreeTranscript('');
-
-    if (typeof window === 'undefined') return;
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      setIsHandsFreeActive(false);
-      return;
-    }
-
-    window.speechSynthesis.cancel();
-    if (recognitionRef.current) {
-      try { recognitionRef.current.abort(); } catch (e) {}
-    }
-
-    const rec = new SpeechRecognition();
-    rec.lang = 'es-MX';
-    rec.interimResults = true;
-    rec.continuous = true;
-    rec.maxAlternatives = 1;
-
-    rec.onresult = (event) => {
-      if (!isHandsFreeActiveRef.current) return;
-      
-      let resultText = '';
-      for (let i = event.resultIndex; i < event.results.length; ++i) {
-        resultText += event.results[i][0].transcript;
-      }
-      
-      setHandsFreeTranscript(resultText);
-      handleSpeechInput(resultText);
-    };
-
-    rec.onerror = (event) => {
-      if (event.error === 'no-speech' && isHandsFreeActiveRef.current && handsFreeStateRef.current === 'listening') {
-        setTimeout(() => { if (isHandsFreeActiveRef.current && handsFreeStateRef.current === 'listening') startListeningForResponse(); }, 1000);
-      }
-    };
-
-    rec.onend = () => {
-      if (isHandsFreeActiveRef.current && handsFreeStateRef.current === 'listening') {
-        setTimeout(() => { if (isHandsFreeActiveRef.current && handsFreeStateRef.current === 'listening') startListeningForResponse(); }, 500);
-      }
-    };
-
-    try { rec.start(); } catch (e) {}
-    recognitionRef.current = rec;
+    // Micrófono desactivado por petición del usuario (solo lectura)
+    handsFreeStateRef.current = 'idle';
   };
 
   const handleNextVoice = () => {
@@ -327,13 +280,12 @@ export default function SimuladorPage() {
       if (currentQ.explicacion) {
         text += `Explicación: ${currentQ.explicacion}. `;
       }
-      text += "Di 'Siguiente' para continuar.";
 
       handsFreeStateRef.current = 'speaking_feedback';
       speakHandsFreeText(text, () => {
-        if (isHandsFreeActiveRef.current) startListeningForResponse();
+        handsFreeStateRef.current = 'idle';
       }, () => {
-        if (isHandsFreeActiveRef.current) startListeningForResponse();
+        handsFreeStateRef.current = 'idle';
       });
     }, 500);
 
