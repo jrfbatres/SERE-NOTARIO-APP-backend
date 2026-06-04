@@ -389,7 +389,13 @@ export default function DashboardPage() {
           </section>
 
           {/* Treemap */}
-          <section className={`${themeClasses.chartContainer} rounded-3xl p-5 flex flex-col items-center justify-center w-full transition-colors duration-300 flex-1 min-h-[400px]`}>
+          <div className="w-full flex justify-center mb-[-12px] z-10 relative pointer-events-none">
+            <div className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm border ${isDarkMode ? 'bg-[#001524] text-yellow-400 border-yellow-400/30' : 'bg-white text-[#b59348] border-[#b59348]/30'}`}>
+              <span className="material-symbols-outlined text-[16px]">ads_click</span>
+              Haz clic en una ley para empezar a estudiar
+            </div>
+          </div>
+          <section className={`${themeClasses.chartContainer} rounded-3xl p-5 pt-8 flex flex-col items-center justify-center w-full transition-colors duration-300 flex-1 min-h-[400px]`}>
             <div className="h-full w-full">
               {leyes.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
