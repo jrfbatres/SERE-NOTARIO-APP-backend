@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import nodemailer from 'nodemailer';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_sere_notario_elite_key';
 
@@ -105,6 +106,50 @@ export async function POST(request) {
         [userId]
       );
     }
+
+    // --- NUEVO: Enviar correo electrónico con Nodemailer ---
+    try {
+      const transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST || 'smtp.hostinger.com',
+        port: parseInt(process.env.SMTP_PORT || '465', 10),
+        secure: true,
+        auth: {
+          user: process.env.SMTP_USER || 'admin@serenotario.com',
+          pass: process.env.SMTP_PASS || 'VCamila26.'
+        }
+      });
+
+      const mailOptions = {
+        from: '"Seré Notario" <admin@serenotario.com>',
+        to: correoLower,
+        subject: '¡Te han invitado a Seré Notario!',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9; border-radius: 10px;">
+            <h2 style="color: #333; text-align: center;">¡Hola, ${nombre.trim()}!</h2>
+            <p style="color: #555; font-size: 16px; line-height: 1.5;">
+              Has recibido una invitación para unirte a la plataforma de estudio <strong>Seré Notario</strong>.
+            </p>
+            <div style="background-color: #fff; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #ddd;">
+              <p style="margin: 0; color: #333;"><strong>Tu correo de acceso:</strong> ${correoLower}</p>
+              <p style="margin: 10px 0 0; color: #333;"><strong>Tu contraseña temporal:</strong> <span style="background-color: #ffe088; padding: 4px 8px; border-radius: 4px; font-weight: bold; letter-spacing: 1px;">${generatedToken}</span></p>
+            </div>
+            <p style="color: #555; font-size: 16px; line-height: 1.5;">
+              Ingresa a nuestra plataforma con estos datos para comenzar a prepararte. Puedes cambiar tu contraseña desde tu perfil una vez que ingreses.
+            </p>
+            <div style="text-align: center; margin-top: 30px;">
+              <a href="https://serenotario.com/login" style="background-color: #191c1e; color: #ffe088; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; font-size: 16px; border: 1px solid #ffe088;">Iniciar Sesión</a>
+            </div>
+          </div>
+        `
+      };
+
+      await transporter.sendMail(mailOptions);
+      console.log('Correo enviado exitosamente a:', correoLower);
+    } catch (emailError) {
+      console.error('Error al enviar el correo de invitación:', emailError);
+      // No detenemos el flujo si el correo falla, la invitación ya se creó en la DB.
+    }
+    // -------------------------------------------------------
 
     return NextResponse.json({
       success: true,
