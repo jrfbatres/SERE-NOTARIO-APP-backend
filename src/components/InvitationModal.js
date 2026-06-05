@@ -15,6 +15,8 @@ export default function InvitationModal({ isOpen, onClose, onInvitationSent }) {
   const [error, setError] = useState('');
   const [successData, setSuccessData] = useState(null);
   const [mounted, setMounted] = useState(false);
+  const [emailLoading, setEmailLoading] = useState(false);
+  const [emailSuccess, setEmailSuccess] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -77,10 +79,36 @@ export default function InvitationModal({ isOpen, onClose, onInvitationSent }) {
     window.open(url, '_blank');
   };
 
-  const handleEmail = () => {
-    const subject = encodeURIComponent('Invitación Exclusiva - SERÉ NOTARIO');
-    const body = encodeURIComponent(getMessageTemplate());
-    window.open(`mailto:${successData.correo}?subject=${subject}&body=${body}`);
+  const handleEmail = async () => {
+    setEmailLoading(true);
+    setEmailSuccess(false);
+    
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/invitaciones/enviar-correo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          nombre: successData.nombre,
+          correo: successData.correo,
+          claveTemporal: successData.claveTemporal
+        })
+      });
+      
+      if (res.ok) {
+        setEmailSuccess(true);
+        setTimeout(() => setEmailSuccess(false), 4000);
+      } else {
+        alert('Hubo un problema enviando el correo.');
+      }
+    } catch (e) {
+      alert('Error de conexión al enviar correo.');
+    } finally {
+      setEmailLoading(false);
+    }
   };
 
   const resetAndClose = () => {
@@ -200,10 +228,16 @@ export default function InvitationModal({ isOpen, onClose, onInvitationSent }) {
               
               <button 
                 onClick={handleEmail}
-                className="w-full py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white transition-colors shadow-md"
+                disabled={emailLoading || emailSuccess}
+                className={`w-full py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-colors shadow-md ${emailSuccess ? 'bg-green-600 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white'} ${(emailLoading || emailSuccess) ? 'opacity-80 cursor-not-allowed' : ''}`}
               >
-                <span className="material-symbols-outlined">mail</span>
-                Correo Electrónico
+                {emailLoading ? (
+                  <><span className="material-symbols-outlined animate-spin">refresh</span> Enviando...</>
+                ) : emailSuccess ? (
+                  <><span className="material-symbols-outlined">check</span> ¡Enviado exitosamente!</>
+                ) : (
+                  <><span className="material-symbols-outlined">mail</span> Enviar por Correo</>
+                )}
               </button>
             </div>
             
