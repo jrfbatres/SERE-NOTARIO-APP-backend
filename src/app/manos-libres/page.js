@@ -471,7 +471,7 @@ export default function ManosLibresPage() {
     }
 
     if (stage === 'QUIZ_INTRO') {
-      const introText = "Iniciando simulacro. Escucha atentamente y selecciona tu respuesta en la pantalla.";
+      const introText = "Iniciando análisis de preguntas históricas. Escucha atentamente y selecciona tu respuesta en la pantalla.";
       speakText(introText, () => {
         setQuizIndex(0);
         setCorrectCount(0);
@@ -532,7 +532,7 @@ export default function ManosLibresPage() {
 
       } else if (passed && currentBlock + 1 === blocksTotal) {
         // Passed final block
-        let resultText = `Simulacro terminado. Tuviste ${correctCount} respuestas correctas de ${preguntas.length}. `;
+        let resultText = `Sesión de estudio de preguntas históricas terminada. Tuviste ${correctCount} respuestas correctas de ${preguntas.length}. `;
         resultText += `Tu calificación es de ${score.toFixed(1)} puntos. `;
         resultText += "¡Felicidades, has dominado todo este tema! Pasaremos al siguiente.";
       
@@ -568,7 +568,7 @@ export default function ManosLibresPage() {
         });
       } else {
         // Failed
-        let resultText = `Simulacro terminado. Tuviste ${correctCount} respuestas correctas de ${preguntas.length}. `;
+        let resultText = `Sesión de estudio de preguntas históricas terminada. Tuviste ${correctCount} respuestas correctas de ${preguntas.length}. `;
         resultText += `Tu calificación es de ${score.toFixed(1)} puntos. `;
         resultText += "No has alcanzado la nota mínima de 8 puntos. Repasemos el tema de nuevo para lograrlo.";
         speakText(resultText, () => {
@@ -850,7 +850,7 @@ export default function ManosLibresPage() {
               <div className="absolute inset-0 bg-[#fed65b]/20 animate-ping rounded-full" style={{ animationDuration: '2s' }} />
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-[#eff1f3] tracking-tight w-full mt-4">
-              {stage === 'QUIZ_INTRO' ? 'Preparando Simulacro...' : 'Leyendo Tema...'}
+              {stage === 'QUIZ_INTRO' ? 'Preparando preguntas históricas...' : 'Leyendo Tema...'}
             </h2>
             <p className="text-[#c6c6cd] text-xs sm:text-sm leading-relaxed font-medium w-full">
               {stage === 'READING_NODE' ? 'Escucha atentamente. Al finalizar la lectura, iniciará una evaluación de 5 preguntas.' : 'La evaluación está a punto de comenzar.'}
