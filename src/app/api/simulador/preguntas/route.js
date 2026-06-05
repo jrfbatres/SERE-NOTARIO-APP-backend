@@ -254,7 +254,33 @@ export async function GET(request) {
     const mappedQuestions = rawRows.map(q => {
       let optionsArr = q.opciones || [];
 
-      // No longer sorting in JS. Relying on ORDER BY o.orden from the DB.
+      // Deduplicate options while prioritizing the correct one
+      const uniqueOptions = [];
+      const seenTexts = new Set();
+      
+      const correctOpts = optionsArr.filter(o => o.es_correcta);
+      const incorrectOpts = optionsArr.filter(o => !o.es_correcta);
+
+      const normalize = (text) => text.replace(/^[a-z]\)\s*/i, '').replace(/[^a-z0-9áéíóúüñ]/gi, '').toLowerCase();
+
+      correctOpts.forEach(opt => {
+        const norm = normalize(opt.texto_opcion);
+        if (norm && !seenTexts.has(norm)) {
+          seenTexts.add(norm);
+          uniqueOptions.push(opt);
+        }
+      });
+
+      incorrectOpts.forEach(opt => {
+        const norm = normalize(opt.texto_opcion);
+        if (norm && !seenTexts.has(norm)) {
+          seenTexts.add(norm);
+          uniqueOptions.push(opt);
+        }
+      });
+
+      // To maintain the original order, sort uniqueOptions by their original index
+      uniqueOptions.sort((a, b) => optionsArr.indexOf(a) - optionsArr.indexOf(b));
 
       let opcion_a = '';
       let opcion_b = '';
@@ -263,7 +289,7 @@ export async function GET(request) {
       let opcion_e = '';
       let respuesta_correcta = 'A';
 
-      optionsArr.forEach((opt, idx) => {
+      uniqueOptions.forEach((opt, idx) => {
         // Strip out leading "a) ", "b) ", "c) " if present for clean display
         const cleanText = opt.texto_opcion.replace(/^[a-z]\)\s*/i, '');
         if (idx === 0) {
