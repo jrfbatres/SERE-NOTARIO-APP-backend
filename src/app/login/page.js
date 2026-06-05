@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '../ThemeContext';
+import Link from 'next/link';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -92,7 +93,7 @@ export default function LoginPage() {
             <div className="flex flex-col space-y-xs">
               <div className="flex justify-between items-center">
                 <label className={`font-label-md text-label-md ${themeClasses.label}`} htmlFor="password">Contraseña</label>
-                <a className="font-label-md text-label-md text-[#b59348] hover:underline" href="#">¿Olvidó su contraseña?</a>
+                <Link className="font-label-md text-label-md text-[#b59348] hover:underline" href="/recuperar-clave">¿Olvidó su contraseña?</Link>
               </div>
               <div className="relative flex items-center">
                 <span className="material-symbols-outlined absolute left-sm text-gray-400">lock</span>
