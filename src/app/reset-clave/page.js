@@ -152,7 +152,10 @@ function ResetForm() {
 export default function ResetClave() {
   return (
     <div className="min-h-screen bg-[#111315] flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md bg-[#191c1e] rounded-xl shadow-2xl p-8 border border-[#2a2d30]">
+      <div 
+        className="w-full max-w-md bg-[#191c1e] rounded-xl shadow-2xl p-8 border border-[#2a2d30]"
+        style={{ width: '100%', maxWidth: '28rem', minWidth: 'min(90vw, 400px)' }}
+      >
         <div className="flex justify-center mb-8">
           <div className="w-16 h-16 bg-[#d4af37]/10 rounded-2xl flex items-center justify-center">
             <span className="material-symbols-outlined text-[#d4af37] text-3xl">password</span>
