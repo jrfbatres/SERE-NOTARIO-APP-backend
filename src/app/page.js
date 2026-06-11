@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Treemap, ResponsiveContainer, Tooltip } from 'recharts';
 import { useTheme } from './ThemeContext';
 import UserProfilePopup from '../components/UserProfilePopup';
+import InvitationModal from '../components/InvitationModal';
 
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
@@ -109,6 +110,7 @@ export default function DashboardPage() {
   const { isDarkMode, toggleDarkMode } = useTheme();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
 
   const carouselSlides = [
     {
@@ -301,6 +303,16 @@ export default function DashboardPage() {
             <span className="flex-1 text-left">Planes de Pago</span>
           </button>
 
+          {['Fundador', 'Administrador'].includes(userProfile?.rol) && (
+            <button
+              onClick={() => setIsInviteModalOpen(true)}
+              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all active:scale-[0.98] text-[13px] uppercase tracking-wider text-white shadow-lg bg-gradient-to-r from-[#b59348] to-[#9c7a36] hover:brightness-110`}
+            >
+              <span className="material-symbols-outlined text-[20px]">group_add</span>
+              <span className="flex-1 text-left">Invitar Colega</span>
+            </button>
+          )}
+
           {userProfile?.rol === 'Administrador' && (
             <button
               onClick={() => router.push('/admin/auditoria')}
@@ -428,6 +440,15 @@ export default function DashboardPage() {
 
         </div>
       </main>
+
+      <InvitationModal 
+        isOpen={isInviteModalOpen} 
+        onClose={() => setIsInviteModalOpen(false)} 
+        onInvitationSent={() => {
+          setToast("¡Invitación enviada con éxito!");
+          setTimeout(() => setToast(null), 5000);
+        }}
+      />
     </div>
   );
 }

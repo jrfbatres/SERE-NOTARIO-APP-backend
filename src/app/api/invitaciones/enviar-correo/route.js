@@ -61,7 +61,7 @@ export async function POST(request) {
             </p>
             
             <div style="text-align: center; margin-top: 40px; margin-bottom: 20px;">
-              <a href="https://serenotario.com/login" style="display: inline-block; background-color: #d4af37; color: #ffffff; text-decoration: none; padding: 14px 30px; border-radius: 6px; font-weight: bold; font-size: 16px; text-transform: uppercase; letter-spacing: 1px;">Iniciar Sesión Ahora</a>
+              <a href="https://www.serenotario.com/login" style="display: inline-block; background-color: #d4af37; color: #ffffff; text-decoration: none; padding: 14px 30px; border-radius: 6px; font-weight: bold; font-size: 16px; text-transform: uppercase; letter-spacing: 1px;">Iniciar Sesión Ahora</a>
             </div>
           </div>
           <div style="background-color: #f1f1f1; padding: 20px; text-align: center;">

@@ -73,7 +73,7 @@ export default function InvitationModal({ isOpen, onClose, onInvitationSent }) {
 
   const getMessageTemplate = () => {
     if (!successData) return '';
-    return `¡Hola ${successData.nombre}! ⚖️\n\nHas sido invitado de manera exclusiva a formar parte de *SERÉ NOTARIO*, en nuestra fase de lanzamiento.\nTendrás acceso completo por 2 meses para practicar y prepararte de la mejor forma.\n\nIngresa aquí: https://serenotario.com\nTu usuario: ${successData.correo}\nTu clave de acceso: ${successData.claveTemporal}\n\n¡Te esperamos!`;
+    return `¡Hola ${successData.nombre}! ⚖️\n\nHas sido invitado de manera exclusiva a formar parte de *SERÉ NOTARIO*, en nuestra fase de lanzamiento.\nTendrás acceso completo por 2 meses para practicar y prepararte de la mejor forma.\n\nIngresa aquí: https://www.serenotario.com\nTu usuario: ${successData.correo}\nTu clave de acceso: ${successData.claveTemporal}\n\n¡Te esperamos!`;
   };
 
   const handleWhatsApp = () => {
