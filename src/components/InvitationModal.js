@@ -31,6 +31,14 @@ export default function InvitationModal({ isOpen, onClose, onInvitationSent }) {
     setLoading(true);
     setError('');
     
+    if (!formData.correo && !formData.telefono) {
+      setError('Debe ingresar un correo electrónico o un número de teléfono');
+      setLoading(false);
+      return;
+    }
+
+    const usuario = formData.correo ? formData.correo : formData.telefono;
+    
     try {
       const token = localStorage.getItem('token');
       const res = await fetch('/api/invitaciones/enviar', {
@@ -41,7 +49,7 @@ export default function InvitationModal({ isOpen, onClose, onInvitationSent }) {
         },
         body: JSON.stringify({
           nombre: formData.nombre,
-          correo: formData.correo
+          correo: usuario
         })
       });
       
@@ -65,7 +73,7 @@ export default function InvitationModal({ isOpen, onClose, onInvitationSent }) {
 
   const getMessageTemplate = () => {
     if (!successData) return '';
-    return `¡Hola ${successData.nombre}! ⚖️\n\nHas sido invitado de manera exclusiva a formar parte de *SERÉ NOTARIO*, en nuestra fase de lanzamiento.\nTendrás acceso completo por 2 meses para practicar y prepararte de la mejor forma.\n\nIngresa aquí: https://serenotario.com\nTu correo: ${successData.correo}\nTu clave de acceso: ${successData.claveTemporal}\n\n¡Te esperamos!`;
+    return `¡Hola ${successData.nombre}! ⚖️\n\nHas sido invitado de manera exclusiva a formar parte de *SERÉ NOTARIO*, en nuestra fase de lanzamiento.\nTendrás acceso completo por 2 meses para practicar y prepararte de la mejor forma.\n\nIngresa aquí: https://serenotario.com\nTu usuario: ${successData.correo}\nTu clave de acceso: ${successData.claveTemporal}\n\n¡Te esperamos!`;
   };
 
   const handleWhatsApp = () => {
@@ -160,11 +168,10 @@ export default function InvitationModal({ isOpen, onClose, onInvitationSent }) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1 opacity-80">Correo Electrónico</label>
+              <label className="block text-sm font-medium mb-1 opacity-80">Usuario</label>
               <input 
-                type="email" 
+                type="text" 
                 name="correo"
-                required
                 value={formData.correo}
                 onChange={handleChange}
                 placeholder="ana@ejemplo.com"
@@ -211,7 +218,7 @@ export default function InvitationModal({ isOpen, onClose, onInvitationSent }) {
             </div>
 
             <div className="bg-[#b59348]/10 border border-[#b59348]/30 p-4 rounded-xl text-left mx-2 my-6 text-sm">
-              <p><strong>Correo:</strong> {successData.correo}</p>
+              <p><strong>Usuario:</strong> {successData.correo}</p>
               <p><strong>Clave:</strong> {successData.claveTemporal}</p>
             </div>
 
@@ -226,19 +233,21 @@ export default function InvitationModal({ isOpen, onClose, onInvitationSent }) {
                 WhatsApp
               </button>
               
-              <button 
-                onClick={handleEmail}
-                disabled={emailLoading || emailSuccess}
-                className={`w-full py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-colors shadow-md ${emailSuccess ? 'bg-green-600 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white'} ${(emailLoading || emailSuccess) ? 'opacity-80 cursor-not-allowed' : ''}`}
-              >
-                {emailLoading ? (
-                  <><span className="material-symbols-outlined animate-spin">refresh</span> Enviando...</>
-                ) : emailSuccess ? (
-                  <><span className="material-symbols-outlined">check</span> ¡Enviado exitosamente!</>
-                ) : (
-                  <><span className="material-symbols-outlined">mail</span> Enviar por Correo</>
-                )}
-              </button>
+              {successData.correo && successData.correo.includes('@') && (
+                <button 
+                  onClick={handleEmail}
+                  disabled={emailLoading || emailSuccess}
+                  className={`w-full py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-colors shadow-md ${emailSuccess ? 'bg-green-600 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white'} ${(emailLoading || emailSuccess) ? 'opacity-80 cursor-not-allowed' : ''}`}
+                >
+                  {emailLoading ? (
+                    <><span className="material-symbols-outlined animate-spin">refresh</span> Enviando...</>
+                  ) : emailSuccess ? (
+                    <><span className="material-symbols-outlined">check</span> ¡Enviado exitosamente!</>
+                  ) : (
+                    <><span className="material-symbols-outlined">mail</span> Enviar por Correo</>
+                  )}
+                </button>
+              )}
             </div>
             
             <button 

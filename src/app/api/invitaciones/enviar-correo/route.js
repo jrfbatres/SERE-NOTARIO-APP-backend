@@ -50,7 +50,7 @@ export async function POST(request) {
             </p>
             
             <div style="background-color: #f8f9fa; padding: 25px; border-radius: 8px; margin: 30px 0; border-left: 4px solid #d4af37;">
-              <p style="margin: 0 0 10px 0; color: #4a4a4a; font-size: 15px;"><strong>Tu correo de acceso:</strong> <br/><span style="color: #191c1e;">${correo.toLowerCase().trim()}</span></p>
+              <p style="margin: 0 0 10px 0; color: #4a4a4a; font-size: 15px;"><strong>Tu usuario de acceso:</strong> <br/><span style="color: #191c1e;">${correo.toLowerCase().trim()}</span></p>
               <p style="margin: 0; color: #4a4a4a; font-size: 15px;"><strong>Tu contraseña temporal:</strong> <br/>
                 <span style="display: inline-block; background-color: #ffe088; color: #191c1e; padding: 6px 12px; border-radius: 4px; font-weight: bold; letter-spacing: 2px; margin-top: 5px; font-size: 18px;">${claveTemporal}</span>
               </p>
