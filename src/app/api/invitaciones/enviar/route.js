@@ -66,50 +66,57 @@ export async function POST(request) {
     // 2. Verificar si el correo ya existe
     const correoLower = correo.toLowerCase().trim();
     const checkEmail = await query(
-      `SELECT id FROM "notarioElite".usuarios WHERE correo = $1`,
+      `SELECT id, nombre FROM "notarioElite".usuarios WHERE correo = $1`,
       [correoLower]
     );
-
-    if (checkEmail.rows.length > 0) {
-      return NextResponse.json({ success: false, error: 'El correo del invitado ya está registrado' }, { status: 400 });
-    }
 
     // 3. Generar token y encriptarlo
     const generatedToken = generateRandomToken(10);
     const salt = await bcrypt.genSalt(10);
     const hashedClave = await bcrypt.hash(generatedToken, salt);
 
-    // 4. Insertar el nuevo usuario y descontar invitación (usando transacción)
-    // Para simplificar (ya que query de db.js podría no soportar transacciones fácilmente si es un pool directo) 
-    // lo haremos secuencial, asumiendo poco riesgo de colisión.
-    // Usamos CURRENT_DATE + interval '2 months' para fecha_vence. 
-    // Y ban_fundador = true (o 'S'). En pg si es boolean acepta true. Asumimos boolean. Si falla, el catch lo atrapa.
-    
-    // Trataremos de usar true primero. Si la columna es char, Postgres podría rechazarlo.
-    // Vamos a forzar fecha_vence a 2 meses en JS para tener control exacto y pasar el string
-    const dueDate = new Date();
-    dueDate.setMonth(dueDate.getMonth() + 2);
-    const fechaVenceStr = dueDate.toISOString().split('T')[0];
+    let newUser = null;
 
-    const insertResult = await query(`
-      INSERT INTO "notarioElite".usuarios (nombre, correo, clave, ban_pago, ban_fundador, fecha_vence)
-      VALUES ($1, $2, $3, $4, $5, $6)
-      RETURNING id, nombre, correo
-    `, [nombre.trim(), correoLower, hashedClave, true, true, fechaVenceStr]); // ban_pago=true para que se considere activo junto a la fecha
-
-    const newUser = insertResult.rows[0];
-
-    // Descontar la invitación solo si no es Admin
-    if (!isAdmin) {
+    if (checkEmail.rows.length > 0) {
+      // El usuario ya existe, recreamos la invitación actualizando su clave
+      const existingUser = checkEmail.rows[0];
       await query(
-        `UPDATE "notarioElite".usuarios SET cantidad_invitaciones = cantidad_invitaciones - 1 WHERE id = $1`,
-        [userId]
+        `UPDATE "notarioElite".usuarios SET clave = $1, ban_pago = $2 WHERE id = $3`,
+        [hashedClave, true, existingUser.id]
       );
+      newUser = {
+        nombre: existingUser.nombre,
+        correo: correoLower
+      };
+      
+      // Nota: No descontamos una invitación adicional si solo estamos re-enviando/re-creando
+      // la invitación para un usuario que ya existe en la base de datos.
+    } else {
+      // 4. Insertar el nuevo usuario y descontar invitación
+      const dueDate = new Date();
+      dueDate.setMonth(dueDate.getMonth() + 2);
+      const fechaVenceStr = dueDate.toISOString().split('T')[0];
+
+      const insertResult = await query(`
+        INSERT INTO "notarioElite".usuarios (nombre, correo, clave, ban_pago, ban_fundador, fecha_vence)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING id, nombre, correo
+      `, [nombre.trim(), correoLower, hashedClave, true, true, fechaVenceStr]); 
+
+      newUser = insertResult.rows[0];
+
+      // Descontar la invitación solo si no es Admin
+      if (!isAdmin) {
+        await query(
+          `UPDATE "notarioElite".usuarios SET cantidad_invitaciones = cantidad_invitaciones - 1 WHERE id = $1`,
+          [userId]
+        );
+      }
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Invitación creada exitosamente',
+      message: checkEmail.rows.length > 0 ? 'Invitación recreada exitosamente' : 'Invitación creada exitosamente',
       data: {
         nombre: newUser.nombre,
         correo: newUser.correo,

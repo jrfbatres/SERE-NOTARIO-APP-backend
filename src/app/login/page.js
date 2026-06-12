@@ -75,15 +75,15 @@ export default function LoginPage() {
 
           <form onSubmit={handleLogin} className="space-y-md">
             <div className="flex flex-col space-y-xs">
-              <label className={`font-label-md text-label-md ${themeClasses.label}`} htmlFor="email">Correo Electrónico</label>
+              <label className={`font-label-md text-label-md ${themeClasses.label}`} htmlFor="email">Correo o Teléfono</label>
               <div className="relative">
-                <span className="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-gray-400">mail</span>
+                <span className="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-gray-400">person</span>
                 <input
                   className={`w-full pl-10 pr-sm py-sm border rounded focus:ring-1 focus:ring-[#b59348] focus:border-[#b59348] transition-all outline-none font-body-md ${themeClasses.inputBg}`}
                   id="email"
-                  placeholder="nombre@ejemplo.com"
+                  placeholder="nombre@ejemplo.com o 12345678"
                   required
-                  type="email"
+                  type="text"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />

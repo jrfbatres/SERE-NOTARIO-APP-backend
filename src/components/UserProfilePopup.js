@@ -82,8 +82,8 @@ export default function UserProfilePopup({ userProfile, position = 'bottom' }) {
           <span className={`material-symbols-outlined ${isDarkMode ? 'text-white' : 'text-[#002b49]'}`}>person</span>
         </button>
         {profile?.nombre && (
-          <span className={`text-[10px] font-semibold mt-1 max-w-[60px] md:max-w-[80px] truncate text-center ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-            {profile.nombre.split(' ')[0]}
+          <span className={`text-[10px] font-semibold mt-1 max-w-[120px] md:max-w-[160px] truncate text-center ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+            {profile.nombre}
           </span>
         )}
 
