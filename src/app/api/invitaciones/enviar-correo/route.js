@@ -46,7 +46,13 @@ export async function POST(request) {
           <div style="padding: 40px 30px;">
             <h2 style="color: #191c1e; text-align: center; font-size: 24px; margin-top: 0;">¡Hola, ${nombre.trim()}!</h2>
             <p style="color: #4a4a4a; font-size: 16px; line-height: 1.6; text-align: center;">
-              Has recibido una invitación exclusiva para unirte a la plataforma de preparación <strong style="color: #191c1e;">Seré Notario</strong>.
+              Has recibido una invitación exclusiva para unirte a <strong style="color: #191c1e;">Seré Notario</strong>, la plataforma integral de preparación para el examen de notariado.
+            </p>
+            <p style="color: #4a4a4a; font-size: 15px; line-height: 1.6; text-align: center;">
+              Hemos diseñado una <strong>ruta de estudio estratégica</strong> que abarca las leyes y los temas más frecuentes del examen. A través de nuestra <strong>ruta crítica de estudio</strong>, podrás enfocar tu preparación y maximizar tu rendimiento para asegurar el éxito.
+            </p>
+            <p style="color: #4a4a4a; font-size: 15px; line-height: 1.6; text-align: center;">
+              Tendrás acceso completo por 2 meses para practicar y prepararte al más alto nivel.
             </p>
             
             <div style="background-color: #f8f9fa; padding: 25px; border-radius: 8px; margin: 30px 0; border-left: 4px solid #d4af37;">

@@ -72,8 +72,7 @@ export default function InvitationModal({ isOpen, onClose, onInvitationSent }) {
   };
 
   const getMessageTemplate = () => {
-    if (!successData) return '';
-    return `¡Hola ${successData.nombre}! ⚖️\n\nHas sido invitado de manera exclusiva a formar parte de *SERÉ NOTARIO*, en nuestra fase de lanzamiento.\nTendrás acceso completo por 2 meses para practicar y prepararte de la mejor forma.\n\nIngresa aquí: https://www.serenotario.com\nTu usuario: ${successData.correo}\nTu clave de acceso: ${successData.claveTemporal}\n\n¡Te esperamos!`;
+    return `¡Hola ${successData.nombre}! ⚖️\n\nHas sido invitado de manera exclusiva a formar parte de *SERÉ NOTARIO*, la plataforma integral de preparación para el examen de notariado.\n\nHemos diseñado una ruta de estudio estratégica que abarca las leyes y los temas más frecuentes del examen. A través de nuestra *ruta crítica de estudio*, podrás enfocar tu preparación y maximizar tu rendimiento para asegurar el éxito.\n\nTendrás acceso completo por 2 meses para practicar y prepararte al más alto nivel.\n\nIngresa aquí: https://www.serenotario.com\nTu usuario: ${successData.correo}\nTu clave temporal: ${successData.claveTemporal}\n\n¡Te esperamos en el camino hacia la excelencia profesional!`;
   };
 
   const handleWhatsApp = () => {
