@@ -1970,21 +1970,6 @@ export default function EstudioPage() {
                 <div className={`flex gap-2 p-1 rounded-xl border ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-navy-brand/5 border-navy-brand/10'}`}>
                   <button
                     onClick={() => {
-                      setActiveTab('info');
-                      setSidebarTab('glosario');
-                      setShowLeftSidebar(false);
-                    }}
-                    className={`py-2 px-4 rounded-lg font-bold text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 ${
-                      activeTab === 'info'
-                        ? 'bg-gold-brand text-navy-brand font-black shadow-sm'
-                        : isDarkMode ? 'text-white/60 hover:text-white/80 hover:bg-white/5' : 'text-navy-brand/60 hover:text-navy-brand/80 hover:bg-navy-brand/5'
-                    }`}
-                  >
-                    <span className="material-symbols-outlined text-[18px]">info</span>
-                    Información
-                  </button>
-                  <button
-                    onClick={() => {
                       const isTabLocked = selectedNode && selectedNode.children && selectedNode.children.length > 0 && !areDescendantsCompleted(selectedNode);
                       if (isTabLocked) {
                         showToast("Debes completar y aprobar todos los subtemas antes de poder realizar evaluar este tema principal.");
@@ -2007,6 +1992,21 @@ export default function EstudioPage() {
                       {selectedNode && selectedNode.children && selectedNode.children.length > 0 && !areDescendantsCompleted(selectedNode) ? 'lock' : 'quiz'}
                     </span>
                     Evaluar Tema
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveTab('info');
+                      setSidebarTab('glosario');
+                      setShowLeftSidebar(false);
+                    }}
+                    className={`py-2 px-4 rounded-lg font-bold text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 ${
+                      activeTab === 'info'
+                        ? 'bg-gold-brand text-navy-brand font-black shadow-sm'
+                        : isDarkMode ? 'text-white/60 hover:text-white/80 hover:bg-white/5' : 'text-navy-brand/60 hover:text-navy-brand/80 hover:bg-navy-brand/5'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[18px]">info</span>
+                    Información
                   </button>
                   <button
                     onClick={() => {
