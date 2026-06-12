@@ -127,7 +127,7 @@ export default function EstudioPage() {
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [showLeftSidebar, setShowLeftSidebar] = useState(false);
   const [showRightSidebar, setShowRightSidebar] = useState(false);
-  const [sidebarTab, setSidebarTab] = useState('glosario'); // 'glosario' | 'articulos'
+  const [sidebarTab, setSidebarTab] = useState('articulos'); // 'glosario' | 'articulos'
   const [wonInvitations, setWonInvitations] = useState(0);
 
   useEffect(() => {
@@ -1211,7 +1211,8 @@ export default function EstudioPage() {
     setMiniCorrectCount(0);
     setMiniFinished(false);
     setMiniResponses([]);
-    setActiveTab('info');
+    setActiveTab('simulacro');
+    setSidebarTab('articulos');
 
     const token = localStorage.getItem('token');
     if (!token) {
