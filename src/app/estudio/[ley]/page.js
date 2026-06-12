@@ -259,7 +259,7 @@ export default function EstudioPage() {
   };
 
   // Tabs state
-  const [activeTab, setActiveTab] = useState('info'); // 'info' | 'slides' | 'simulacro' | 'preguntas_asociadas'
+  const [activeTab, setActiveTab] = useState('simulacro'); // 'info' | 'slides' | 'simulacro' | 'preguntas_asociadas'
   const [showDerogados, setShowDerogados] = useState(false);
   const [preguntasAsociadas, setPreguntasAsociadas] = useState([]);
   const [loadingPreguntasAsociadas, setLoadingPreguntasAsociadas] = useState(false);
