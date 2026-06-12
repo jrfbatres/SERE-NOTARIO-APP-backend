@@ -1321,7 +1321,7 @@ export default function EstudioPage() {
     if (activeTab === 'simulacro' && miniPreguntas.length === 0 && !miniFinished) {
       loadMiniQuiz();
     }
-  }, [activeTab]);
+  }, [activeTab, selectedNodeId]);
 
   useEffect(() => {
     if (activeTab === 'preguntas_asociadas' && selectedNodeId) {
