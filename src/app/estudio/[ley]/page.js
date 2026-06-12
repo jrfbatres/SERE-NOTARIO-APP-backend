@@ -1318,10 +1318,10 @@ export default function EstudioPage() {
   };
 
   useEffect(() => {
-    if (activeTab === 'simulacro' && miniPreguntas.length === 0 && !miniFinished) {
+    if (activeTab === 'simulacro' && miniPreguntas.length === 0 && !miniFinished && !miniLoading) {
       loadMiniQuiz();
     }
-  }, [activeTab, selectedNodeId]);
+  }, [activeTab, selectedNodeId, miniPreguntas.length, miniFinished, miniLoading]);
 
   useEffect(() => {
     if (activeTab === 'preguntas_asociadas' && selectedNodeId) {
