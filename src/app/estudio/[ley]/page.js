@@ -1944,7 +1944,7 @@ export default function EstudioPage() {
         {/* Edge Toggle Button (Desktop Only) */}
         <button
           onClick={() => setShowLeftSidebar(!showLeftSidebar)}
-          className={`absolute top-1/2 -translate-y-1/2 z-40 p-1.5 py-4 rounded-r-xl shadow-lg border border-l-0 transition-all duration-300 hidden xl:flex items-center justify-center cursor-pointer
+          className={`fixed top-[120px] z-50 p-1.5 py-4 rounded-r-xl shadow-lg border border-l-0 transition-all duration-300 hidden xl:flex items-center justify-center cursor-pointer
             ${showLeftSidebar 
               ? `left-96 ${isDarkMode ? 'bg-[#002b49] text-gold-brand border-white/10 hover:bg-[#003b60]' : 'bg-navy-brand text-gold-brand border-gold-brand/20 hover:bg-navy-brand/90'}` 
               : `left-0 ${isDarkMode ? 'bg-[#002b49] text-gold-brand border-gold-brand/30 hover:bg-[#003b60]' : 'bg-navy-brand text-gold-brand border-gold-brand/30 hover:bg-navy-brand/90'}`
