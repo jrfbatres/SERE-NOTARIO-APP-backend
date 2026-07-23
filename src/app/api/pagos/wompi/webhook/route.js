@@ -63,12 +63,24 @@ export async function POST(request) {
           [mesesDuracion, pago.id]
         );
 
-        // 3. Calculamos la bandera de nodos libres
-        // El usuario indicó que planes de $20 o $80 habilitan ban_nodos_libres en 'S'
+        // 3. Calculamos la bandera de nodos libres y el plan de estudio
         let banNodosLibres = 'N';
+        let banPlan = 'B'; // Default to Lite
         const montoNum = parseFloat(monto);
-        if (montoNum === 20 || montoNum === 80) {
+        
+        if (montoNum === 10) {
           banNodosLibres = 'S';
+          banPlan = 'P'; // Profundo
+        } else if (montoNum === 15) {
+          banNodosLibres = 'S';
+          banPlan = 'C'; // Completo
+        } else if (montoNum === 5) {
+          banNodosLibres = 'N';
+          banPlan = 'B'; // Lite
+        } else if (montoNum === 20 || montoNum === 80) {
+          // Fallback legacy values
+          banNodosLibres = 'S';
+          banPlan = 'C';
         }
 
         // 4. Actualizamos la tabla maestra de usuarios
@@ -77,9 +89,10 @@ export async function POST(request) {
            SET fecha_pago = NOW(),
                fecha_vence = NOW() + ($1 || ' months')::interval,
                ban_pago = 'S',
-               ban_nodos_libres = $2
-           WHERE id = $3`,
-          [mesesDuracion, banNodosLibres, usuarioId]
+               ban_nodos_libres = $2,
+               ban_plan = $3
+           WHERE id = $4`,
+          [mesesDuracion, banNodosLibres, banPlan, usuarioId]
         );
 
         console.log(`Plan activado correctamente para el usuario ${usuarioId}.`);

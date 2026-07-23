@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useEffect, useState, useRef, Suspense } from 'react';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { useTheme } from '../../ThemeContext';
 
 // Web Audio API Sound Synthesizer (Zero-dependency, offline-ready)
@@ -79,19 +79,59 @@ const playSound = (isCorrect) => {
 };
 
 export default function SimuladorPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#001524]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#b59348] mb-4"></div>
+        <span className="font-bold text-white animate-pulse">Preparando Simulador...</span>
+      </div>
+    }>
+      <SimuladorContent />
+    </Suspense>
+  );
+}
+
+function SimuladorContent() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
+  const limitParam = searchParams.get('limit');
+  const pensumIdParam = searchParams.get('pensum_id');
+  const diaParam = searchParams.get('dia');
+  const planSlugParam = searchParams.get('plan');
   const nodo = params.nodo; // Either a node_id or 'simulacro'
   const { isDarkMode, toggleDarkMode } = useTheme();
 
+  const pensumId = pensumIdParam ? parseInt(pensumIdParam, 10) : null;
+  const dia = diaParam ? parseInt(diaParam, 10) : null;
+
+  // Resolve limit from query param or fallback to localStorage (handles refreshes)
+  const keySuffix = `${nodo}${pensumId ? `_${pensumId}` : ''}${dia ? `_${dia}` : ''}`;
+  let activeLimit = limitParam;
+  if (typeof window !== 'undefined') {
+    if (limitParam) {
+      localStorage.setItem(`sim_limit_${keySuffix}`, limitParam);
+    } else {
+      activeLimit = localStorage.getItem(`sim_limit_${keySuffix}`);
+    }
+  }
+
   const [preguntas, setPreguntas] = useState([]);
+  const [allPreguntas, setAllPreguntas] = useState([]);
   const [nodeContent, setNodeContent] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [bloqueActual, setBloqueActual] = useState(1);
+  const [bloquesTotales, setBloquesTotales] = useState(1);
 
   const handleClose = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(`sim_limit_${keySuffix}`);
+    }
     if (nodo && typeof nodo === 'string' && nodo.startsWith('ley-')) {
       const leyId = nodo.split('-')[1];
       router.push(`/estudio/${leyId}`);
+    } else if (planSlugParam) {
+      router.push(`/ruta-estudio/${planSlugParam}`);
     } else {
       router.push('/');
     }
@@ -112,8 +152,98 @@ export default function SimuladorPage() {
   const isHandsFreeActiveRef = useRef(false);
   const handsFreeStateRef = useRef('idle'); 
   const recognitionRef = useRef(null);
+  const currentIndexRef = useRef(0);
+  const isAnsweredRef = useRef(false);
+  const selectedOptionRef = useRef(null);
   const [handsFreeTranscript, setHandsFreeTranscript] = useState('');
   const [playingArticleId, setPlayingArticleId] = useState(null);
+
+  function cleanOptionText(text) {
+    if (!text) return '';
+    return text.replace(/[*#_`]/g, '').replace(/\[\+\]/g, '').replace(/\[-\]/g);
+  }
+
+  function speakHandsFreeText(textToRead, onEndCallback, onErrorCallback) {
+    if (typeof window === 'undefined') return;
+    window.speechSynthesis.cancel();
+
+    const cleanText = cleanOptionText(textToRead)
+      .replace(/\bArts\b\.?/gi, 'Artículos')
+      .replace(/\bArt\b\.?/gi, 'Artículo');
+
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.lang = 'es-MX';
+    
+    const voices = window.speechSynthesis.getVoices();
+    const esVoice = voices.find(v => v.lang.startsWith('es-MX')) || 
+                    voices.find(v => v.lang.startsWith('es-419')) || 
+                    voices.find(v => v.lang.startsWith('es'));
+    if (esVoice) utterance.voice = esVoice;
+    
+    utterance.rate = 0.96;
+    utterance.pitch = 0.95;
+
+    utterance.onend = () => { if (onEndCallback) onEndCallback(); };
+    utterance.onerror = (e) => { if (onErrorCallback) onErrorCallback(); };
+
+    window.speechSynthesis.speak(utterance);
+  }
+
+  function speakCurrentHandsFreeQuestion() {
+    if (!isHandsFreeActiveRef.current) return;
+    const questions = preguntas;
+    const idx = currentIndexRef.current;
+    if (!questions || questions.length === 0 || idx >= questions.length) return;
+
+    handsFreeStateRef.current = 'speaking_question';
+    if (recognitionRef.current) {
+      try { recognitionRef.current.abort(); } catch (e) {}
+    }
+
+    const currentQ = questions[idx];
+    let text = `Pregunta número ${idx + 1}. ${currentQ.pregunta}. `;
+    if (currentQ.opcion_a) text += `Opción A. ${cleanOptionText(currentQ.opcion_a)}. `;
+    if (currentQ.opcion_b) text += `Opción B. ${cleanOptionText(currentQ.opcion_b)}. `;
+    if (currentQ.opcion_c) text += `Opción C. ${cleanOptionText(currentQ.opcion_c)}. `;
+    if (currentQ.opcion_d) text += `Opción D. ${cleanOptionText(currentQ.opcion_d)}. `;
+    if (currentQ.opcion_e) text += `Opción E. ${cleanOptionText(currentQ.opcion_e)}. `;
+    text += `Selecciona tu respuesta en la pantalla.`;
+
+    speakHandsFreeText(text, () => {
+      handsFreeStateRef.current = 'idle';
+    }, () => {
+      handsFreeStateRef.current = 'idle';
+    });
+  }
+
+  const [userProfile, setUserProfile] = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    fetch('/api/usuario/perfil', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          const profile = data.data;
+          setUserProfile(profile);
+          
+          // Check if user has access to "Ley por Ley" (free mode)
+          const isPlanSession = pensumId !== null && dia !== null;
+          const isAdmin = profile.correo === 'admin@serenotario.com' || profile.rol === 'Administrador';
+          const isPrivileged = isAdmin || profile.rol === 'Fundador';
+          const userPlan = (profile.ban_plan || '').toUpperCase();
+          
+          if (!isPlanSession && !isPrivileged && userPlan !== 'C') {
+            alert("Acceso Denegado. La evaluación libre Ley por Ley (simuladores individuales) solo está disponible en el plan Completo (Acceso Total). Adquiérelo en la sección de Planes de Pago.");
+            router.push('/');
+          }
+        }
+      })
+      .catch(err => console.error("Error fetching profile", err));
+  }, [pensumId, dia, router]);
 
   const toggleReadingRelated = (textToRead) => {
     if (playingArticleId === 'related') {
@@ -124,10 +254,6 @@ export default function SimuladorPage() {
       speakHandsFreeText(textToRead, () => setPlayingArticleId(null), () => setPlayingArticleId(null));
     }
   };
-  
-  const currentIndexRef = useRef(0);
-  const isAnsweredRef = useRef(false);
-  const selectedOptionRef = useRef(null);
 
   useEffect(() => {
     isHandsFreeActiveRef.current = isHandsFreeActive;
@@ -155,64 +281,6 @@ export default function SimuladorPage() {
   useEffect(() => {
     selectedOptionRef.current = selectedOption;
   }, [selectedOption]);
-
-  const cleanOptionText = (text) => {
-    if (!text) return '';
-    return text.replace(/[*#_`]/g, '').replace(/\[\+\]/g, '').replace(/\[-\]/g, '');
-  };
-
-  const speakHandsFreeText = (textToRead, onEndCallback, onErrorCallback) => {
-    if (typeof window === 'undefined') return;
-    window.speechSynthesis.cancel();
-
-    const cleanText = cleanOptionText(textToRead)
-      .replace(/\bArts\b\.?/gi, 'Artículos')
-      .replace(/\bArt\b\.?/gi, 'Artículo');
-
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.lang = 'es-MX';
-    
-    const voices = window.speechSynthesis.getVoices();
-    const esVoice = voices.find(v => v.lang.startsWith('es-MX')) || 
-                    voices.find(v => v.lang.startsWith('es-419')) || 
-                    voices.find(v => v.lang.startsWith('es'));
-    if (esVoice) utterance.voice = esVoice;
-    
-    utterance.rate = 0.96;
-    utterance.pitch = 0.95;
-
-    utterance.onend = () => { if (onEndCallback) onEndCallback(); };
-    utterance.onerror = (e) => { if (onErrorCallback) onErrorCallback(); };
-
-    window.speechSynthesis.speak(utterance);
-  };
-
-  const speakCurrentHandsFreeQuestion = () => {
-    if (!isHandsFreeActiveRef.current) return;
-    const questions = preguntas;
-    const idx = currentIndexRef.current;
-    if (!questions || questions.length === 0 || idx >= questions.length) return;
-
-    handsFreeStateRef.current = 'speaking_question';
-    if (recognitionRef.current) {
-      try { recognitionRef.current.abort(); } catch (e) {}
-    }
-
-    const currentQ = questions[idx];
-    let text = `Pregunta número ${idx + 1}. ${currentQ.pregunta}. `;
-    if (currentQ.opcion_a) text += `Opción A. ${cleanOptionText(currentQ.opcion_a)}. `;
-    if (currentQ.opcion_b) text += `Opción B. ${cleanOptionText(currentQ.opcion_b)}. `;
-    if (currentQ.opcion_c) text += `Opción C. ${cleanOptionText(currentQ.opcion_c)}. `;
-    if (currentQ.opcion_d) text += `Opción D. ${cleanOptionText(currentQ.opcion_d)}. `;
-    if (currentQ.opcion_e) text += `Opción E. ${cleanOptionText(currentQ.opcion_e)}. `;
-    text += `Selecciona tu respuesta en la pantalla.`;
-
-    speakHandsFreeText(text, () => {
-      handsFreeStateRef.current = 'idle';
-    }, () => {
-      handsFreeStateRef.current = 'idle';
-    });
-  };
 
   const startListeningForResponse = () => {
     // Micrófono desactivado por petición del usuario (solo lectura)
@@ -337,6 +405,16 @@ export default function SimuladorPage() {
     }
   };
 
+  const filterValidPreguntas = (list) => {
+    if (!list || !Array.isArray(list)) return [];
+    return list.filter(q => {
+      const tienePregunta = !!q.pregunta;
+      const tieneRespuestaCorrecta = !!q.respuesta_correcta;
+      const tieneOpciones = !!(q.opcion_a || q.opcion_b || q.opcion_c || q.opcion_d || q.opcion_e);
+      return tienePregunta && tieneRespuestaCorrecta && tieneOpciones;
+    });
+  };
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -360,7 +438,9 @@ export default function SimuladorPage() {
       fetchWithAuth(`/api/simulador/preguntas?nodo_id=simulacro`)
         .then(preguntasData => {
           if (preguntasData.success) {
-            setPreguntas(preguntasData.data);
+            const filtered = filterValidPreguntas(preguntasData.data);
+            setPreguntas(filtered);
+            setAllPreguntas(filtered);
           }
           setNodeContent({ nombre: 'Simulacro General' });
           setLoading(false);
@@ -373,8 +453,10 @@ export default function SimuladorPage() {
       fetchWithAuth(`/api/simulador/preguntas?nodo_id=${nodo}`)
         .then(preguntasData => {
           if (preguntasData.success) {
-            setPreguntas(preguntasData.data);
-            const firstQuestion = preguntasData.data[0];
+            const filtered = filterValidPreguntas(preguntasData.data);
+            setPreguntas(filtered);
+            setAllPreguntas(filtered);
+            const firstQuestion = filtered[0];
             setNodeContent({ 
               nombre: firstQuestion ? `Examen: ${firstQuestion.ley_nombre}` : 'Examen de Ley' 
             });
@@ -390,9 +472,42 @@ export default function SimuladorPage() {
     } else {
       Promise.all([
         fetchWithAuth(`/api/simulador/preguntas?nodo_id=${nodo}`),
-        fetchWithAuth(`/api/nodos/${nodo}/contenido`)
-      ]).then(([preguntasData, nodeData]) => {
-        if (preguntasData.success) setPreguntas(preguntasData.data);
+        fetchWithAuth(`/api/nodos/${nodo}/contenido`),
+        fetchWithAuth(`/api/usuario/bloque?nodo_id=${nodo}${pensumId && dia ? `&pensum_id=${pensumId}&dia=${dia}` : ''}`)
+      ]).then(([preguntasData, nodeData, bloqueData]) => {
+        let activeBlock = 1;
+        if (bloqueData && bloqueData.success && typeof bloqueData.data === 'number' && bloqueData.data > 0) {
+          activeBlock = bloqueData.data;
+        }
+
+        let filtered = [];
+        if (preguntasData.success && preguntasData.data) {
+          filtered = filterValidPreguntas(preguntasData.data);
+        }
+
+        // Limit the candidate questions count to match study route day specification
+        if (activeLimit) {
+          const limitCount = parseInt(activeLimit, 10);
+          if (!isNaN(limitCount) && limitCount > 0) {
+            filtered = filtered.slice(0, limitCount);
+          }
+        }
+        setAllPreguntas(filtered);
+
+        const calculatedBlocks = Math.max(1, Math.ceil(filtered.length / 5));
+        setBloquesTotales(calculatedBlocks);
+
+        // Clamp activeBlock to be within [1, calculatedBlocks]
+        if (activeBlock > calculatedBlocks) {
+          activeBlock = calculatedBlocks;
+        }
+        setBloqueActual(activeBlock);
+
+        // Slice questions to get exactly 5 for the current block
+        const startIndex = (activeBlock - 1) * 5;
+        const blockPreguntas = filtered.slice(startIndex, startIndex + 5);
+
+        setPreguntas(blockPreguntas);
         if (nodeData.success) setNodeContent(nodeData.data);
         setLoading(false);
       }).catch(err => {
@@ -400,7 +515,7 @@ export default function SimuladorPage() {
         setLoading(false);
       });
     }
-  }, [nodo, router]);
+  }, [nodo, router, activeLimit, pensumId, dia]);
 
   const handleSelectOption = (opcion) => {
     if (isAnswered) return;
@@ -493,29 +608,176 @@ export default function SimuladorPage() {
       // Submit progress to save the last score
       const token = localStorage.getItem('token');
       if (token) {
-        fetch('/api/usuario/progreso', {
+        if (nodo === 'simulacro' || (nodo && typeof nodo === 'string' && nodo.startsWith('ley-'))) {
+          fetch('/api/usuario/progreso', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              nodo_id: nodo,
+              nota: finalScore,
+              completado: passed
+            })
+          })
+          .then(res => {
+            if (res.status === 401) {
+              localStorage.removeItem('token');
+              router.push('/login');
+            }
+          })
+          .catch(err => console.error("Error saving progress:", err));
+        } else {
+          // For block of 5 study nodes
+          const nextBlock = passed ? (bloqueActual + 1) : bloqueActual;
+          const nodeCompleted = passed && (nextBlock > bloquesTotales);
+
+          const progressBody = {
+            nodo_id: nodo,
+            nota: finalScore,
+            completado: nodeCompleted,
+            bloque_actual: bloqueActual
+          };
+          if (pensumId && dia) {
+            progressBody.pensum_id = pensumId;
+            progressBody.dia = dia;
+            progressBody.bloques_totales = bloquesTotales;
+          }
+
+          // 1. Submit score and overall completion
+          fetch('/api/usuario/progreso', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(progressBody)
+          })
+          .then(res => {
+            if (res.status === 401) {
+              localStorage.removeItem('token');
+              router.push('/login');
+            }
+          })
+          .catch(err => console.error("Error saving progress:", err));
+
+          // 2. Update current block in DB
+          if (passed) {
+            const blockBody = {
+              nodo_id: nodo,
+              bloque_actual: Math.min(nextBlock, bloquesTotales)
+            };
+            if (pensumId && dia) {
+              blockBody.pensum_id = pensumId;
+              blockBody.dia = dia;
+              blockBody.bloques_totales = bloquesTotales;
+            }
+
+            fetch('/api/usuario/bloque', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify(blockBody)
+            }).catch(err => console.error("Error saving block:", err));
+          }
+        }
+      }
+
+      setIsFinished(true);
+    }
+  };
+
+  const handleRestart = () => {
+    setCurrentIndex(0);
+    setSelectedOption(null);
+    setIsAnswered(false);
+    setCorrectAnswers(0);
+    setUserResponses({});
+    setIsFinished(false);
+    if (typeof window !== 'undefined') window.speechSynthesis.cancel();
+  };
+
+  const handleAvanzar = () => {
+    const isBlockQuiz = nodo !== 'simulacro' && !nodo.startsWith('ley-');
+    
+    const finalScore = (correctAnswers / preguntas.length) * 10;
+    const passed = finalScore >= 7;
+
+    if (!isBlockQuiz || bloqueActual >= bloquesTotales) {
+      if (isBlockQuiz && bloqueActual === bloquesTotales && !passed) {
+        // Marcamos como completado al avanzar el último bloque aunque no lo pase
+        const token = localStorage.getItem('token');
+        if (token) {
+          const progressBody = {
+            nodo_id: nodo,
+            nota: finalScore,
+            completado: true,
+            bloque_actual: bloqueActual
+          };
+          if (pensumId && dia) {
+            progressBody.pensum_id = pensumId;
+            progressBody.dia = dia;
+            progressBody.bloques_totales = bloquesTotales;
+          }
+
+          fetch('/api/usuario/progreso', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(progressBody)
+          })
+          .then(() => handleClose())
+          .catch(() => handleClose());
+          return;
+        }
+      }
+      handleClose();
+      return;
+    }
+
+    const nextBlock = bloqueActual + 1;
+    
+    if (!passed) {
+      const token = localStorage.getItem('token');
+      if (token) {
+        const blockBody = {
+          nodo_id: nodo,
+          bloque_actual: nextBlock
+        };
+        if (pensumId && dia) {
+          blockBody.pensum_id = pensumId;
+          blockBody.dia = dia;
+          blockBody.bloques_totales = bloquesTotales;
+        }
+
+        fetch('/api/usuario/bloque', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
-          body: JSON.stringify({
-            nodo_id: nodo,
-            nota: finalScore,
-            completado: passed
-          })
-        })
-        .then(res => {
-          if (res.status === 401) {
-            localStorage.removeItem('token');
-            router.push('/login');
-          }
-        })
-        .catch(err => console.error("Error saving progress:", err));
+          body: JSON.stringify(blockBody)
+        }).catch(err => console.error("Error skipping block:", err));
       }
-
-      setIsFinished(true);
     }
+
+    setBloqueActual(nextBlock);
+    const startIndex = (nextBlock - 1) * 5;
+    const blockPreguntas = allPreguntas.slice(startIndex, startIndex + 5);
+    setPreguntas(blockPreguntas);
+
+    setCurrentIndex(0);
+    setSelectedOption(null);
+    setIsAnswered(false);
+    setCorrectAnswers(0);
+    setUserResponses({});
+    setIsFinished(false);
+    if (typeof window !== 'undefined') window.speechSynthesis.cancel();
   };
 
   const themeClasses = {
@@ -560,6 +822,8 @@ export default function SimuladorPage() {
   if (isFinished) {
     const finalScore = (correctAnswers / preguntas.length) * 10;
     const isPassed = finalScore >= 7;
+    const isBlockQuiz = nodo !== 'simulacro' && !nodo.startsWith('ley-');
+    const isLastBlock = isBlockQuiz && bloqueActual === bloquesTotales;
 
     return (
       <div className={`min-h-screen ${themeClasses.bg} flex flex-col items-center justify-start p-4 md:p-8 overflow-y-auto`}>
@@ -575,17 +839,62 @@ export default function SimuladorPage() {
               />
             </div>
             <span className="text-[11px] uppercase tracking-widest font-black text-[#b59348] block mb-1">Resultado de Evaluación</span>
-            <h1 className="text-3xl font-black mb-3">Simulador Completado</h1>
-            <p className="text-white/70 max-w-[32rem] mx-auto text-sm mb-4">
-              Tu rendimiento ha sido calculado y almacenado para evaluar tu progreso hacia el examen de notariado.
-            </p>
-            <button
-              onClick={handleClose}
-              className="px-6 py-2.5 bg-gold-brand hover:bg-[#ffe088] text-navy-brand rounded-xl font-bold uppercase text-xs tracking-wider transition-all duration-200 inline-flex items-center gap-1.5 shadow-md cursor-pointer"
-            >
-              <span className="material-symbols-outlined text-sm font-bold">arrow_back</span>
-              {nodo && typeof nodo === 'string' && nodo.startsWith('ley-') ? 'Volver al Estudio' : 'Volver al Dashboard'}
-            </button>
+            <h1 className="text-3xl font-black mb-3">
+              {isPassed ? '¡Evaluación Aprobada!' : 'Evaluación Completada'}
+            </h1>
+            {nodo !== 'simulacro' && !nodo.startsWith('ley-') && (
+              <span className="text-xs uppercase tracking-wider font-bold bg-[#b59348]/20 text-[#b59348] px-3.5 py-1 rounded-full inline-block mb-3">
+                Bloque {bloqueActual} de {bloquesTotales}
+              </span>
+            )}
+            
+            {!isPassed ? (
+              <div className="my-4 p-4 bg-red-500/20 border border-red-500/30 rounded-xl w-full max-w-[28rem] mx-auto">
+                <p className="text-xs font-bold text-red-200 uppercase tracking-wider mb-2 flex items-center justify-center gap-1">
+                  <span className="material-symbols-outlined text-sm">warning</span>
+                  Nota insuficiente (mínimo 7.0)
+                </p>
+                <p className="text-[11px] text-white/80 leading-relaxed">
+                  No has alcanzado la nota aprobatoria. Puedes elegir entre repetir este bloque para mejorar tu nota o continuar con la ruta.
+                </p>
+              </div>
+            ) : (
+              <p className="text-white/70 max-w-[32rem] mx-auto text-sm mb-6">
+                ¡Buen trabajo! Has alcanzado o superado el puntaje mínimo aprobatorio del examen.
+              </p>
+            )}
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-4">
+              {!isPassed && (
+                <button
+                  onClick={handleRestart}
+                  className="w-full sm:w-auto px-6 py-2.5 bg-gold-brand hover:bg-[#ffe088] text-navy-brand rounded-xl font-bold uppercase text-xs tracking-wider transition-all duration-200 inline-flex items-center justify-center gap-1.5 shadow-md cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-sm font-bold">replay</span>
+                  Repetir Bloque
+                </button>
+              )}
+              
+              <button
+                onClick={handleAvanzar}
+                className={`w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold uppercase text-xs tracking-wider transition-all duration-200 inline-flex items-center justify-center gap-1.5 shadow-md cursor-pointer ${
+                  (!isPassed && !isLastBlock)
+                    ? 'bg-transparent border border-white/30 text-white hover:bg-white/10' 
+                    : 'bg-gold-brand hover:bg-[#ffe088] text-navy-brand'
+                }`}
+              >
+                <span className="material-symbols-outlined text-sm font-bold">
+                  {isLastBlock ? 'list_alt' : (!isPassed ? 'arrow_forward' : 'check')}
+                </span>
+                {isLastBlock 
+                  ? 'Ir al listado de días' 
+                  : (!isPassed 
+                      ? 'Avanzar' 
+                      : (nodo && typeof nodo === 'string' && nodo.startsWith('ley-') ? 'Volver al Estudio' : 'Volver al Dashboard')
+                    )
+                }
+              </button>
+            </div>
           </div>
 
           {/* Results Summary Box */}
@@ -739,7 +1048,15 @@ export default function SimuladorPage() {
             <span className={`font-black text-[14px] leading-tight ${isDarkMode ? 'text-white' : 'text-[#002b49]'}`}>
               Simulador <span className="text-[#b59348]">SERÉ NOTARIO</span>
             </span>
-            <span className="text-[9px] text-gray-400 leading-none">Pregunta {currentIndex + 1} de {preguntas.length}</span>
+            <div className="flex flex-wrap items-center gap-1 text-[9px] text-gray-400 leading-none mt-0.5">
+              <span>Pregunta {currentIndex + 1} de {preguntas.length}</span>
+              {nodo !== 'simulacro' && !nodo.startsWith('ley-') && (
+                <>
+                  <span className="opacity-55">•</span>
+                  <span className="font-bold text-[#b59348]">Bloque {bloqueActual} de {bloquesTotales}</span>
+                </>
+              )}
+            </div>
           </div>
         </div>
 
@@ -750,18 +1067,6 @@ export default function SimuladorPage() {
             title={isDarkMode ? 'Cambiar a Modo Claro' : 'Cambiar a Modo Oscuro'}
           >
             {isDarkMode ? 'light_mode' : 'dark_mode'}
-          </button>
-          {/* Hands-Free Mode Toggle */}
-          <button 
-            onClick={() => setIsHandsFreeActive(!isHandsFreeActive)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all font-bold text-[10px] uppercase tracking-wider cursor-pointer shadow-sm ${
-              isHandsFreeActive 
-                ? 'bg-blue-100 border-blue-300 text-blue-800 animate-pulse' 
-                : isDarkMode ? 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10' : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
-            }`}
-          >
-            <span className="material-symbols-outlined text-[14px]">{isHandsFreeActive ? 'mic' : 'mic_off'}</span>
-            <span className="hidden sm:inline">Manos Libres</span>
           </button>
 
           {/* Progress Indicator */}
@@ -783,20 +1088,44 @@ export default function SimuladorPage() {
         {/* Left Side: Question and Options */}
         <div className="flex-1 flex flex-col overflow-y-auto p-4 md:p-8 lg:p-12 items-center justify-start">
           <div className="w-full max-w-3xl">
-            {/* Context/Category Chip */}
-            <div className="flex flex-wrap items-center gap-2 mb-4">
-              <span className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider ${isDarkMode ? 'bg-[#b59348]/20 text-[#b59348]' : 'bg-[#b59348]/10 text-[#b59348]'}`}>
-                {currentQ.ley_nombre || 'General'}
-              </span>
-              {currentQ.nivel_dificultad && (
-                <span className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider ${isDarkMode ? 'bg-[#002b49] text-white' : 'bg-[#002b49]/5 text-[#002b49]'}`}>
-                  Nivel {currentQ.nivel_dificultad}
+            {/* Context/Category Chip and Hands-Free Button */}
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-4 border-b border-black/5 dark:border-white/5 pb-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider ${isDarkMode ? 'bg-[#b59348]/20 text-[#b59348]' : 'bg-[#b59348]/10 text-[#b59348]'}`}>
+                  {currentQ.ley_nombre || 'General'}
                 </span>
-              )}
+                {currentQ.nivel_dificultad && (
+                  <span className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider ${isDarkMode ? 'bg-[#002b49] text-white' : 'bg-[#002b49]/5 text-[#002b49]'}`}>
+                    Nivel {currentQ.nivel_dificultad}
+                  </span>
+                )}
+              </div>
+              
+              {/* Hands-Free Button */}
+              <button 
+                onClick={() => {
+                  if (!userProfile) return;
+                  const isAdmin = userProfile.correo === 'admin@serenotario.com' || userProfile.rol === 'Administrador';
+                  const userPlan = (userProfile.ban_plan || '').toUpperCase();
+                  if (!isAdmin && userProfile.rol !== 'Fundador' && userPlan !== 'C') {
+                    alert("Acceso Denegado. La función Manos Libres solo está disponible en el plan Completo (Acceso Total). Adquiérelo en la sección de Planes de Pago.");
+                    return;
+                  }
+                  setIsHandsFreeActive(!isHandsFreeActive);
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all font-bold text-[10px] uppercase tracking-wider cursor-pointer shadow-sm active:scale-95 ${
+                  isHandsFreeActive 
+                    ? 'bg-blue-100 border-blue-300 text-blue-800 animate-pulse' 
+                    : isDarkMode ? 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10' : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[14px]">{isHandsFreeActive ? 'volume_up' : 'volume_off'}</span>
+                <span>Manos Libres</span>
+              </button>
             </div>
 
             {/* Question Text */}
-            <h2 className={`text-xl md:text-2xl font-bold mb-8 leading-snug ${themeClasses.textPrimary}`}>
+            <h2 className={`text-lg md:text-xl font-semibold mb-6 leading-snug ${themeClasses.textPrimary}`}>
               {currentQ.pregunta}
             </h2>
 
@@ -1000,28 +1329,84 @@ export default function SimuladorPage() {
 
       </div>
 
-      {/* Grid tracker of questions at the bottom (Stitch Progress Tracker) */}
-      <footer className={`h-14 shrink-0 flex items-center justify-center px-6 border-t ${themeClasses.footerBg} transition-colors duration-300`}>
-        <div className="flex items-center gap-1.5 overflow-x-auto max-w-full py-1">
-          {preguntas.map((_, idx) => {
-            const resp = userResponses[idx];
-            let dotClass = isDarkMode ? 'border-white/20 bg-[#001524] text-gray-500' : 'border-gray-300 bg-white text-gray-500';
-            if (idx === currentIndex) {
-              dotClass = isDarkMode ? 'border-[#b59348] bg-[#b59348] text-[#002b49] scale-110 shadow-sm' : 'border-[#002b49] bg-[#002b49] text-white scale-110 shadow-sm';
-            } else if (resp) {
-              dotClass = resp.isCorrect 
-                ? 'border-emerald-500 bg-emerald-500 text-white' 
-                : 'border-rose-500 bg-rose-500 text-white';
-            }
-            return (
-              <div 
-                key={idx}
-                className={`w-7 h-7 rounded-lg border flex items-center justify-center font-bold text-[10px] shrink-0 ${dotClass}`}
-              >
-                {idx + 1}
-              </div>
-            );
-          })}
+      {/* Grid tracker of questions and blocks at the bottom */}
+      <footer className={`min-h-16 shrink-0 flex flex-col sm:flex-row items-center justify-between px-6 py-2 border-t gap-3 ${themeClasses.footerBg} transition-colors duration-300`}>
+        {/* Block Selector */}
+        {nodo !== 'simulacro' && !nodo.startsWith('ley-') && (
+          <div className="flex items-center gap-2">
+            <span className={`text-[10px] uppercase font-black tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Bloques:</span>
+            <div className="flex items-center gap-1">
+              {Array.from({ length: bloquesTotales }).map((_, idx) => {
+                const blockNum = idx + 1;
+                const isActive = blockNum === bloqueActual;
+                let btnClass = isDarkMode ? 'border-white/10 bg-white/5 text-gray-400 hover:bg-white/10' : 'border-gray-200 bg-gray-50 text-gray-500 hover:bg-gray-100';
+                if (isActive) {
+                  btnClass = isDarkMode ? 'border-[#b59348] bg-[#b59348]/20 text-[#b59348] font-bold' : 'border-[#002b49] bg-[#002b49]/5 text-[#002b49] font-bold';
+                }
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      // Switch to block
+                      setBloqueActual(blockNum);
+                      const startIndex = (blockNum - 1) * 5;
+                      const blockPreguntas = allPreguntas.slice(startIndex, startIndex + 5);
+                      setPreguntas(blockPreguntas);
+                      setCurrentIndex(0);
+                      setSelectedOption(null);
+                      setIsAnswered(false);
+                      setCorrectAnswers(0);
+                      setUserResponses({});
+                      setIsFinished(false);
+                      if (typeof window !== 'undefined') window.speechSynthesis.cancel();
+                    }}
+                    className={`px-3 py-1 rounded-lg border text-xs font-bold transition-all cursor-pointer ${btnClass}`}
+                  >
+                    B{blockNum}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Question Selector */}
+        <div className="flex items-center gap-2">
+          <span className={`text-[10px] uppercase font-black tracking-wider ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Preguntas:</span>
+          <div className="flex items-center gap-1.5">
+            {preguntas.map((_, idx) => {
+              const resp = userResponses[idx];
+              const isActive = idx === currentIndex;
+              let dotClass = isDarkMode ? 'border-white/20 bg-[#001524] text-gray-500 hover:bg-white/5' : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50';
+              if (isActive) {
+                dotClass = isDarkMode ? 'border-[#b59348] bg-[#b59348] text-[#002b49] scale-110 shadow-sm' : 'border-[#002b49] bg-[#002b49] text-white scale-110 shadow-sm';
+              } else if (resp) {
+                dotClass = resp.isCorrect 
+                  ? 'border-emerald-500 bg-emerald-500 text-white' 
+                  : 'border-rose-500 bg-rose-500 text-white';
+              }
+              return (
+                <button 
+                  key={idx}
+                  onClick={() => {
+                    // Jump to question index inside the current block
+                    setCurrentIndex(idx);
+                    const savedResp = userResponses[idx];
+                    if (savedResp) {
+                      setSelectedOption(savedResp.selected);
+                      setIsAnswered(true);
+                    } else {
+                      setSelectedOption(null);
+                      setIsAnswered(false);
+                    }
+                  }}
+                  className={`w-7 h-7 rounded-lg border flex items-center justify-center font-bold text-[10px] shrink-0 cursor-pointer transition-all ${dotClass}`}
+                >
+                  {idx + 1}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </footer>
 

@@ -905,6 +905,15 @@ export default function EstudioPage() {
         clearTimeout(handsFreeTimeoutRef.current);
       }
     } else {
+      // Access control check for Hands-Free mode
+      if (userProfile) {
+        const isAdmin = userProfile.correo === 'admin@serenotario.com' || userProfile.rol === 'Administrador';
+        const userPlan = (userProfile.ban_plan || '').toUpperCase();
+        if (!isAdmin && userProfile.rol !== 'Fundador' && userPlan !== 'C') {
+          alert("Acceso Denegado. La función Manos Libres solo está disponible en el plan Completo (Acceso Total). Adquiérelo en la sección de Planes de Pago.");
+          return;
+        }
+      }
       setIsHandsFreeActive(true);
       micDisabledRef.current = false;
       if (miniFinished) {
@@ -1141,7 +1150,14 @@ export default function EstudioPage() {
     ])
       .then(([mapData, profileData]) => {
         if (profileData && profileData.success) {
-          setUserProfile(profileData.data);
+          const profile = profileData.data;
+          setUserProfile(profile);
+          
+          const isAdmin = profile.correo === 'admin@serenotario.com' || profile.rol === 'Administrador';
+          const userPlan = (profile.ban_plan || '').toUpperCase();
+          if (!isAdmin && profile.rol !== 'Fundador' && userPlan !== 'C') {
+            setActiveTab('info');
+          }
         }
 
         if (mapData.success) {
@@ -1899,7 +1915,17 @@ export default function EstudioPage() {
           )}
 
           <button 
-            onClick={() => router.push(`/simulador/ley-${ley}`)}
+            onClick={() => {
+              if (userProfile) {
+                const isAdmin = userProfile.correo === 'admin@serenotario.com' || userProfile.rol === 'Administrador';
+                const userPlan = (userProfile.ban_plan || '').toUpperCase();
+                if (!isAdmin && userProfile.rol !== 'Fundador' && userPlan !== 'C') {
+                  alert("Acceso Denegado. La evaluación libre Ley por Ley (Examinar Ley) solo está disponible en el plan Completo (Acceso Total). Adquiérelo en la sección de Planes de Pago.");
+                  return;
+                }
+              }
+              router.push(`/simulador/ley-${ley}`);
+            }}
             className="bg-gold-brand text-navy-brand px-6 py-2 rounded font-bold uppercase text-xs tracking-wider flex items-center gap-2 hover:bg-navy-brand hover:text-white transition-colors"
           >
             <span className="material-symbols-outlined text-[18px]">play_arrow</span>
@@ -1971,6 +1997,14 @@ export default function EstudioPage() {
                 <div className={`flex gap-2 p-1 rounded-xl border ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-navy-brand/5 border-navy-brand/10'}`}>
                   <button
                     onClick={() => {
+                      if (userProfile) {
+                        const isAdmin = userProfile.correo === 'admin@serenotario.com' || userProfile.rol === 'Administrador';
+                        const userPlan = (userProfile.ban_plan || '').toUpperCase();
+                        if (!isAdmin && userProfile.rol !== 'Fundador' && userPlan !== 'C') {
+                          alert("Acceso Denegado. La evaluación por temas individuales (Ley por Ley) solo está disponible en el plan Completo (Acceso Total). Adquiérelo en la sección de Planes de Pago.");
+                          return;
+                        }
+                      }
                       const isTabLocked = selectedNode && selectedNode.children && selectedNode.children.length > 0 && !areDescendantsCompleted(selectedNode);
                       if (isTabLocked) {
                         showToast("Debes completar y aprobar todos los subtemas antes de poder realizar evaluar este tema principal.");
@@ -2586,7 +2620,7 @@ export default function EstudioPage() {
                             title={isHandsFreeActive ? 'Desactivar Manos Libres' : 'Activar Manos Libres'}
                           >
                             <span className="material-symbols-outlined text-[16px]">
-                              {isHandsFreeActive ? 'mic' : 'mic_off'}
+                              {isHandsFreeActive ? 'volume_up' : 'volume_off'}
                             </span>
                           </button>
                            <button

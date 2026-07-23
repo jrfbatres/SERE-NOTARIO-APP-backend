@@ -311,11 +311,21 @@ export default function ManosLibresPage() {
         fetch('/api/usuario/perfil', { headers: { 'Authorization': `Bearer ${token}` }, cache: 'no-store' }).then(r => r.json())
       ])
         .then(([heatmapData, profileData]) => {
+          if (profileData.success && profileData.data) {
+            const profile = profileData.data;
+            setUserProfile(profile);
+            
+            const isAdmin = profile.correo === 'admin@serenotario.com' || profile.rol === 'Administrador';
+            const userPlan = (profile.ban_plan || '').toUpperCase();
+            
+            if (!isAdmin && profile.rol !== 'Fundador' && userPlan !== 'C') {
+              alert("Acceso Denegado. La función Manos Libres solo está disponible en el plan Completo (Acceso Total). Adquiérelo en la sección de Planes de Pago.");
+              router.push('/');
+              return;
+            }
+          }
           if (heatmapData.success && heatmapData.data) {
             setLeyesMenu(heatmapData.data);
-          }
-          if (profileData.success && profileData.data) {
-            setUserProfile(profileData.data);
           }
           setMenuLoading(false);
         })

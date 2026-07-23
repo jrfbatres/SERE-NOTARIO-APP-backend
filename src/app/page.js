@@ -262,14 +262,7 @@ export default function DashboardPage() {
         {/* Navigation Menu */}
         <nav className="flex-1 overflow-y-auto px-4 py-2 space-y-2">
           
-          <button
-            onClick={() => router.push('/simulador/simulacro')}
-            className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all active:scale-[0.98] text-[13px] uppercase tracking-wider ${themeClasses.menuItemHover}`}
-          >
-            <span className="material-symbols-outlined text-[20px] text-[#b59348]">assignment</span>
-            <span className="flex-1 text-left">Simulacro General</span>
-          </button>
-          
+
           <button
             onClick={() => router.push('/manos-libres')}
             className="w-full flex items-center gap-3 px-4 py-3.5 bg-gradient-to-r from-[#001524] to-[#002b49] text-white rounded-xl font-black shadow-[0_0_15px_rgba(181,147,72,0.3)] transition-all active:scale-[0.98] text-[13px] uppercase tracking-wider relative overflow-hidden group border border-[#b59348]"
@@ -303,16 +296,6 @@ export default function DashboardPage() {
             <span className="flex-1 text-left">Planes de Pago</span>
           </button>
 
-          {['Fundador', 'Administrador'].includes(userProfile?.rol) && (
-            <button
-              onClick={() => setIsInviteModalOpen(true)}
-              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all active:scale-[0.98] text-[13px] uppercase tracking-wider text-white shadow-lg bg-gradient-to-r from-[#b59348] to-[#9c7a36] hover:brightness-110`}
-            >
-              <span className="material-symbols-outlined text-[20px]">group_add</span>
-              <span className="flex-1 text-left">Invitar Colega</span>
-            </button>
-          )}
-
           {userProfile?.rol === 'Administrador' && (
             <button
               onClick={() => router.push('/admin/auditoria')}
@@ -328,16 +311,6 @@ export default function DashboardPage() {
         {/* Footer Area (User, Dark Mode, Last Grade) */}
         <div className={`p-5 border-t border-opacity-10 space-y-4 ${isDarkMode ? 'border-white' : 'border-gray-200'}`}>
           
-          {/* Last Grade Display */}
-          <div className={`flex items-center justify-between p-3 rounded-xl border ${themeClasses.buttonBg}`}>
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-[#b59348] text-[20px]">history</span>
-              <span className="text-xs uppercase tracking-wider font-bold opacity-80">Última Nota</span>
-            </div>
-            <span className="text-sm font-black">
-              {lastGrade !== null && lastGrade !== undefined ? `${lastGrade.toFixed(2)} / 10` : '--'}
-            </span>
-          </div>
 
           <div className="flex items-center justify-center mt-4">
             <button 
@@ -377,7 +350,7 @@ export default function DashboardPage() {
         <div className="p-4 md:p-8 flex-1 flex flex-col gap-6 max-w-6xl mx-auto w-full">
           
           {/* Carousel */}
-          <section className="flex flex-col text-left justify-center relative w-full lg:w-3/4 mx-auto text-center mt-2">
+          <section className="hidden flex-col text-left justify-center relative w-full lg:w-3/4 mx-auto text-center mt-2">
             <div className="transition-opacity duration-500 ease-in-out min-h-[60px] md:min-h-[70px]">
               <h1 className="text-[15px] md:text-[18px] font-bold mb-1.5 leading-tight">
                 {carouselSlides[currentSlide].title}
@@ -398,6 +371,25 @@ export default function DashboardPage() {
                 />
               ))}
             </div>
+          </section>
+
+          {/* Study Route Buttons */}
+          <section className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full lg:w-3/4 mx-auto mt-4 mb-2 z-10 relative">
+            <button
+              onClick={() => router.push('/ruta-estudio/express')}
+              className={`flex-1 flex flex-col items-center justify-center px-4 py-3 rounded-xl border border-[#b59348]/40 shadow-sm transition-all active:scale-[0.98] ${isDarkMode ? 'bg-[#b59348]/10 hover:bg-[#b59348]/20 text-[#e5d7b3]' : 'bg-[#b59348]/10 hover:bg-[#b59348]/20 text-[#765a13]'}`}
+            >
+              <span className="text-[11px] font-bold uppercase tracking-widest opacity-80 mb-0.5">Ruta de Estudio</span>
+              <span className="text-[14px] font-black uppercase tracking-wider">Express 20 Días</span>
+            </button>
+            <button
+              onClick={() => router.push('/ruta-estudio/profundo')}
+              className="flex-1 flex flex-col items-center justify-center px-4 py-3 rounded-xl border border-[#b59348]/40 shadow-sm transition-all active:scale-[0.98] bg-gradient-to-r from-[#001524] to-[#002b49] text-white group relative overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#b59348]/20 to-transparent translate-x-[-100%] group-hover:animate-[shimmer_2s_infinite]" />
+              <span className="text-[11px] font-bold uppercase tracking-widest text-[#b59348] mb-0.5">Ruta de Estudio</span>
+              <span className="text-[14px] font-black uppercase tracking-wider relative z-10 group-hover:text-[#e5d7b3] transition-colors">Profundo 60 Días</span>
+            </button>
           </section>
 
           {/* Treemap */}

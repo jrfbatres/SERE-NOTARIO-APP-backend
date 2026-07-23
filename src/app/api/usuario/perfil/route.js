@@ -43,6 +43,8 @@ export async function GET(request) {
       // Vigente
       if (userData.ban_fundador) {
         computedRol = 'Fundador';
+      } else if (userData.ban_plan === 'C' || userData.ban_plan === 'c') {
+        computedRol = 'Completo';
       } else if (userData.ban_plan === 'P' || userData.ban_plan === 'p') {
         computedRol = 'Premium';
       } else if (userData.ban_plan === 'B' || userData.ban_plan === 'b') {

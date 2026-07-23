@@ -1,12 +1,6 @@
 const { Client } = require('pg');
-const client = new Client('postgres://postgres:admin@72.61.9.7:1521/batres');
+const client = new Client({ connectionString: 'postgresql://postgres:postgres@localhost:5432/postgres' });
 client.connect()
-  .then(() => client.query('SELECT nombre, porcentaje_preguntas FROM "notarioElite".nodos WHERE porcentaje_preguntas IS NOT NULL LIMIT 30'))
-  .then(res => {
-    console.log(res.rows.map(r => Number(r.porcentaje_preguntas)));
-    client.end();
-  })
-  .catch(err => {
-    console.error(err);
-    client.end();
-  });
+  .then(() => client.query('SELECT p.id FROM "notarioElite".preguntas p JOIN "notarioElite".nodos n ON p.nodo_id = n.id WHERE n.nombre LIKE \'%Cierre%\''))
+  .then(res => { console.log('Questions found:', res.rows.length); return client.end(); })
+  .catch(console.error);

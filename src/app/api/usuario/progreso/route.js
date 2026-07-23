@@ -10,7 +10,7 @@ export async function POST(request) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { nodo_id, nota, completado } = await request.json();
+    const { nodo_id, nota, completado, pensum_id, dia, bloques_totales, bloque_actual } = await request.json();
 
     if (nodo_id === 'simulacro') {
       // 1. Update overall last grade
@@ -74,16 +74,73 @@ export async function POST(request) {
 
     const leyId = nodeRes.rows[0].ley_id;
 
-    // Update or insert the progress for the node
+    const activeBlockVal = bloque_actual || 1;
+
+    // 1. Ensure the row exists in usuario_nodos
     await query(`
-      INSERT INTO "notarioElite".usuario_nodos (usuario_id, nodo_id, ley_id, nota, completado, actualizado_en)
-      VALUES ($1::uuid, $2, $3, $4, $5, CURRENT_TIMESTAMP)
+      INSERT INTO "notarioElite".usuario_nodos (usuario_id, nodo_id, ley_id, nota, completado, bloque_actual, notas_bloques, actualizado_en)
+      VALUES ($1::uuid, $2, $3, $4, $5, $6, '{}', CURRENT_TIMESTAMP)
       ON CONFLICT (usuario_id, nodo_id) 
       DO UPDATE SET 
-        nota = EXCLUDED.nota, 
         completado = CASE WHEN "notarioElite".usuario_nodos.completado OR EXCLUDED.completado THEN TRUE ELSE FALSE END, 
         actualizado_en = CURRENT_TIMESTAMP
-    `, [userId, nodo_id, leyId, nota, completado]);
+    `, [userId, nodo_id, leyId, nota, completado, activeBlockVal]);
+
+    // 2. Set the block score at the specific index in notas_bloques
+    await query(`
+      UPDATE "notarioElite".usuario_nodos
+      SET 
+        notas_bloques[$3] = $4,
+        bloque_actual = GREATEST(bloque_actual, $3)
+      WHERE usuario_id = $1::uuid AND nodo_id = $2
+    `, [userId, nodo_id, activeBlockVal, nota]);
+
+    // 3. Recalculate the average score
+    await query(`
+      UPDATE "notarioElite".usuario_nodos un
+      SET nota = (
+        SELECT AVG(x)
+        FROM unnest(un.notas_bloques) as t(x)
+        WHERE x IS NOT NULL
+      )
+      WHERE un.usuario_id = $1::uuid AND un.nodo_id = $2
+    `, [userId, nodo_id]);
+
+    // Update or insert progress in the per-day study plan progress table (if studying on a plan)
+    if (pensum_id && dia) {
+      const bTotales = bloques_totales || 1;
+      
+      // 1. Ensure the row exists in nodo_dias_usuario
+      await query(`
+        INSERT INTO "notarioElite".nodo_dias_usuario (usuario_id, pensum_id, dia, nodo_id, ley_id, nota, completado, bloques_totales, notas_bloques, fecha_estudio)
+        VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8, '{}', CURRENT_TIMESTAMP)
+        ON CONFLICT (usuario_id, pensum_id, dia, nodo_id) 
+        DO UPDATE SET 
+          completado = EXCLUDED.completado, 
+          bloques_totales = EXCLUDED.bloques_totales,
+          fecha_estudio = CURRENT_TIMESTAMP
+      `, [userId, pensum_id, dia, nodo_id, leyId, nota, completado, bTotales]);
+
+      // 2. Set the block score at the specific index in notas_bloques
+      await query(`
+        UPDATE "notarioElite".nodo_dias_usuario
+        SET 
+          notas_bloques[$4] = $5,
+          bloque_actual = GREATEST(bloque_actual, $4)
+        WHERE usuario_id = $1::uuid AND pensum_id = $2 AND dia = $3 AND nodo_id = $6
+      `, [userId, pensum_id, dia, activeBlockVal, nota, nodo_id]);
+
+      // 3. Recalculate the average score
+      await query(`
+        UPDATE "notarioElite".nodo_dias_usuario ndu
+        SET nota = (
+          SELECT AVG(x)
+          FROM unnest(ndu.notas_bloques) as t(x)
+          WHERE x IS NOT NULL
+        )
+        WHERE ndu.usuario_id = $1::uuid AND ndu.pensum_id = $2 AND ndu.dia = $3 AND ndu.nodo_id = $4
+      `, [userId, pensum_id, dia, nodo_id]);
+    }
 
     let invitationsAwarded = 0;
     // Lógica de invitaciones

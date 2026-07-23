@@ -57,11 +57,23 @@ export async function POST(request) {
               [mesesDuracion, pago.id]
             );
 
-            // 2. Calcular ban_nodos_libres
+            // 2. Calcular ban_nodos_libres y banPlan
             let banNodosLibres = 'N';
+            let banPlan = 'B'; // Default to Lite
             const montoNum = parseFloat(pago.monto);
-            if (montoNum === 20 || montoNum === 80) {
+            
+            if (montoNum === 10) {
               banNodosLibres = 'S';
+              banPlan = 'P'; // Profundo
+            } else if (montoNum === 15) {
+              banNodosLibres = 'S';
+              banPlan = 'C'; // Completo
+            } else if (montoNum === 5) {
+              banNodosLibres = 'N';
+              banPlan = 'B'; // Lite
+            } else if (montoNum === 20 || montoNum === 80) {
+              banNodosLibres = 'S';
+              banPlan = 'C';
             }
 
             // 3. Actualizar maestro de usuarios
@@ -70,9 +82,10 @@ export async function POST(request) {
                SET fecha_pago = NOW(),
                    fecha_vence = NOW() + ($1 || ' months')::interval,
                    ban_pago = 'S',
-                   ban_nodos_libres = $2
-               WHERE id = $3`,
-              [mesesDuracion, banNodosLibres, usuarioId]
+                   ban_nodos_libres = $2,
+                   ban_plan = $3
+               WHERE id = $4`,
+              [mesesDuracion, banNodosLibres, banPlan, usuarioId]
             );
 
             actualizados++;

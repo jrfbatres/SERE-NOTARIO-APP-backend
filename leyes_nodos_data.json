@@ -1,0 +1,3020 @@
+{
+  "leyes": [
+    {
+      "id": 1,
+      "nombre": "Código Civil de El Salvador",
+      "porcentaje": "22.86"
+    },
+    {
+      "id": 2,
+      "nombre": "Código de Comercio",
+      "porcentaje": "13.64"
+    },
+    {
+      "id": 3,
+      "nombre": "Código de Familia",
+      "porcentaje": "3.84"
+    },
+    {
+      "id": 4,
+      "nombre": "Código Procesal Civil y Mercantil",
+      "porcentaje": "3.41"
+    },
+    {
+      "id": 5,
+      "nombre": "Código de Trabajo",
+      "porcentaje": "0.91"
+    },
+    {
+      "id": 6,
+      "nombre": "Código Tributario",
+      "porcentaje": "3.25"
+    },
+    {
+      "id": 7,
+      "nombre": "Código Penal",
+      "porcentaje": "2.40"
+    },
+    {
+      "id": 8,
+      "nombre": "Código Procesal Penal",
+      "porcentaje": "1.17"
+    },
+    {
+      "id": 9,
+      "nombre": "Ley de Notariado",
+      "porcentaje": "15.61"
+    },
+    {
+      "id": 10,
+      "nombre": "Ley del Ejercicio Notarial de la Jurisdicción Voluntaria y Otras Diligencias",
+      "porcentaje": "4.53"
+    },
+    {
+      "id": 11,
+      "nombre": "Ley de la Jurisdicción Contencioso Administrativa",
+      "porcentaje": "0.43"
+    },
+    {
+      "id": 12,
+      "nombre": "Ley de Procedimientos Administrativos",
+      "porcentaje": "0.91"
+    },
+    {
+      "id": 13,
+      "nombre": "Constitución de la República",
+      "porcentaje": "1.17"
+    },
+    {
+      "id": 15,
+      "nombre": "Ley de Propiedad Intelectual",
+      "porcentaje": "0.91"
+    },
+    {
+      "id": 16,
+      "nombre": "Ley de Bancos",
+      "porcentaje": "0.85"
+    },
+    {
+      "id": 19,
+      "nombre": "Ley del Nombre de la Persona Natural",
+      "porcentaje": "0.48"
+    },
+    {
+      "id": 23,
+      "nombre": "Ley de Compras Públicas",
+      "porcentaje": "1.28"
+    },
+    {
+      "id": 24,
+      "nombre": "Ley de Garantías Mobiliarias",
+      "porcentaje": "0.69"
+    },
+    {
+      "id": 25,
+      "nombre": "Ley de Emisión de Activos Digitales",
+      "porcentaje": "0.53"
+    },
+    {
+      "id": 27,
+      "nombre": "Ley de Mediación, Conciliación y Arbitraje",
+      "porcentaje": "0.43"
+    },
+    {
+      "id": 29,
+      "nombre": "Ley de Asociaciones y Fundaciones sin Fines de Lucro",
+      "porcentaje": "0.48"
+    },
+    {
+      "id": 31,
+      "nombre": "Ley de Impuesto sobre la Renta",
+      "porcentaje": "0.48"
+    },
+    {
+      "id": 32,
+      "nombre": "Ley de Zonas Francas",
+      "porcentaje": "0.48"
+    },
+    {
+      "id": 33,
+      "nombre": "Ley Orgánica Judicial",
+      "porcentaje": "0.48"
+    },
+    {
+      "id": 40,
+      "nombre": "Doctrina",
+      "porcentaje": "0.53"
+    },
+    {
+      "id": 44,
+      "nombre": "Ley de Impuesto sobre Transferencia de Bienes Raíces",
+      "porcentaje": "0.48"
+    },
+    {
+      "id": 114,
+      "nombre": "Ley de Supervisión",
+      "porcentaje": "0.53"
+    },
+    {
+      "id": 171,
+      "nombre": "Ley Contra el Lavado de Dinero y de Activos",
+      "porcentaje": "0.64"
+    },
+    {
+      "id": 195,
+      "nombre": "Ley Transitoria del Registro del Estado Familiar",
+      "porcentaje": "0.69"
+    },
+    {
+      "id": 216,
+      "nombre": "Ley de Marcas",
+      "porcentaje": "0.59"
+    }
+  ],
+  "nodos": [
+    {
+      "id": "cc_sv",
+      "ley_id": 1,
+      "padre_id": null,
+      "nombre": "Código Civil de El Salvador",
+      "nivel": 0,
+      "total_preguntas": 11
+    },
+    {
+      "id": "libro_cuarto",
+      "ley_id": 1,
+      "padre_id": "cc_sv",
+      "nombre": "Libro Cuarto: Obligaciones y Contratos",
+      "nivel": 1,
+      "total_preguntas": 134
+    },
+    {
+      "id": "libro_primero",
+      "ley_id": 1,
+      "padre_id": "cc_sv",
+      "nombre": "Libro Primero: De las Personas",
+      "nivel": 1,
+      "total_preguntas": 10
+    },
+    {
+      "id": "libro_segundo",
+      "ley_id": 1,
+      "padre_id": "cc_sv",
+      "nombre": "Libro Segundo: Los Bienes",
+      "nivel": 1,
+      "total_preguntas": 63
+    },
+    {
+      "id": "libro_tercero",
+      "ley_id": 1,
+      "padre_id": "cc_sv",
+      "nombre": "Libro Tercero: Sucesiones y Donaciones",
+      "nivel": 1,
+      "total_preguntas": 18
+    },
+    {
+      "id": "titulo_preliminar",
+      "ley_id": 1,
+      "padre_id": "cc_sv",
+      "nombre": "Título Preliminar: La Ley",
+      "nivel": 1,
+      "total_preguntas": 10
+    },
+    {
+      "id": "clasificacion_bienes",
+      "ley_id": 1,
+      "padre_id": "libro_segundo",
+      "nombre": "Clasificación de Bienes",
+      "nivel": 2,
+      "total_preguntas": 19
+    },
+    {
+      "id": "conceptos_generales",
+      "ley_id": 1,
+      "padre_id": "titulo_preliminar",
+      "nombre": "Conceptos Generales",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "contratos_garantia",
+      "ley_id": 1,
+      "padre_id": "libro_cuarto",
+      "nombre": "Contratos de Garantía",
+      "nivel": 2,
+      "total_preguntas": 2
+    },
+    {
+      "id": "contratos_principales",
+      "ley_id": 1,
+      "padre_id": "libro_cuarto",
+      "nombre": "Contratos Principales",
+      "nivel": 2,
+      "total_preguntas": 5
+    },
+    {
+      "id": "division_personas",
+      "ley_id": 1,
+      "padre_id": "libro_primero",
+      "nombre": "División de las Personas",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "domicilio",
+      "ley_id": 1,
+      "padre_id": "libro_primero",
+      "nombre": "El Domicilio",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "dominio",
+      "ley_id": 1,
+      "padre_id": "libro_segundo",
+      "nombre": "El Dominio",
+      "nivel": 2,
+      "total_preguntas": 7
+    },
+    {
+      "id": "efectos_aplicacion",
+      "ley_id": 1,
+      "padre_id": "titulo_preliminar",
+      "nombre": "Efectos y Aplicación",
+      "nivel": 2,
+      "total_preguntas": 10
+    },
+    {
+      "id": "existencia_personas",
+      "ley_id": 1,
+      "padre_id": "libro_primero",
+      "nombre": "Existencia de las Personas",
+      "nivel": 2,
+      "total_preguntas": 2
+    },
+    {
+      "id": "extincion_obligaciones",
+      "ley_id": 1,
+      "padre_id": "libro_cuarto",
+      "nombre": "Extinción de Obligaciones",
+      "nivel": 2,
+      "total_preguntas": 7
+    },
+    {
+      "id": "ocupacion",
+      "ley_id": 1,
+      "padre_id": "libro_segundo",
+      "nombre": "Ocupación",
+      "nivel": 2,
+      "total_preguntas": 3
+    },
+    {
+      "id": "particion_bienes",
+      "ley_id": 1,
+      "padre_id": "libro_tercero",
+      "nombre": "Partición de Bienes",
+      "nivel": 2,
+      "total_preguntas": 16
+    },
+    {
+      "id": "personas_juridicas",
+      "ley_id": 1,
+      "padre_id": "libro_primero",
+      "nombre": "Personas Jurídicas",
+      "nivel": 2,
+      "total_preguntas": 2
+    },
+    {
+      "id": "posesion",
+      "ley_id": 1,
+      "padre_id": "libro_segundo",
+      "nombre": "Posesión",
+      "nivel": 2,
+      "total_preguntas": 4
+    },
+    {
+      "id": "promulgacion",
+      "ley_id": 1,
+      "padre_id": "titulo_preliminar",
+      "nombre": "Promulgación y Obligatoriedad",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "reglas_interpretacion",
+      "ley_id": 1,
+      "padre_id": "titulo_preliminar",
+      "nombre": "Reglas de Interpretación",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "responsabilidad_civil",
+      "ley_id": 1,
+      "padre_id": "libro_cuarto",
+      "nombre": "Responsabilidad Civil",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "servidumbres",
+      "ley_id": 1,
+      "padre_id": "libro_segundo",
+      "nombre": "Servidumbres",
+      "nivel": 2,
+      "total_preguntas": 6
+    },
+    {
+      "id": "sucesion_causa_muerte",
+      "ley_id": 1,
+      "padre_id": "libro_tercero",
+      "nombre": "Sucesión por causa de muerte",
+      "nivel": 2,
+      "total_preguntas": 15
+    },
+    {
+      "id": "sucesion_intestada",
+      "ley_id": 1,
+      "padre_id": "libro_tercero",
+      "nombre": "Sucesión Intestada",
+      "nivel": 2,
+      "total_preguntas": 3
+    },
+    {
+      "id": "sucesion_testamentaria",
+      "ley_id": 1,
+      "padre_id": "libro_tercero",
+      "nombre": "Sucesión Testamentaria",
+      "nivel": 2,
+      "total_preguntas": 8
+    },
+    {
+      "id": "teoria_obligaciones",
+      "ley_id": 1,
+      "padre_id": "libro_cuarto",
+      "nombre": "Teoría de las Obligaciones",
+      "nivel": 2,
+      "total_preguntas": 7
+    },
+    {
+      "id": "accion_particion",
+      "ley_id": 1,
+      "padre_id": "particion_bienes",
+      "nombre": "Acción de Partición",
+      "nivel": 3,
+      "total_preguntas": 6
+    },
+    {
+      "id": "apertura_sucesion",
+      "ley_id": 1,
+      "padre_id": "sucesion_causa_muerte",
+      "nombre": "Apertura y Delación",
+      "nivel": 3,
+      "total_preguntas": 39
+    },
+    {
+      "id": "arrendamiento",
+      "ley_id": 1,
+      "padre_id": "contratos_principales",
+      "nombre": "Arrendamiento",
+      "nivel": 3,
+      "total_preguntas": 11
+    },
+    {
+      "id": "asignaciones_forzosas",
+      "ley_id": 1,
+      "padre_id": "sucesion_testamentaria",
+      "nombre": "Asignaciones Forzosas",
+      "nivel": 3,
+      "total_preguntas": 2
+    },
+    {
+      "id": "bienes_nacionales",
+      "ley_id": 1,
+      "padre_id": "dominio",
+      "nombre": "Bienes Nacionales y de Uso Público",
+      "nivel": 3,
+      "total_preguntas": 4
+    },
+    {
+      "id": "bienes_sv",
+      "ley_id": 1,
+      "padre_id": "efectos_aplicacion",
+      "nombre": "Bienes situados en El Salvador",
+      "nivel": 3,
+      "total_preguntas": 5
+    },
+    {
+      "id": "caza_pesca",
+      "ley_id": 1,
+      "padre_id": "ocupacion",
+      "nombre": "Caza y Pesca",
+      "nivel": 3,
+      "total_preguntas": 1
+    },
+    {
+      "id": "clasificacion_obligaciones",
+      "ley_id": 1,
+      "padre_id": "teoria_obligaciones",
+      "nombre": "Clasificación de Obligaciones",
+      "nivel": 3,
+      "total_preguntas": 6
+    },
+    {
+      "id": "compraventa",
+      "ley_id": 1,
+      "padre_id": "contratos_principales",
+      "nombre": "Compraventa y Permuta",
+      "nivel": 3,
+      "total_preguntas": 42
+    },
+    {
+      "id": "conmoriencia",
+      "ley_id": 1,
+      "padre_id": "existencia_personas",
+      "nombre": "Presunciones de Conmoriencia",
+      "nivel": 3,
+      "total_preguntas": 2
+    },
+    {
+      "id": "contexto_equidad",
+      "ley_id": 1,
+      "padre_id": "reglas_interpretacion",
+      "nombre": "Contexto y Equidad",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "corporaciones",
+      "ley_id": 1,
+      "padre_id": "personas_juridicas",
+      "nombre": "Corporaciones y Fundaciones",
+      "nivel": 3,
+      "total_preguntas": 1
+    },
+    {
+      "id": "costumbre",
+      "ley_id": 1,
+      "padre_id": "conceptos_generales",
+      "nombre": "La Costumbre",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "definicion_ley",
+      "ley_id": 1,
+      "padre_id": "conceptos_generales",
+      "nombre": "Definición de Ley",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "delitos_cuasidelitos",
+      "ley_id": 1,
+      "padre_id": "responsabilidad_civil",
+      "nombre": "Delitos y Cuasidelitos Civiles",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "derecho_representacion",
+      "ley_id": 1,
+      "padre_id": "sucesion_intestada",
+      "nombre": "Derecho de Representación",
+      "nivel": 3,
+      "total_preguntas": 6
+    },
+    {
+      "id": "derechos_reales_personales",
+      "ley_id": 1,
+      "padre_id": "clasificacion_bienes",
+      "nombre": "Derechos Reales y Personales",
+      "nivel": 3,
+      "total_preguntas": 18
+    },
+    {
+      "id": "disolucion",
+      "ley_id": 1,
+      "padre_id": "personas_juridicas",
+      "nombre": "Disolución y Liquidación",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "distribucion_deudas",
+      "ley_id": 1,
+      "padre_id": "particion_bienes",
+      "nombre": "Distribución de Deudas",
+      "nivel": 3,
+      "total_preguntas": 10
+    },
+    {
+      "id": "domiciliados_transeuntes",
+      "ley_id": 1,
+      "padre_id": "division_personas",
+      "nombre": "Domiciliados y Transeúntes",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "domicilio_dependencia",
+      "ley_id": 1,
+      "padre_id": "domicilio",
+      "nombre": "Domicilio por dependencia",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "efectos_obligaciones",
+      "ley_id": 1,
+      "padre_id": "teoria_obligaciones",
+      "nombre": "Efectos de las Obligaciones",
+      "nivel": 3,
+      "total_preguntas": 12
+    },
+    {
+      "id": "el_pago",
+      "ley_id": 1,
+      "padre_id": "extincion_obligaciones",
+      "nombre": "El Pago y sus formas",
+      "nivel": 3,
+      "total_preguntas": 14
+    },
+    {
+      "id": "el_testamento",
+      "ley_id": 1,
+      "padre_id": "sucesion_testamentaria",
+      "nombre": "El Testamento: Tipos y Requisitos",
+      "nivel": 3,
+      "total_preguntas": 74
+    },
+    {
+      "id": "estatutos",
+      "ley_id": 1,
+      "padre_id": "personas_juridicas",
+      "nombre": "Estatutos y Voluntad",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "fianza",
+      "ley_id": 1,
+      "padre_id": "contratos_garantia",
+      "nombre": "La Fianza",
+      "nivel": 3,
+      "total_preguntas": 1
+    },
+    {
+      "id": "fuerza_obligatoriedad",
+      "ley_id": 1,
+      "padre_id": "promulgacion",
+      "nombre": "Fuerza de Obligatoriedad",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "fungibles",
+      "ley_id": 1,
+      "padre_id": "clasificacion_bienes",
+      "nombre": "Cosas Fungibles y No Fungibles",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "incapacidades_indignidades",
+      "ley_id": 1,
+      "padre_id": "sucesion_causa_muerte",
+      "nombre": "Incapacidades e Indignidades",
+      "nivel": 3,
+      "total_preguntas": 12
+    },
+    {
+      "id": "indemnizacion_danos",
+      "ley_id": 1,
+      "padre_id": "responsabilidad_civil",
+      "nombre": "Indemnización de Daños",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "interpretacion_legislativa",
+      "ley_id": 1,
+      "padre_id": "conceptos_generales",
+      "nombre": "Interpretación Legislativa",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "invencion_hallazgo",
+      "ley_id": 1,
+      "padre_id": "ocupacion",
+      "nombre": "Invención o Hallazgo",
+      "nivel": 3,
+      "total_preguntas": 2
+    },
+    {
+      "id": "irretroactividad",
+      "ley_id": 1,
+      "padre_id": "promulgacion",
+      "nombre": "Irretroactividad de la Ley",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "justa_no_justa",
+      "ley_id": 1,
+      "padre_id": "posesion",
+      "nombre": "Justa y No Justa",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "legales",
+      "ley_id": 1,
+      "padre_id": "servidumbres",
+      "nombre": "Legales",
+      "nivel": 3,
+      "total_preguntas": 1
+    },
+    {
+      "id": "mandato",
+      "ley_id": 1,
+      "padre_id": "contratos_principales",
+      "nombre": "El Mandato",
+      "nivel": 3,
+      "total_preguntas": 10
+    },
+    {
+      "id": "mera_tenencia",
+      "ley_id": 1,
+      "padre_id": "posesion",
+      "nombre": "Mera Tenencia",
+      "nivel": 3,
+      "total_preguntas": 4
+    },
+    {
+      "id": "muebles_inmuebles",
+      "ley_id": 1,
+      "padre_id": "clasificacion_bienes",
+      "nombre": "Muebles e Inmuebles",
+      "nivel": 3,
+      "total_preguntas": 1
+    },
+    {
+      "id": "muerte_natural",
+      "ley_id": 1,
+      "padre_id": "existencia_personas",
+      "nombre": "Fin: Muerte Natural",
+      "nivel": 3,
+      "total_preguntas": 2
+    },
+    {
+      "id": "naturales",
+      "ley_id": 1,
+      "padre_id": "servidumbres",
+      "nombre": "Naturales",
+      "nivel": 3,
+      "total_preguntas": 3
+    },
+    {
+      "id": "naturales_juridicas",
+      "ley_id": 1,
+      "padre_id": "division_personas",
+      "nombre": "Naturales y Jurídicas",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "novacion_remision",
+      "ley_id": 1,
+      "padre_id": "extincion_obligaciones",
+      "nombre": "Novación, Remisión y Confusión",
+      "nivel": 3,
+      "total_preguntas": 2
+    },
+    {
+      "id": "nulidad_actos",
+      "ley_id": 1,
+      "padre_id": "efectos_aplicacion",
+      "nombre": "Nulidad de actos prohibidos",
+      "nivel": 3,
+      "total_preguntas": 3
+    },
+    {
+      "id": "obligatoriedad_habitantes",
+      "ley_id": 1,
+      "padre_id": "efectos_aplicacion",
+      "nombre": "Obligatoriedad para habitantes y extranjeros",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "orden_heredar",
+      "ley_id": 1,
+      "padre_id": "sucesion_intestada",
+      "nombre": "Orden de los Herederos",
+      "nivel": 3,
+      "total_preguntas": 5
+    },
+    {
+      "id": "patrimonio_responsabilidad",
+      "ley_id": 1,
+      "padre_id": "personas_juridicas",
+      "nombre": "Patrimonio y Responsabilidad",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "politico_civil",
+      "ley_id": 1,
+      "padre_id": "domicilio",
+      "nombre": "Político y Civil",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "posesion_regular",
+      "ley_id": 1,
+      "padre_id": "posesion",
+      "nombre": "Posesión Regular e Irregular",
+      "nivel": 3,
+      "total_preguntas": 1
+    },
+    {
+      "id": "prenda_hipoteca",
+      "ley_id": 1,
+      "padre_id": "contratos_garantia",
+      "nombre": "Prenda e Hipoteca",
+      "nivel": 3,
+      "total_preguntas": 14
+    },
+    {
+      "id": "prescripcion_extintiva",
+      "ley_id": 1,
+      "padre_id": "extincion_obligaciones",
+      "nombre": "Prescripción Extintiva",
+      "nivel": 3,
+      "total_preguntas": 1
+    },
+    {
+      "id": "principio_nacimiento",
+      "ley_id": 1,
+      "padre_id": "existencia_personas",
+      "nombre": "Principio: El Nacimiento",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "promulgacion_publicacion",
+      "ley_id": 1,
+      "padre_id": "promulgacion",
+      "nombre": "Promulgación y Publicación",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "propiedad_individual",
+      "ley_id": 1,
+      "padre_id": "dominio",
+      "nombre": "Propiedad Individual",
+      "nivel": 3,
+      "total_preguntas": 7
+    },
+    {
+      "id": "propiedad_plena",
+      "ley_id": 1,
+      "padre_id": "dominio",
+      "nombre": "Propiedad Plena y Nuda",
+      "nivel": 3,
+      "total_preguntas": 8
+    },
+    {
+      "id": "proteccion_no_nacido",
+      "ley_id": 1,
+      "padre_id": "existencia_personas",
+      "nombre": "Protección al No Nacido",
+      "nivel": 3,
+      "total_preguntas": 2
+    },
+    {
+      "id": "renuncia_derechos",
+      "ley_id": 1,
+      "padre_id": "efectos_aplicacion",
+      "nombre": "Renuncia de derechos",
+      "nivel": 3,
+      "total_preguntas": 2
+    },
+    {
+      "id": "representacion_legal",
+      "ley_id": 1,
+      "padre_id": "personas_juridicas",
+      "nombre": "Representación Legal",
+      "nivel": 3,
+      "total_preguntas": 1
+    },
+    {
+      "id": "residencia_animus",
+      "ley_id": 1,
+      "padre_id": "domicilio",
+      "nombre": "Residencia y ánimo de permanencia",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "revocacion_testamento",
+      "ley_id": 1,
+      "padre_id": "sucesion_testamentaria",
+      "nombre": "Revocación y Reforma",
+      "nivel": 3,
+      "total_preguntas": 3
+    },
+    {
+      "id": "salvadorenos_extranjeros",
+      "ley_id": 1,
+      "padre_id": "division_personas",
+      "nombre": "Salvadoreños y Extranjeros",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "sentido_literal",
+      "ley_id": 1,
+      "padre_id": "reglas_interpretacion",
+      "nombre": "Sentido literal vs espíritu",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "sentido_natural",
+      "ley_id": 1,
+      "padre_id": "reglas_interpretacion",
+      "nombre": "Sentido natural y técnico",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "tesoro",
+      "ley_id": 1,
+      "padre_id": "ocupacion",
+      "nombre": "Tesoro",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "voluntarias",
+      "ley_id": 1,
+      "padre_id": "servidumbres",
+      "nombre": "Voluntarias",
+      "nivel": 3,
+      "total_preguntas": 2
+    },
+    {
+      "id": "ccom_comercio_sv",
+      "ley_id": 2,
+      "padre_id": null,
+      "nombre": "Código de Comercio de El Salvador",
+      "nivel": 0,
+      "total_preguntas": 42
+    },
+    {
+      "id": "ccom_auxiliares_de_los_comerciantes",
+      "ley_id": 2,
+      "padre_id": "ccom_comercio_sv",
+      "nombre": "Auxiliares de los Comerciantes",
+      "nivel": 1,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_comerciante_individual",
+      "ley_id": 2,
+      "padre_id": "ccom_comercio_sv",
+      "nombre": "Comerciante Individual",
+      "nivel": 1,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_comerciante_social_sociedades",
+      "ley_id": 2,
+      "padre_id": "ccom_comercio_sv",
+      "nombre": "Comerciante Social (Sociedades)",
+      "nivel": 1,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_modificaciones_fusion_y_terminacion",
+      "ley_id": 2,
+      "padre_id": "ccom_comercio_sv",
+      "nombre": "Modificaciones, Fusión y Terminación",
+      "nivel": 1,
+      "total_preguntas": 9
+    },
+    {
+      "id": "ccom_obligaciones_profesionales",
+      "ley_id": 2,
+      "padre_id": "ccom_comercio_sv",
+      "nombre": "Obligaciones Profesionales",
+      "nivel": 1,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_operaciones_y_administracion",
+      "ley_id": 2,
+      "padre_id": "ccom_comercio_sv",
+      "nombre": "Operaciones y Administración",
+      "nivel": 1,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_titulo_preliminar_disposiciones_generales",
+      "ley_id": 2,
+      "padre_id": "ccom_comercio_sv",
+      "nombre": "Título Preliminar: Disposiciones Generales",
+      "nivel": 1,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_auxiliares_de_los_comerciantes_agentes",
+      "ley_id": 2,
+      "padre_id": "ccom_auxiliares_de_los_comerciantes",
+      "nombre": "Agentes",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_auxiliares_de_los_comerciantes_dependientes",
+      "ley_id": 2,
+      "padre_id": "ccom_auxiliares_de_los_comerciantes",
+      "nombre": "Dependientes",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_auxiliares_de_los_comerciantes_factores",
+      "ley_id": 2,
+      "padre_id": "ccom_auxiliares_de_los_comerciantes",
+      "nombre": "Factores",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_comerciante_individual_capacidad_legal",
+      "ley_id": 2,
+      "padre_id": "ccom_comerciante_individual",
+      "nombre": "Capacidad Legal",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_comerciante_individual_excepciones_no_comerciantes",
+      "ley_id": 2,
+      "padre_id": "ccom_comerciante_individual",
+      "nombre": "Excepciones (No Comerciantes)",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_comerciante_individual_inhabilidades",
+      "ley_id": 2,
+      "padre_id": "ccom_comerciante_individual",
+      "nombre": "Inhabilidades",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_comerciante_social_sociedades_constitucion_y_registro",
+      "ley_id": 2,
+      "padre_id": "ccom_comerciante_social_sociedades",
+      "nombre": "Constitución y Registro",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_comerciante_social_sociedades_regimen_de_capital_variable",
+      "ley_id": 2,
+      "padre_id": "ccom_comerciante_social_sociedades",
+      "nombre": "Régimen de Capital Variable",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_comerciante_social_sociedades_sociedades_de_capital",
+      "ley_id": 2,
+      "padre_id": "ccom_comerciante_social_sociedades",
+      "nombre": "Sociedades de Capital",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_comerciante_social_sociedades_sociedades_de_personas",
+      "ley_id": 2,
+      "padre_id": "ccom_comerciante_social_sociedades",
+      "nombre": "Sociedades de Personas",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_obligaciones_profesionales_contabilidad_y_correspondencia",
+      "ley_id": 2,
+      "padre_id": "ccom_obligaciones_profesionales",
+      "nombre": "Contabilidad y Correspondencia",
+      "nivel": 2,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ccom_obligaciones_profesionales_libre_competencia",
+      "ley_id": 2,
+      "padre_id": "ccom_obligaciones_profesionales",
+      "nombre": "Libre Competencia",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_obligaciones_profesionales_matricula_de_comercio",
+      "ley_id": 2,
+      "padre_id": "ccom_obligaciones_profesionales",
+      "nombre": "Matrícula de Comercio",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_obligaciones_profesionales_publicidad_mercantil",
+      "ley_id": 2,
+      "padre_id": "ccom_obligaciones_profesionales",
+      "nombre": "Publicidad Mercantil",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_operaciones_y_administracion_capital_social",
+      "ley_id": 2,
+      "padre_id": "ccom_operaciones_y_administracion",
+      "nombre": "Capital Social",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_operaciones_y_administracion_libros_obligatorios",
+      "ley_id": 2,
+      "padre_id": "ccom_operaciones_y_administracion",
+      "nombre": "Libros Obligatorios",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_operaciones_y_administracion_utilidades_y_reservas",
+      "ley_id": 2,
+      "padre_id": "ccom_operaciones_y_administracion",
+      "nombre": "Utilidades y Reservas",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_operaciones_y_administracion_vigilancia",
+      "ley_id": 2,
+      "padre_id": "ccom_operaciones_y_administracion",
+      "nombre": "Vigilancia",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_titulo_preliminar_disposiciones_generales_cosas_mercantiles",
+      "ley_id": 2,
+      "padre_id": "ccom_titulo_preliminar_disposiciones_generales",
+      "nombre": "Cosas Mercantiles",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_titulo_preliminar_disposiciones_generales_jerarquia_normativa",
+      "ley_id": 2,
+      "padre_id": "ccom_titulo_preliminar_disposiciones_generales",
+      "nombre": "Jerarquía Normativa",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_titulo_preliminar_disposiciones_generales_objeto",
+      "ley_id": 2,
+      "padre_id": "ccom_titulo_preliminar_disposiciones_generales",
+      "nombre": "Objeto",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_titulo_preliminar_disposiciones_generales_sujetos",
+      "ley_id": 2,
+      "padre_id": "ccom_titulo_preliminar_disposiciones_generales",
+      "nombre": "Sujetos",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_auxiliares_de_los_comerciantes_agentes_det_1",
+      "ley_id": 2,
+      "padre_id": "ccom_auxiliares_de_los_comerciantes_agentes",
+      "nombre": "Agentes dependientes",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_auxiliares_de_los_comerciantes_agentes_det_2",
+      "ley_id": 2,
+      "padre_id": "ccom_auxiliares_de_los_comerciantes_agentes",
+      "nombre": "Representantes o Distribuidores",
+      "nivel": 3,
+      "total_preguntas": 5
+    },
+    {
+      "id": "ccom_auxiliares_de_los_comerciantes_agentes_det_3",
+      "ley_id": 2,
+      "padre_id": "ccom_auxiliares_de_los_comerciantes_agentes",
+      "nombre": "Agentes intermediarios",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_auxiliares_de_los_comerciantes_dependientes_det_1",
+      "ley_id": 2,
+      "padre_id": "ccom_auxiliares_de_los_comerciantes_dependientes",
+      "nombre": "Ventas y atención al público",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_auxiliares_de_los_comerciantes_dependientes_det_2",
+      "ley_id": 2,
+      "padre_id": "ccom_auxiliares_de_los_comerciantes_dependientes",
+      "nombre": "Depositarios viajeros",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_auxiliares_de_los_comerciantes_factores_det_1",
+      "ley_id": 2,
+      "padre_id": "ccom_auxiliares_de_los_comerciantes_factores",
+      "nombre": "Dirección de empresa o sucursal",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_auxiliares_de_los_comerciantes_factores_det_2",
+      "ley_id": 2,
+      "padre_id": "ccom_auxiliares_de_los_comerciantes_factores",
+      "nombre": "Poder general de gestión",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_comerciante_individual_capacidad_legal_det_1",
+      "ley_id": 2,
+      "padre_id": "ccom_comerciante_individual_capacidad_legal",
+      "nombre": "Mayores de 18 años",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_comerciante_individual_capacidad_legal_det_2",
+      "ley_id": 2,
+      "padre_id": "ccom_comerciante_individual_capacidad_legal",
+      "nombre": "Menores habilitados o autorizados",
+      "nivel": 3,
+      "total_preguntas": 5
+    },
+    {
+      "id": "ccom_comerciante_individual_excepciones_no_comerciantes_det_1",
+      "ley_id": 2,
+      "padre_id": "ccom_comerciante_individual_excepciones_no_comerciantes",
+      "nombre": "Agricultores y artesanos sin local",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_comerciante_individual_excepciones_no_comerciantes_det_2",
+      "ley_id": 2,
+      "padre_id": "ccom_comerciante_individual_excepciones_no_comerciantes",
+      "nombre": "Actos accidentales de comercio",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_comerciante_individual_inhabilidades_det_1",
+      "ley_id": 2,
+      "padre_id": "ccom_comerciante_individual_inhabilidades",
+      "nombre": "Prohibiciones legales",
+      "nivel": 3,
+      "total_preguntas": 2
+    },
+    {
+      "id": "ccom_comerciante_individual_inhabilidades_det_2",
+      "ley_id": 2,
+      "padre_id": "ccom_comerciante_individual_inhabilidades",
+      "nombre": "Privación por sentencia",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_comerciante_individual_inhabilidades_det_3",
+      "ley_id": 2,
+      "padre_id": "ccom_comerciante_individual_inhabilidades",
+      "nombre": "Declarados en quiebra",
+      "nivel": 3,
+      "total_preguntas": 2
+    },
+    {
+      "id": "ccom_comerciante_social_sociedades_constitucion_y_registro_det_1",
+      "ley_id": 2,
+      "padre_id": "ccom_comerciante_social_sociedades_constitucion_y_registro",
+      "nombre": "Escritura Pública obligatoria",
+      "nivel": 3,
+      "total_preguntas": 12
+    },
+    {
+      "id": "ccom_comerciante_social_sociedades_constitucion_y_registro_det_2",
+      "ley_id": 2,
+      "padre_id": "ccom_comerciante_social_sociedades_constitucion_y_registro",
+      "nombre": "Inscripción en Registro de Comercio",
+      "nivel": 3,
+      "total_preguntas": 3
+    },
+    {
+      "id": "ccom_comerciante_social_sociedades_constitucion_y_registro_det_3",
+      "ley_id": 2,
+      "padre_id": "ccom_comerciante_social_sociedades_constitucion_y_registro",
+      "nombre": "Personalidad jurídica independiente",
+      "nivel": 3,
+      "total_preguntas": 4
+    },
+    {
+      "id": "ccom_comerciante_social_sociedades_regimen_de_capital_variable_det_1",
+      "ley_id": 2,
+      "padre_id": "ccom_comerciante_social_sociedades_regimen_de_capital_variable",
+      "nombre": "Aportaciones posteriores",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_comerciante_social_sociedades_regimen_de_capital_variable_det_2",
+      "ley_id": 2,
+      "padre_id": "ccom_comerciante_social_sociedades_regimen_de_capital_variable",
+      "nombre": "Retiro de socios",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_comerciante_social_sociedades_regimen_de_capital_variable_det_3",
+      "ley_id": 2,
+      "padre_id": "ccom_comerciante_social_sociedades_regimen_de_capital_variable",
+      "nombre": "Sufijo de C.V.",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_comerciante_social_sociedades_sociedades_de_capital_det_1",
+      "ley_id": 2,
+      "padre_id": "ccom_comerciante_social_sociedades_sociedades_de_capital",
+      "nombre": "Sociedad Anónima (S.A.)",
+      "nivel": 3,
+      "total_preguntas": 29
+    },
+    {
+      "id": "ccom_comerciante_social_sociedades_sociedades_de_capital_det_2",
+      "ley_id": 2,
+      "padre_id": "ccom_comerciante_social_sociedades_sociedades_de_capital",
+      "nombre": "Sociedad en Comandita por Acciones",
+      "nivel": 3,
+      "total_preguntas": 12
+    },
+    {
+      "id": "ccom_comerciante_social_sociedades_sociedades_de_personas_det_1",
+      "ley_id": 2,
+      "padre_id": "ccom_comerciante_social_sociedades_sociedades_de_personas",
+      "nombre": "Sociedad en Nombre Colectivo",
+      "nivel": 3,
+      "total_preguntas": 9
+    },
+    {
+      "id": "ccom_comerciante_social_sociedades_sociedades_de_personas_det_2",
+      "ley_id": 2,
+      "padre_id": "ccom_comerciante_social_sociedades_sociedades_de_personas",
+      "nombre": "Sociedad en Comandita Simple",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_comerciante_social_sociedades_sociedades_de_personas_det_3",
+      "ley_id": 2,
+      "padre_id": "ccom_comerciante_social_sociedades_sociedades_de_personas",
+      "nombre": "Sociedad de Responsabilidad Limitada",
+      "nivel": 3,
+      "total_preguntas": 7
+    },
+    {
+      "id": "ccom_obligaciones_profesionales_libre_competencia_det_1",
+      "ley_id": 2,
+      "padre_id": "ccom_obligaciones_profesionales_libre_competencia",
+      "nombre": "Abstención de competencia desleal",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_obligaciones_profesionales_matricula_de_comercio_det_1",
+      "ley_id": 2,
+      "padre_id": "ccom_obligaciones_profesionales_matricula_de_comercio",
+      "nombre": "Matrícula de empresa",
+      "nivel": 3,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ccom_obligaciones_profesionales_matricula_de_comercio_det_2",
+      "ley_id": 2,
+      "padre_id": "ccom_obligaciones_profesionales_matricula_de_comercio",
+      "nombre": "Registro de locales y sucursales",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_obligaciones_profesionales_publicidad_mercantil_det_1",
+      "ley_id": 2,
+      "padre_id": "ccom_obligaciones_profesionales_publicidad_mercantil",
+      "nombre": "Depósito anual de balances",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_obligaciones_profesionales_publicidad_mercantil_det_2",
+      "ley_id": 2,
+      "padre_id": "ccom_obligaciones_profesionales_publicidad_mercantil",
+      "nombre": "Publicación de acuerdos sociales",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_operaciones_y_administracion_capital_social_det_1",
+      "ley_id": 2,
+      "padre_id": "ccom_operaciones_y_administracion_capital_social",
+      "nombre": "Aportaciones en dinero o especie",
+      "nivel": 3,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ccom_operaciones_y_administracion_capital_social_det_2",
+      "ley_id": 2,
+      "padre_id": "ccom_operaciones_y_administracion_capital_social",
+      "nombre": "Aumento y disminución de capital",
+      "nivel": 3,
+      "total_preguntas": 9
+    },
+    {
+      "id": "ccom_operaciones_y_administracion_libros_obligatorios_det_1",
+      "ley_id": 2,
+      "padre_id": "ccom_operaciones_y_administracion_libros_obligatorios",
+      "nombre": "Libro de Actas (Juntas y Directiva)",
+      "nivel": 3,
+      "total_preguntas": 20
+    },
+    {
+      "id": "ccom_operaciones_y_administracion_libros_obligatorios_det_2",
+      "ley_id": 2,
+      "padre_id": "ccom_operaciones_y_administracion_libros_obligatorios",
+      "nombre": "Registro de Socios/Accionistas",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_operaciones_y_administracion_libros_obligatorios_det_3",
+      "ley_id": 2,
+      "padre_id": "ccom_operaciones_y_administracion_libros_obligatorios",
+      "nombre": "Registro de variaciones de capital",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_operaciones_y_administracion_utilidades_y_reservas_det_1",
+      "ley_id": 2,
+      "padre_id": "ccom_operaciones_y_administracion_utilidades_y_reservas",
+      "nombre": "Distribución proporcional",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_operaciones_y_administracion_utilidades_y_reservas_det_2",
+      "ley_id": 2,
+      "padre_id": "ccom_operaciones_y_administracion_utilidades_y_reservas",
+      "nombre": "Reserva legal (5% a 7%)",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_operaciones_y_administracion_vigilancia_det_1",
+      "ley_id": 2,
+      "padre_id": "ccom_operaciones_y_administracion_vigilancia",
+      "nombre": "Auditoría Externa",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_operaciones_y_administracion_vigilancia_det_2",
+      "ley_id": 2,
+      "padre_id": "ccom_operaciones_y_administracion_vigilancia",
+      "nombre": "Consejo de Vigilancia",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_titulo_preliminar_disposiciones_generales_cosas_mercantiles_det_1",
+      "ley_id": 2,
+      "padre_id": "ccom_titulo_preliminar_disposiciones_generales_cosas_mercantiles",
+      "nombre": "Empresas mercantiles",
+      "nivel": 3,
+      "total_preguntas": 15
+    },
+    {
+      "id": "ccom_titulo_preliminar_disposiciones_generales_cosas_mercantiles_det_2",
+      "ley_id": 2,
+      "padre_id": "ccom_titulo_preliminar_disposiciones_generales_cosas_mercantiles",
+      "nombre": "Distintivos y patentes",
+      "nivel": 3,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ccom_titulo_preliminar_disposiciones_generales_cosas_mercantiles_det_3",
+      "ley_id": 2,
+      "padre_id": "ccom_titulo_preliminar_disposiciones_generales_cosas_mercantiles",
+      "nombre": "Títulos valores",
+      "nivel": 3,
+      "total_preguntas": 57
+    },
+    {
+      "id": "ccom_titulo_preliminar_disposiciones_generales_jerarquia_normativa_det_1",
+      "ley_id": 2,
+      "padre_id": "ccom_titulo_preliminar_disposiciones_generales_jerarquia_normativa",
+      "nombre": "Código de Comercio y leyes mercantiles",
+      "nivel": 3,
+      "total_preguntas": 4
+    },
+    {
+      "id": "ccom_titulo_preliminar_disposiciones_generales_jerarquia_normativa_det_2",
+      "ley_id": 2,
+      "padre_id": "ccom_titulo_preliminar_disposiciones_generales_jerarquia_normativa",
+      "nombre": "Usos y costumbres",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_titulo_preliminar_disposiciones_generales_jerarquia_normativa_det_3",
+      "ley_id": 2,
+      "padre_id": "ccom_titulo_preliminar_disposiciones_generales_jerarquia_normativa",
+      "nombre": "Código Civil",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ccom_titulo_preliminar_disposiciones_generales_objeto_det_1",
+      "ley_id": 2,
+      "padre_id": "ccom_titulo_preliminar_disposiciones_generales_objeto",
+      "nombre": "Actos de comercio y cosas mercantiles",
+      "nivel": 3,
+      "total_preguntas": 4
+    },
+    {
+      "id": "ccom_titulo_preliminar_disposiciones_generales_sujetos_det_1",
+      "ley_id": 2,
+      "padre_id": "ccom_titulo_preliminar_disposiciones_generales_sujetos",
+      "nombre": "Comerciantes individuales y sociales",
+      "nivel": 3,
+      "total_preguntas": 2
+    },
+    {
+      "id": "ley3_codigo_de_familia_el_salvador_4204",
+      "ley_id": 3,
+      "padre_id": null,
+      "nombre": "Código de Familia (El Salvador)",
+      "nivel": 1,
+      "total_preguntas": 72
+    },
+    {
+      "id": "ley3_asistencia_familiar_y_tutela_4114",
+      "ley_id": 3,
+      "padre_id": "ley3_codigo_de_familia_el_salvador_4204",
+      "nombre": "Asistencia Familiar y Tutela",
+      "nivel": 2,
+      "total_preguntas": 4
+    },
+    {
+      "id": "ley3_derecho_del_trabajo_5578",
+      "ley_id": 3,
+      "padre_id": "ley3_codigo_de_familia_el_salvador_4204",
+      "nombre": "Derecho del Trabajo",
+      "nivel": 2,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ley3_el_matrimonio_3143",
+      "ley_id": 3,
+      "padre_id": "ley3_codigo_de_familia_el_salvador_4204",
+      "nombre": "El Matrimonio",
+      "nivel": 2,
+      "total_preguntas": 41
+    },
+    {
+      "id": "ley3_estado_familiar_y_registro_6324",
+      "ley_id": 3,
+      "padre_id": "ley3_codigo_de_familia_el_salvador_4204",
+      "nombre": "Estado Familiar y Registro",
+      "nivel": 2,
+      "total_preguntas": 2
+    },
+    {
+      "id": "ley3_filiacion_2824",
+      "ley_id": 3,
+      "padre_id": "ley3_codigo_de_familia_el_salvador_4204",
+      "nombre": "Filiación",
+      "nivel": 2,
+      "total_preguntas": 16
+    },
+    {
+      "id": "ley3_parentesco_2935",
+      "ley_id": 3,
+      "padre_id": "ley3_codigo_de_familia_el_salvador_4204",
+      "nombre": "Parentesco",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_relaciones_paterno_filiales_5864",
+      "ley_id": 3,
+      "padre_id": "ley3_codigo_de_familia_el_salvador_4204",
+      "nombre": "Relaciones Paterno Filiales",
+      "nivel": 2,
+      "total_preguntas": 5
+    },
+    {
+      "id": "ley3_titulo_preliminar_5756",
+      "ley_id": 3,
+      "padre_id": "ley3_codigo_de_familia_el_salvador_4204",
+      "nombre": "Título Preliminar",
+      "nivel": 2,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ley3_union_no_matrimonial_8035",
+      "ley_id": 3,
+      "padre_id": "ley3_codigo_de_familia_el_salvador_4204",
+      "nombre": "Unión No Matrimonial",
+      "nivel": 2,
+      "total_preguntas": 2
+    },
+    {
+      "id": "ley3_autoridad_parental_1104",
+      "ley_id": 3,
+      "padre_id": "ley3_relaciones_paterno_filiales_5864",
+      "nombre": "Autoridad Parental",
+      "nivel": 3,
+      "total_preguntas": 5
+    },
+    {
+      "id": "ley3_calidad_juridica_en_relacion_a_la_familia_9736",
+      "ley_id": 3,
+      "padre_id": "ley3_estado_familiar_y_registro_6324",
+      "nombre": "Calidad jurídica en relación a la familia",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_celebracion_7734",
+      "ley_id": 3,
+      "padre_id": "ley3_el_matrimonio_3143",
+      "nombre": "Celebración",
+      "nivel": 3,
+      "total_preguntas": 17
+    },
+    {
+      "id": "ley3_clases_1446",
+      "ley_id": 3,
+      "padre_id": "ley3_parentesco_2935",
+      "nombre": "Clases",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_concepto_de_familia_4492",
+      "ley_id": 3,
+      "padre_id": "ley3_titulo_preliminar_5756",
+      "nombre": "Concepto de Familia",
+      "nivel": 3,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ley3_constitucion_3659",
+      "ley_id": 3,
+      "padre_id": "ley3_el_matrimonio_3143",
+      "nombre": "Constitución",
+      "nivel": 3,
+      "total_preguntas": 11
+    },
+    {
+      "id": "ley3_convivencia_estable_de_3_o_mas_anos_4049",
+      "ley_id": 3,
+      "padre_id": "ley3_union_no_matrimonial_8035",
+      "nombre": "Convivencia estable de 3 o más años",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_declaracion_judicial_de_existencia_4959",
+      "ley_id": 3,
+      "padre_id": "ley3_union_no_matrimonial_8035",
+      "nombre": "Declaración judicial de existencia",
+      "nivel": 3,
+      "total_preguntas": 2
+    },
+    {
+      "id": "ley3_derecho_a_suceder_abintestato_129",
+      "ley_id": 3,
+      "padre_id": "ley3_union_no_matrimonial_8035",
+      "nombre": "Derecho a suceder abintestato",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_derechos_irrenunciables_y_deberes_indelegables_7608",
+      "ley_id": 3,
+      "padre_id": "ley3_titulo_preliminar_5756",
+      "nombre": "Derechos Irrenunciables y Deberes Indelegables",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_derechos_y_deberes_de_los_hijos_8503",
+      "ley_id": 3,
+      "padre_id": "ley3_relaciones_paterno_filiales_5864",
+      "nombre": "Derechos y Deberes de los Hijos",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_establecimiento_1150",
+      "ley_id": 3,
+      "padre_id": "ley3_filiacion_2824",
+      "nombre": "Establecimiento",
+      "nivel": 3,
+      "total_preguntas": 15
+    },
+    {
+      "id": "ley3_grado_de_proximidad_7724",
+      "ley_id": 3,
+      "padre_id": "ley3_parentesco_2935",
+      "nombre": "Grado de proximidad",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_impedimentos_7305",
+      "ley_id": 3,
+      "padre_id": "ley3_el_matrimonio_3143",
+      "nombre": "Impedimentos",
+      "nivel": 3,
+      "total_preguntas": 5
+    },
+    {
+      "id": "ley3_impugnacion_4073",
+      "ley_id": 3,
+      "padre_id": "ley3_filiacion_2824",
+      "nombre": "Impugnación",
+      "nivel": 3,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ley3_integracion_y_aplicacion_con_tratados_internaciona_20",
+      "ley_id": 3,
+      "padre_id": "ley3_titulo_preliminar_5756",
+      "nombre": "Integración y Aplicación con Tratados Internacionales",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_la_tutela_7917",
+      "ley_id": 3,
+      "padre_id": "ley3_asistencia_familiar_y_tutela_4114",
+      "nombre": "La Tutela",
+      "nivel": 3,
+      "total_preguntas": 4
+    },
+    {
+      "id": "ley3_lineas_4433",
+      "ley_id": 3,
+      "padre_id": "ley3_parentesco_2935",
+      "nombre": "Líneas",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_los_alimentos_1699",
+      "ley_id": 3,
+      "padre_id": "ley3_asistencia_familiar_y_tutela_4114",
+      "nombre": "Los Alimentos",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_nulidad_y_disolucion_1170",
+      "ley_id": 3,
+      "padre_id": "ley3_el_matrimonio_3143",
+      "nombre": "Nulidad y Disolución",
+      "nivel": 3,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ley3_objeto_1804",
+      "ley_id": 3,
+      "padre_id": "ley3_titulo_preliminar_5756",
+      "nombre": "Objeto",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_posesion_de_estado_familiar_2251",
+      "ley_id": 3,
+      "padre_id": "ley3_estado_familiar_y_registro_6324",
+      "nombre": "Posesión de estado familiar",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_principios_5588",
+      "ley_id": 3,
+      "padre_id": "ley3_titulo_preliminar_5756",
+      "nombre": "Principios",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_proteccion_integral_y_politicas_publicas_2262",
+      "ley_id": 3,
+      "padre_id": "ley3_derecho_del_trabajo_5578",
+      "nombre": "Protección integral y políticas públicas",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_pruebas_4066",
+      "ley_id": 3,
+      "padre_id": "ley3_estado_familiar_y_registro_6324",
+      "nombre": "Pruebas",
+      "nivel": 3,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ley3_regimen_de_participacion_en_ganancias_451",
+      "ley_id": 3,
+      "padre_id": "ley3_union_no_matrimonial_8035",
+      "nombre": "Régimen de participación en ganancias",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_regimen_patrimonial_3320",
+      "ley_id": 3,
+      "padre_id": "ley3_el_matrimonio_3143",
+      "nombre": "Régimen Patrimonial",
+      "nivel": 3,
+      "total_preguntas": 7
+    },
+    {
+      "id": "ley3_registro_del_estado_familiar_120",
+      "ley_id": 3,
+      "padre_id": "ley3_estado_familiar_y_registro_6324",
+      "nombre": "Registro del Estado Familiar",
+      "nivel": 3,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ley3_sistema_nacional_de_proteccion_a_la_familia_4016",
+      "ley_id": 3,
+      "padre_id": "ley3_derecho_del_trabajo_5578",
+      "nombre": "Sistema Nacional de Protección a la Familia",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_sistema_nacional_de_proteccion_al_menor_4456",
+      "ley_id": 3,
+      "padre_id": "ley3_derecho_del_trabajo_5578",
+      "nombre": "Sistema Nacional de Protección al Menor",
+      "nivel": 3,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ley3_absolutos_3612",
+      "ley_id": 3,
+      "padre_id": "ley3_impedimentos_7305",
+      "nombre": "Absolutos",
+      "nivel": 4,
+      "total_preguntas": 2
+    },
+    {
+      "id": "ley3_acta_prenupcial_y_expediente_1333",
+      "ley_id": 3,
+      "padre_id": "ley3_celebracion_7734",
+      "nombre": "Acta prenupcial y expediente",
+      "nivel": 4,
+      "total_preguntas": 3
+    },
+    {
+      "id": "ley3_administracion_de_bienes_2668",
+      "ley_id": 3,
+      "padre_id": "ley3_autoridad_parental_1104",
+      "nombre": "Administración de bienes",
+      "nivel": 4,
+      "total_preguntas": 2
+    },
+    {
+      "id": "ley3_capitulaciones_matrimoniales_5807",
+      "ley_id": 3,
+      "padre_id": "ley3_regimen_patrimonial_3320",
+      "nombre": "Capitulaciones Matrimoniales",
+      "nivel": 4,
+      "total_preguntas": 2
+    },
+    {
+      "id": "ley3_cargo_a_favor_de_menores_o_incapaces_639",
+      "ley_id": 3,
+      "padre_id": "ley3_la_tutela_7917",
+      "nombre": "Cargo a favor de menores o incapaces",
+      "nivel": 4,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ley3_comunidad_diferida_supletorio_6745",
+      "ley_id": 3,
+      "padre_id": "ley3_regimen_patrimonial_3320",
+      "nombre": "Comunidad Diferida (Supletorio)",
+      "nivel": 4,
+      "total_preguntas": 3
+    },
+    {
+      "id": "ley3_crianza_educacion_y_proteccion_7427",
+      "ley_id": 3,
+      "padre_id": "ley3_derechos_y_deberes_de_los_hijos_8503",
+      "nombre": "Crianza, educación y protección",
+      "nivel": 4,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_cuidado_personal_y_convivencia_2489",
+      "ley_id": 3,
+      "padre_id": "ley3_autoridad_parental_1104",
+      "nombre": "Cuidado personal y convivencia",
+      "nivel": 4,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_disolucion_3730",
+      "ley_id": 3,
+      "padre_id": "ley3_nulidad_y_disolucion_1170",
+      "nombre": "Disolución",
+      "nivel": 4,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ley3_ejercicio_conjunto_por_padre_y_madre_4087",
+      "ley_id": 3,
+      "padre_id": "ley3_autoridad_parental_1104",
+      "nombre": "Ejercicio conjunto por padre y madre",
+      "nivel": 4,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_entre_igual_hombre_y_mujer_9219",
+      "ley_id": 3,
+      "padre_id": "ley3_constitucion_3659",
+      "nombre": "Entre igual hombre y mujer",
+      "nivel": 4,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ley3_extincion_perdida_y_suspension_4071",
+      "ley_id": 3,
+      "padre_id": "ley3_autoridad_parental_1104",
+      "nombre": "Extinción, pérdida y suspensión",
+      "nivel": 4,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ley3_funcionarios_autorizados_3777",
+      "ley_id": 3,
+      "padre_id": "ley3_constitucion_3659",
+      "nombre": "Funcionarios autorizados",
+      "nivel": 4,
+      "total_preguntas": 7
+    },
+    {
+      "id": "ley3_igualdad_de_hijos_588",
+      "ley_id": 3,
+      "padre_id": "ley3_derechos_y_deberes_de_los_hijos_8503",
+      "nombre": "Igualdad de hijos",
+      "nivel": 4,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_impugnacion_de_maternidad_1652",
+      "ley_id": 3,
+      "padre_id": "ley3_impugnacion_4073",
+      "nombre": "Impugnación de maternidad",
+      "nivel": 4,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_impugnacion_de_paternidad_por_el_marido_e_hijo_2268",
+      "ley_id": 3,
+      "padre_id": "ley3_impugnacion_4073",
+      "nombre": "Impugnación de paternidad por el marido e hijo",
+      "nivel": 4,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ley3_impugnacion_de_reconocimiento_voluntario_8021",
+      "ley_id": 3,
+      "padre_id": "ley3_impugnacion_4073",
+      "nombre": "Impugnación de reconocimiento voluntario",
+      "nivel": 4,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_investigacion_de_paternidad_maternidad_6059",
+      "ley_id": 3,
+      "padre_id": "ley3_establecimiento_1150",
+      "nombre": "Investigación de paternidad maternidad",
+      "nivel": 4,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ley3_libre_y_mutuo_consentimiento_1119",
+      "ley_id": 3,
+      "padre_id": "ley3_constitucion_3659",
+      "nombre": "Libre y mutuo consentimiento",
+      "nivel": 4,
+      "total_preguntas": 3
+    },
+    {
+      "id": "ley3_maternidad_3248",
+      "ley_id": 3,
+      "padre_id": "ley3_establecimiento_1150",
+      "nombre": "Maternidad",
+      "nivel": 4,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_matrimonio_en_articulo_mortis_1851",
+      "ley_id": 3,
+      "padre_id": "ley3_celebracion_7734",
+      "nombre": "Matrimonio en artículo mortis",
+      "nivel": 4,
+      "total_preguntas": 3
+    },
+    {
+      "id": "ley3_matrimonio_por_poder_2511",
+      "ley_id": 3,
+      "padre_id": "ley3_celebracion_7734",
+      "nombre": "Matrimonio por poder",
+      "nivel": 4,
+      "total_preguntas": 7
+    },
+    {
+      "id": "ley3_motivos_de_divorcio_7205",
+      "ley_id": 3,
+      "padre_id": "ley3_nulidad_y_disolucion_1170",
+      "nombre": "Motivos de Divorcio",
+      "nivel": 4,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_nulidad_absoluta_9589",
+      "ley_id": 3,
+      "padre_id": "ley3_nulidad_y_disolucion_1170",
+      "nombre": "Nulidad Absoluta",
+      "nivel": 4,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_nulidad_relativa_4535",
+      "ley_id": 3,
+      "padre_id": "ley3_nulidad_y_disolucion_1170",
+      "nombre": "Nulidad Relativa",
+      "nivel": 4,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_participacion_en_las_ganancias_3511",
+      "ley_id": 3,
+      "padre_id": "ley3_regimen_patrimonial_3320",
+      "nombre": "Participación en las Ganancias",
+      "nivel": 4,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_presuncion_4027",
+      "ley_id": 3,
+      "padre_id": "ley3_establecimiento_1150",
+      "nombre": "Presunción",
+      "nivel": 4,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ley3_proporcionalidad_y_necesidad_2941",
+      "ley_id": 3,
+      "padre_id": "ley3_los_alimentos_1699",
+      "nombre": "Proporcionalidad y necesidad",
+      "nivel": 4,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_proteccion_a_la_vivienda_familiar_5001",
+      "ley_id": 3,
+      "padre_id": "ley3_regimen_patrimonial_3320",
+      "nombre": "Protección a la Vivienda Familiar",
+      "nivel": 4,
+      "total_preguntas": 2
+    },
+    {
+      "id": "ley3_proteccion_y_retencion_de_salarios_5034",
+      "ley_id": 3,
+      "padre_id": "ley3_los_alimentos_1699",
+      "nombre": "Protección y retención de salarios",
+      "nivel": 4,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_reglas_especiales_7962",
+      "ley_id": 3,
+      "padre_id": "ley3_impedimentos_7305",
+      "nombre": "Reglas especiales",
+      "nivel": 4,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ley3_relativos_5413",
+      "ley_id": 3,
+      "padre_id": "ley3_impedimentos_7305",
+      "nombre": "Relativos",
+      "nivel": 4,
+      "total_preguntas": 2
+    },
+    {
+      "id": "ley3_rendicion_de_cuentas_e_inventario_333",
+      "ley_id": 3,
+      "padre_id": "ley3_la_tutela_7917",
+      "nombre": "Rendición de cuentas e inventario",
+      "nivel": 4,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_representacion_legal_1070",
+      "ley_id": 3,
+      "padre_id": "ley3_autoridad_parental_1104",
+      "nombre": "Representación legal",
+      "nivel": 4,
+      "total_preguntas": 2
+    },
+    {
+      "id": "ley3_retencion_migratoria_por_impago_9111",
+      "ley_id": 3,
+      "padre_id": "ley3_los_alimentos_1699",
+      "nombre": "Retención migratoria por impago",
+      "nivel": 4,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_salud_individual_y_base_genetica_5211",
+      "ley_id": 3,
+      "padre_id": "ley3_derechos_y_deberes_de_los_hijos_8503",
+      "nombre": "Salud individual y base genética",
+      "nivel": 4,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_separacion_de_bienes_2483",
+      "ley_id": 3,
+      "padre_id": "ley3_regimen_patrimonial_3320",
+      "nombre": "Separación de Bienes",
+      "nivel": 4,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_sujetos_2991",
+      "ley_id": 3,
+      "padre_id": "ley3_los_alimentos_1699",
+      "nombre": "Sujetos",
+      "nivel": 4,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ley3_testigos_y_solemnidad_del_acto_7684",
+      "ley_id": 3,
+      "padre_id": "ley3_celebracion_7734",
+      "nombre": "Testigos y solemnidad del acto",
+      "nivel": 4,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ley3_tipos_4636",
+      "ley_id": 3,
+      "padre_id": "ley3_la_tutela_7917",
+      "nombre": "Tipos",
+      "nivel": 4,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ley3_tutela_de_mayores_incapacitados_5944",
+      "ley_id": 3,
+      "padre_id": "ley3_la_tutela_7917",
+      "nombre": "Tutela de mayores incapacitados",
+      "nivel": 4,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ln_notariado_sv",
+      "ley_id": 9,
+      "padre_id": null,
+      "nombre": "Ley de Notariado de El Salvador",
+      "nivel": 0,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ln_el_protocolo",
+      "ley_id": 9,
+      "padre_id": "ln_notariado_sv",
+      "nombre": "El Protocolo",
+      "nivel": 1,
+      "total_preguntas": 5
+    },
+    {
+      "id": "ln_formalidades_escritura",
+      "ley_id": 9,
+      "padre_id": "ln_notariado_sv",
+      "nombre": "Formalidades de Escritura Matriz",
+      "nivel": 1,
+      "total_preguntas": 5
+    },
+    {
+      "id": "ln_funcion_publica",
+      "ley_id": 9,
+      "padre_id": "ln_notariado_sv",
+      "nombre": "Función Pública del Notariado",
+      "nivel": 1,
+      "total_preguntas": 3
+    },
+    {
+      "id": "ln_impedimentos_sanciones",
+      "ley_id": 9,
+      "padre_id": "ln_notariado_sv",
+      "nombre": "Impedimentos y Sanciones",
+      "nivel": 1,
+      "total_preguntas": 6
+    },
+    {
+      "id": "ln_instrumentos_notariales",
+      "ley_id": 9,
+      "padre_id": "ln_notariado_sv",
+      "nombre": "Instrumentos Notariales",
+      "nivel": 1,
+      "total_preguntas": 5
+    },
+    {
+      "id": "ln_responsabilidad",
+      "ley_id": 9,
+      "padre_id": "ln_notariado_sv",
+      "nombre": "Responsabilidad",
+      "nivel": 1,
+      "total_preguntas": 2
+    },
+    {
+      "id": "ln_servicio_exterior_not",
+      "ley_id": 9,
+      "padre_id": "ln_notariado_sv",
+      "nombre": "Notariado en el Servicio Exterior",
+      "nivel": 1,
+      "total_preguntas": 5
+    },
+    {
+      "id": "ln_sujetos_autorizados",
+      "ley_id": 9,
+      "padre_id": "ln_notariado_sv",
+      "nombre": "Sujetos Autorizados",
+      "nivel": 1,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ln_testimonios",
+      "ley_id": 9,
+      "padre_id": "ln_notariado_sv",
+      "nombre": "Testimonios",
+      "nivel": 1,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ln_actas_notariales",
+      "ley_id": 9,
+      "padre_id": "ln_instrumentos_notariales",
+      "nombre": "Actas notariales (fuera del protocolo)",
+      "nivel": 2,
+      "total_preguntas": 11
+    },
+    {
+      "id": "ln_ambito_nacional_extranjero",
+      "ley_id": 9,
+      "padre_id": "ln_funcion_publica",
+      "nombre": "Ámbito: Nacional y Extranjero (efectos en El Salvador)",
+      "nivel": 2,
+      "total_preguntas": 11
+    },
+    {
+      "id": "ln_archivo_testamentos",
+      "ley_id": 9,
+      "padre_id": "ln_testimonios",
+      "nombre": "Archivo de testamentos nuncupativos",
+      "nivel": 2,
+      "total_preguntas": 3
+    },
+    {
+      "id": "ln_autenticas_firmas",
+      "ley_id": 9,
+      "padre_id": "ln_instrumentos_notariales",
+      "nombre": "Auténticas de firmas",
+      "nivel": 2,
+      "total_preguntas": 7
+    },
+    {
+      "id": "ln_cantidades_letras",
+      "ley_id": 9,
+      "padre_id": "ln_formalidades_escritura",
+      "nombre": "Cantidades y fechas en letras",
+      "nivel": 2,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ln_centroamericanos",
+      "ley_id": 9,
+      "padre_id": "ln_sujetos_autorizados",
+      "nombre": "Centroamericanos (con reciprocidad)",
+      "nivel": 2,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ln_cierre_protocolo",
+      "ley_id": 9,
+      "padre_id": "ln_el_protocolo",
+      "nombre": "Cierre: Razón final e índice",
+      "nivel": 2,
+      "total_preguntas": 19
+    },
+    {
+      "id": "ln_derechos_cartulacion",
+      "ley_id": 9,
+      "padre_id": "ln_servicio_exterior_not",
+      "nombre": "Derechos de cartulación (Fondo General)",
+      "nivel": 2,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ln_entrega_protocolo",
+      "ley_id": 9,
+      "padre_id": "ln_el_protocolo",
+      "nombre": "Entrega: Sección del Notariado o Juzgado",
+      "nivel": 2,
+      "total_preguntas": 11
+    },
+    {
+      "id": "ln_escritura_matriz",
+      "ley_id": 9,
+      "padre_id": "ln_instrumentos_notariales",
+      "nombre": "Escritura matriz (asentada en protocolo)",
+      "nivel": 2,
+      "total_preguntas": 10
+    },
+    {
+      "id": "ln_escritura_publica",
+      "ley_id": 9,
+      "padre_id": "ln_instrumentos_notariales",
+      "nombre": "Escritura pública o testimonio (reproducción)",
+      "nivel": 2,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ln_expedicion_testimonios",
+      "ley_id": 9,
+      "padre_id": "ln_testimonios",
+      "nombre": "Expedición a interesados",
+      "nivel": 2,
+      "total_preguntas": 14
+    },
+    {
+      "id": "ln_fe_conocimiento",
+      "ley_id": 9,
+      "padre_id": "ln_formalidades_escritura",
+      "nombre": "Fe de conocimiento o documentos de identidad",
+      "nivel": 2,
+      "total_preguntas": 5
+    },
+    {
+      "id": "ln_fe_publica_plena",
+      "ley_id": 9,
+      "padre_id": "ln_funcion_publica",
+      "nombre": "Fe Pública Plena",
+      "nivel": 2,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ln_formatos_copia",
+      "ley_id": 9,
+      "padre_id": "ln_testimonios",
+      "nombre": "Formatos: Copia fiel, fotostática o fotográfica",
+      "nivel": 2,
+      "total_preguntas": 3
+    },
+    {
+      "id": "ln_fuerza_probatoria",
+      "ley_id": 9,
+      "padre_id": "ln_funcion_publica",
+      "nombre": "Fuerza probatoria de instrumentos",
+      "nivel": 2,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ln_funcion_indelegable",
+      "ley_id": 9,
+      "padre_id": "ln_servicio_exterior_not",
+      "nombre": "Función indelegable",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ln_generales_otorgantes",
+      "ley_id": 9,
+      "padre_id": "ln_formalidades_escritura",
+      "nombre": "Generales de otorgantes",
+      "nivel": 2,
+      "total_preguntas": 4
+    },
+    {
+      "id": "ln_idioma_castellano",
+      "ley_id": 9,
+      "padre_id": "ln_formalidades_escritura",
+      "nombre": "Idioma: castellano",
+      "nivel": 2,
+      "total_preguntas": 10
+    },
+    {
+      "id": "ln_incapacidades",
+      "ley_id": 9,
+      "padre_id": "ln_impedimentos_sanciones",
+      "nombre": "Incapacidades",
+      "nivel": 2,
+      "total_preguntas": 4
+    },
+    {
+      "id": "ln_inhabilitacion",
+      "ley_id": 9,
+      "padre_id": "ln_impedimentos_sanciones",
+      "nombre": "Inhabilitación",
+      "nivel": 2,
+      "total_preguntas": 3
+    },
+    {
+      "id": "ln_inspeccion_csj",
+      "ley_id": 9,
+      "padre_id": "ln_el_protocolo",
+      "nombre": "Inspección por la CSJ",
+      "nivel": 2,
+      "total_preguntas": 4
+    },
+    {
+      "id": "ln_jueces_primera_instancia",
+      "ley_id": 9,
+      "padre_id": "ln_sujetos_autorizados",
+      "nombre": "Jueces de Primera Instancia (testamentos)",
+      "nivel": 2,
+      "total_preguntas": 5
+    },
+    {
+      "id": "ln_lectura_firma",
+      "ley_id": 9,
+      "padre_id": "ln_formalidades_escritura",
+      "nombre": "Lectura íntegra y firma",
+      "nivel": 2,
+      "total_preguntas": 10
+    },
+    {
+      "id": "ln_legajo_anexos",
+      "ley_id": 9,
+      "padre_id": "ln_el_protocolo",
+      "nombre": "Legajo de anexos",
+      "nivel": 2,
+      "total_preguntas": 14
+    },
+    {
+      "id": "ln_legalizacion_seccion",
+      "ley_id": 9,
+      "padre_id": "ln_servicio_exterior_not",
+      "nombre": "Legalización por Sección del Notariado",
+      "nivel": 2,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ln_libros_numerados",
+      "ley_id": 9,
+      "padre_id": "ln_el_protocolo",
+      "nombre": "Libros numerados correlativamente",
+      "nivel": 2,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ln_lugar_dia_hora",
+      "ley_id": 9,
+      "padre_id": "ln_formalidades_escritura",
+      "nombre": "Lugar, día y hora",
+      "nivel": 2,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ln_multas_adm",
+      "ley_id": 9,
+      "padre_id": "ln_responsabilidad",
+      "nombre": "Multas administrativas de la CSJ",
+      "nivel": 2,
+      "total_preguntas": 4
+    },
+    {
+      "id": "ln_notario_delegado",
+      "ley_id": 9,
+      "padre_id": "ln_funcion_publica",
+      "nombre": "Notario: Delegado del Estado",
+      "nivel": 2,
+      "total_preguntas": 4
+    },
+    {
+      "id": "ln_nulidad_instrumentos",
+      "ley_id": 9,
+      "padre_id": "ln_responsabilidad",
+      "nombre": "Nulidad absoluta de instrumentos viciados",
+      "nivel": 2,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ln_papel_sellado",
+      "ley_id": 9,
+      "padre_id": "ln_el_protocolo",
+      "nombre": "Hojas de papel sellado legalizadas",
+      "nivel": 2,
+      "total_preguntas": 5
+    },
+    {
+      "id": "ln_prohibicion_abreviaturas",
+      "ley_id": 9,
+      "padre_id": "ln_formalidades_escritura",
+      "nombre": "Prohibición de abreviaturas",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ln_prohibiciones",
+      "ley_id": 9,
+      "padre_id": "ln_impedimentos_sanciones",
+      "nombre": "Prohibiciones",
+      "nivel": 2,
+      "total_preguntas": 23
+    },
+    {
+      "id": "ln_protocolizaciones",
+      "ley_id": 9,
+      "padre_id": "ln_instrumentos_notariales",
+      "nombre": "Protocolizaciones",
+      "nivel": 2,
+      "total_preguntas": 16
+    },
+    {
+      "id": "ln_protocolo_hojas_sueltas",
+      "ley_id": 9,
+      "padre_id": "ln_servicio_exterior_not",
+      "nombre": "Protocolos de hojas sueltas (R.R.E.E.)",
+      "nivel": 2,
+      "total_preguntas": 3
+    },
+    {
+      "id": "ln_reconocimiento_privado",
+      "ley_id": 9,
+      "padre_id": "ln_instrumentos_notariales",
+      "nombre": "Reconocimiento de documentos privados",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ln_relacion_acto",
+      "ley_id": 9,
+      "padre_id": "ln_formalidades_escritura",
+      "nombre": "Relación clara del acto",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ln_remision_copias",
+      "ley_id": 9,
+      "padre_id": "ln_testimonios",
+      "nombre": "Remisión de copias: 15 días a Sección del Notariado",
+      "nivel": 2,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ln_remision_libros",
+      "ley_id": 9,
+      "padre_id": "ln_servicio_exterior_not",
+      "nombre": "Remisión de libros agotados a El Salvador",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ln_reposicion_protocolo",
+      "ley_id": 9,
+      "padre_id": "ln_el_protocolo",
+      "nombre": "Reposición por extravío o destrucción",
+      "nivel": 2,
+      "total_preguntas": 12
+    },
+    {
+      "id": "ln_requisitos_notario",
+      "ley_id": 9,
+      "padre_id": "ln_sujetos_autorizados",
+      "nombre": "Requisitos para Notario",
+      "nivel": 2,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ln_responsabilidad_civil",
+      "ley_id": 9,
+      "padre_id": "ln_responsabilidad",
+      "nombre": "Responsabilidad civil por daños y perjuicios",
+      "nivel": 2,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ln_saca_marginal",
+      "ley_id": 9,
+      "padre_id": "ln_testimonios",
+      "nombre": "Saca marginal en protocolo",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ln_salvado_correcciones",
+      "ley_id": 9,
+      "padre_id": "ln_formalidades_escritura",
+      "nombre": "Salvado de correcciones al final",
+      "nivel": 2,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ln_servicio_exterior",
+      "ley_id": 9,
+      "padre_id": "ln_sujetos_autorizados",
+      "nombre": "Jefes de Misión Diplomática y Cónsules",
+      "nivel": 2,
+      "total_preguntas": 5
+    },
+    {
+      "id": "ln_subsanar_errores",
+      "ley_id": 9,
+      "padre_id": "ln_responsabilidad",
+      "nombre": "Obligación de subsanar errores en Registros",
+      "nivel": 2,
+      "total_preguntas": 3
+    },
+    {
+      "id": "ln_suspension",
+      "ley_id": 9,
+      "padre_id": "ln_impedimentos_sanciones",
+      "nombre": "Suspensión",
+      "nivel": 2,
+      "total_preguntas": 8
+    },
+    {
+      "id": "ln_testigos_instrumentales",
+      "ley_id": 9,
+      "padre_id": "ln_formalidades_escritura",
+      "nombre": "Testigos instrumentales (testamentos y donaciones)",
+      "nivel": 2,
+      "total_preguntas": 11
+    },
+    {
+      "id": "ln_vigencia_protocolo",
+      "ley_id": 9,
+      "padre_id": "ln_el_protocolo",
+      "nombre": "Vigencia: Un año",
+      "nivel": 2,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ln_abogado_autorizado",
+      "ley_id": 9,
+      "padre_id": "ln_requisitos_notario",
+      "nombre": "Abogado autorizado",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ln_condenados_penalmente",
+      "ley_id": 9,
+      "padre_id": "ln_inhabilitacion",
+      "nombre": "Condenados penalmente",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ln_examen_suficiencia",
+      "ley_id": 9,
+      "padre_id": "ln_requisitos_notario",
+      "nombre": "Examen de suficiencia (títulos extranjeros)",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ln_facultades_mentales",
+      "ley_id": 9,
+      "padre_id": "ln_incapacidades",
+      "nombre": "Falta de facultades mentales",
+      "nivel": 3,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ln_limitaciones_fisicas",
+      "ley_id": 9,
+      "padre_id": "ln_incapacidades",
+      "nombre": "Ciegos, mudos y sordos",
+      "nivel": 3,
+      "total_preguntas": 3
+    },
+    {
+      "id": "ln_menores_edad",
+      "ley_id": 9,
+      "padre_id": "ln_incapacidades",
+      "nombre": "Menores de 21 años",
+      "nivel": 3,
+      "total_preguntas": 1
+    },
+    {
+      "id": "ln_quebrados_concursados",
+      "ley_id": 9,
+      "padre_id": "ln_inhabilitacion",
+      "nombre": "Quebrados y concursados",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "ln_ser_salvadoreno",
+      "ley_id": 9,
+      "padre_id": "ln_requisitos_notario",
+      "nombre": "Ser salvadoreño",
+      "nivel": 3,
+      "total_preguntas": 3
+    },
+    {
+      "id": "88e43e7b-a606-45ca-91b3-3ca13e5f27f9",
+      "ley_id": 10,
+      "padre_id": null,
+      "nombre": "Ley del Ejercicio Notarial de la Jurisdicción Voluntaria y de Otras Diligencias",
+      "nivel": 1,
+      "total_preguntas": 85
+    },
+    {
+      "id": "12d76ec6-471d-4af6-8a8d-87b75abd589f",
+      "ley_id": 10,
+      "padre_id": "88e43e7b-a606-45ca-91b3-3ca13e5f27f9",
+      "nombre": "Otras Diligencias Notariales",
+      "nivel": 2,
+      "total_preguntas": 10
+    },
+    {
+      "id": "30cd8b01-bd07-48ee-917d-ba66b7c517f5",
+      "ley_id": 10,
+      "padre_id": "88e43e7b-a606-45ca-91b3-3ca13e5f27f9",
+      "nombre": "Diligencias de Jurisdicción Voluntaria",
+      "nivel": 2,
+      "total_preguntas": 18
+    },
+    {
+      "id": "43b14304-79d5-42bb-bdab-a6d5cede5b62",
+      "ley_id": 10,
+      "padre_id": "88e43e7b-a606-45ca-91b3-3ca13e5f27f9",
+      "nombre": "Disposiciones Fundamentales",
+      "nivel": 2,
+      "total_preguntas": 10
+    },
+    {
+      "id": "5665bb15-4d40-4a02-a6c9-f159bed0b1b6",
+      "ley_id": 10,
+      "padre_id": "88e43e7b-a606-45ca-91b3-3ca13e5f27f9",
+      "nombre": "Administración y Vigencia",
+      "nivel": 2,
+      "total_preguntas": 4
+    },
+    {
+      "id": "03afcdf1-130f-47d9-a366-8c844516dca4",
+      "ley_id": 10,
+      "padre_id": "12d76ec6-471d-4af6-8a8d-87b75abd589f",
+      "nombre": "Compulsa de procesos o instrumentos por exhorto",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "0b57fcf5-dd34-41a5-a7fa-d5fa9d50bb3c",
+      "ley_id": 10,
+      "padre_id": "43b14304-79d5-42bb-bdab-a6d5cede5b62",
+      "nombre": "Prohibiciones de actuación a funcionarios",
+      "nivel": 3,
+      "total_preguntas": 1
+    },
+    {
+      "id": "0c279b67-3484-4f61-b54b-e064dc2d58dd",
+      "ley_id": 10,
+      "padre_id": "30cd8b01-bd07-48ee-917d-ba66b7c517f5",
+      "nombre": "Deslinde voluntario y mensura",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "0fdc547c-e3b4-41b2-9826-ddb9551e9103",
+      "ley_id": 10,
+      "padre_id": "30cd8b01-bd07-48ee-917d-ba66b7c517f5",
+      "nombre": "Determinación del peculio profesional o industrial",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "288bf1ce-6a8b-4a6a-9cfb-71cb71ac5f6e",
+      "ley_id": 10,
+      "padre_id": "43b14304-79d5-42bb-bdab-a6d5cede5b62",
+      "nombre": "Recepción de pruebas y auxilio judicial",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "2fe1d126-cf27-4c25-9dba-8070e1a491c2",
+      "ley_id": 10,
+      "padre_id": "12d76ec6-471d-4af6-8a8d-87b75abd589f",
+      "nombre": "Certificación de copias fidedignas (fotocopias)",
+      "nivel": 3,
+      "total_preguntas": 5
+    },
+    {
+      "id": "435e1e23-ba76-4ba0-a959-3aa899251456",
+      "ley_id": 10,
+      "padre_id": "12d76ec6-471d-4af6-8a8d-87b75abd589f",
+      "nombre": "Calificación de edad por perito",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "5c298ddf-30c0-4ad2-a6f1-9eafb5c43523",
+      "ley_id": 10,
+      "padre_id": "30cd8b01-bd07-48ee-917d-ba66b7c517f5",
+      "nombre": "Ausencia de padres para matrimonio de menor",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "63300e1e-6ddd-4910-862a-9bda551f6b16",
+      "ley_id": 10,
+      "padre_id": "12d76ec6-471d-4af6-8a8d-87b75abd589f",
+      "nombre": "Discernimiento de tutela o curaduría testamentaria",
+      "nivel": 3,
+      "total_preguntas": 1
+    },
+    {
+      "id": "6723e9ec-d571-46f4-8f59-73f6e62e0855",
+      "ley_id": 10,
+      "padre_id": "12d76ec6-471d-4af6-8a8d-87b75abd589f",
+      "nombre": "Notificación de revocación de poderes",
+      "nivel": 3,
+      "total_preguntas": 3
+    },
+    {
+      "id": "6c1c20b4-a526-45bf-92e7-99b8a8723b73",
+      "ley_id": 10,
+      "padre_id": "43b14304-79d5-42bb-bdab-a6d5cede5b62",
+      "nombre": "Remisión al juez por oposición o incapacidad",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "6cb88b66-ea72-49da-8d67-d21183f887e0",
+      "ley_id": 10,
+      "padre_id": "12d76ec6-471d-4af6-8a8d-87b75abd589f",
+      "nombre": "Traducciones de instrumentos extranjeros",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "7dedd826-af0b-4c69-bfa9-bcf16d99ccc7",
+      "ley_id": 10,
+      "padre_id": "43b14304-79d5-42bb-bdab-a6d5cede5b62",
+      "nombre": "Publicación de edictos y avisos",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "8345f2d5-f652-4ab8-8b48-c0745b3f590b",
+      "ley_id": 10,
+      "padre_id": "43b14304-79d5-42bb-bdab-a6d5cede5b62",
+      "nombre": "Consentimiento unánime de interesados",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "8c5df245-6ae2-4fe1-a00e-eee1087dad52",
+      "ley_id": 10,
+      "padre_id": "43b14304-79d5-42bb-bdab-a6d5cede5b62",
+      "nombre": "Audiencia al Procurador General de Pobres",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "8f08ba4f-1dc4-4508-b884-49ee4615f906",
+      "ley_id": 10,
+      "padre_id": "12d76ec6-471d-4af6-8a8d-87b75abd589f",
+      "nombre": "Notificación de títulos ejecutivos a herederos",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "9322a96b-80a4-449a-85e3-ba20d79578ff",
+      "ley_id": 10,
+      "padre_id": "12d76ec6-471d-4af6-8a8d-87b75abd589f",
+      "nombre": "Aposición y levantamiento de sellos",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "97bda255-da13-4001-85cb-dff31fbbf35f",
+      "ley_id": 10,
+      "padre_id": "12d76ec6-471d-4af6-8a8d-87b75abd589f",
+      "nombre": "Comprobación de preñez, falta de ella o parto",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "a8212ba1-da5d-452f-87cc-bd7ecf9a2b7c",
+      "ley_id": 10,
+      "padre_id": "5665bb15-4d40-4a02-a6c9-f159bed0b1b6",
+      "nombre": "Vigencia desde el 13 de abril de 1982",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "abafb9d3-5cf8-4dbb-9c0f-a22a0d17ad19",
+      "ley_id": 10,
+      "padre_id": "43b14304-79d5-42bb-bdab-a6d5cede5b62",
+      "nombre": "Ámbito de aplicación y competencia",
+      "nivel": 3,
+      "total_preguntas": 3
+    },
+    {
+      "id": "adb9f705-360d-40fe-826e-d1a938b22ad0",
+      "ley_id": 10,
+      "padre_id": "5665bb15-4d40-4a02-a6c9-f159bed0b1b6",
+      "nombre": "Índice alfabético de causantes en la CSJ",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "af0daa92-2542-49b4-b046-d5a31f62ea02",
+      "ley_id": 10,
+      "padre_id": "30cd8b01-bd07-48ee-917d-ba66b7c517f5",
+      "nombre": "Remedición de inmuebles rústicos y urbanos",
+      "nivel": 3,
+      "total_preguntas": 11
+    },
+    {
+      "id": "b2aa65dc-3516-4c32-9d4e-d3df16f7b960",
+      "ley_id": 10,
+      "padre_id": "5665bb15-4d40-4a02-a6c9-f159bed0b1b6",
+      "nombre": "Informes obligatorios a la Corte Suprema de Justicia",
+      "nivel": 3,
+      "total_preguntas": 4
+    },
+    {
+      "id": "b2f629f4-c45a-4bf2-a57b-d91e6e4c0d41",
+      "ley_id": 10,
+      "padre_id": "30cd8b01-bd07-48ee-917d-ba66b7c517f5",
+      "nombre": "Establecimiento subsidiario de estado civil o muerte",
+      "nivel": 3,
+      "total_preguntas": 2
+    },
+    {
+      "id": "b54a8d28-11a7-4937-9a8e-18c6df7be6c6",
+      "ley_id": 10,
+      "padre_id": "43b14304-79d5-42bb-bdab-a6d5cede5b62",
+      "nombre": "Formación de expediente y protocolización",
+      "nivel": 3,
+      "total_preguntas": 1
+    },
+    {
+      "id": "b830a1e2-0f69-41bb-842f-1465ee57bed4",
+      "ley_id": 10,
+      "padre_id": "43b14304-79d5-42bb-bdab-a6d5cede5b62",
+      "nombre": "Opción entre vía notarial o judicial",
+      "nivel": 3,
+      "total_preguntas": 5
+    },
+    {
+      "id": "caec6445-2a72-4ed2-bfde-b92da5da7c65",
+      "ley_id": 10,
+      "padre_id": "30cd8b01-bd07-48ee-917d-ba66b7c517f5",
+      "nombre": "Rectificación de errores en partidas del Registro Civil",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "cc81a5eb-4ab1-48c2-92a8-4c68bcc3ee4b",
+      "ley_id": 10,
+      "padre_id": "5665bb15-4d40-4a02-a6c9-f159bed0b1b6",
+      "nombre": "Aplicación a sucesiones posteriores a la ley",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "cfa726cf-05e3-4df1-9ea0-c0b701e82843",
+      "ley_id": 10,
+      "padre_id": "12d76ec6-471d-4af6-8a8d-87b75abd589f",
+      "nombre": "Pruebas previas para curador ad-litem de ausente",
+      "nivel": 3,
+      "total_preguntas": 1
+    },
+    {
+      "id": "dc470c60-1d47-41f3-bc82-7ef87bb1f9ea",
+      "ley_id": 10,
+      "padre_id": "30cd8b01-bd07-48ee-917d-ba66b7c517f5",
+      "nombre": "Títulos Supletorios",
+      "nivel": 3,
+      "total_preguntas": 1
+    },
+    {
+      "id": "e8feb793-3344-4edf-ae8b-a9234f4b50ce",
+      "ley_id": 10,
+      "padre_id": "12d76ec6-471d-4af6-8a8d-87b75abd589f",
+      "nombre": "Identidad personal de vivos y fallecidos",
+      "nivel": 3,
+      "total_preguntas": 0
+    },
+    {
+      "id": "f88658c8-9617-4a94-87c7-f4716dda79da",
+      "ley_id": 10,
+      "padre_id": "30cd8b01-bd07-48ee-917d-ba66b7c517f5",
+      "nombre": "Apertura y publicación de testamento cerrado",
+      "nivel": 3,
+      "total_preguntas": 1
+    },
+    {
+      "id": "f93abde0-5da6-4569-8724-84246da84518",
+      "ley_id": 10,
+      "padre_id": "30cd8b01-bd07-48ee-917d-ba66b7c517f5",
+      "nombre": "Aceptación de herencia y declaratoria de herederos",
+      "nivel": 3,
+      "total_preguntas": 3
+    },
+    {
+      "id": "6f3192a0-17b6-490e-9290-19b348172002",
+      "ley_id": 10,
+      "padre_id": "dc470c60-1d47-41f3-bc82-7ef87bb1f9ea",
+      "nombre": "Predios urbanos de interés social (Art. 16-A)",
+      "nivel": 4,
+      "total_preguntas": 0
+    },
+    {
+      "id": "8e3857d0-f75e-4e35-95c7-135dcf08540c",
+      "ley_id": 10,
+      "padre_id": "dc470c60-1d47-41f3-bc82-7ef87bb1f9ea",
+      "nombre": "Inmuebles generales (Art. 16)",
+      "nivel": 4,
+      "total_preguntas": 1
+    }
+  ]
+}

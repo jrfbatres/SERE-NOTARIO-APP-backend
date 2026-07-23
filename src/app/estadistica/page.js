@@ -122,14 +122,7 @@ export default function EstadisticaPage() {
             <span className="flex-1 text-left">Inicio</span>
           </button>
           
-          <button
-            onClick={() => router.push('/simulador/simulacro')}
-            className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all active:scale-[0.98] text-[13px] uppercase tracking-wider ${themeClasses.menuItemHover}`}
-          >
-            <span className="material-symbols-outlined text-[20px] text-[#b59348]">assignment</span>
-            <span className="flex-1 text-left">Simulacro General</span>
-          </button>
-          
+
           <button
             onClick={() => router.push('/manos-libres')}
             className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all active:scale-[0.98] text-[13px] uppercase tracking-wider ${themeClasses.menuItemHover}`}
@@ -175,16 +168,6 @@ export default function EstadisticaPage() {
 
         {/* Footer Area */}
         <div className={`p-5 border-t border-opacity-10 space-y-4 ${isDarkMode ? 'border-white' : 'border-gray-200'}`}>
-          <div className={`flex items-center justify-between p-3 rounded-xl border ${themeClasses.buttonBg}`}>
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-[#b59348] text-[20px]">history</span>
-              <span className="text-xs uppercase tracking-wider font-bold opacity-80">Última Nota</span>
-            </div>
-            <span className="text-sm font-black">
-              {lastGrade !== null && lastGrade !== undefined ? `${lastGrade.toFixed(2)} / 10` : '--'}
-            </span>
-          </div>
-
           <div className="flex items-center justify-center mt-4">
             <button 
               onClick={toggleDarkMode}
