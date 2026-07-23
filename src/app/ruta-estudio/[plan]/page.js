@@ -105,12 +105,8 @@ export default function RutaEstudioPage() {
       <main className="flex-1 overflow-y-auto p-4 md:p-8">
         <div className="max-w-4xl mx-auto space-y-6">
           
-          <div className="text-center mb-8">
-            <h2 className="text-lg md:text-xl font-bold mb-2">Tu Camino al Éxito</h2>
-            <p className="text-sm opacity-80 max-w-2xl mx-auto">
-              Sigue esta ruta día por día. Cada nodo está dividido en bloques de 5 preguntas para que avances a tu ritmo. 
-              Completa todos los bloques para superar el nodo.
-            </p>
+          <div className="text-center mb-6">
+            <h2 className="text-lg md:text-xl font-bold">Tu Camino al Éxito</h2>
           </div>
 
           {/* Resumen de Progreso y Nota Global */}
