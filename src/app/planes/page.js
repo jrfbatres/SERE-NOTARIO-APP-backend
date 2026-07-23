@@ -227,13 +227,10 @@ export default function PlanesPage() {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col items-center p-6 lg:p-12 relative">
-        <div className="text-center max-w-2xl mx-auto mb-10">
-          <h1 className={`text-3xl md:text-4xl font-black mb-4 ${themeClasses.textPrimary}`}>
+        <div className="text-center max-w-2xl mx-auto mb-8">
+          <h1 className={`text-3xl md:text-4xl font-black ${themeClasses.textPrimary}`}>
             Elige tu Plan de Estudio
           </h1>
-          <p className={`text-sm md:text-base leading-relaxed ${themeClasses.textSecondary}`}>
-            Obtén acceso a la plataforma más avanzada para preparar tu examen de notariado. Selecciona el plan que mejor se adapte a tu ritmo de estudio.
-          </p>
         </div>
 
         {/* Pricing Cards */}
