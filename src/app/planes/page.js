@@ -187,7 +187,7 @@ export default function PlanesPage() {
         <div className="flex items-center gap-4">
           <button 
             onClick={handleClose} 
-            className="material-symbols-outlined text-gray-400 hover:text-[#b59348] transition-colors cursor-pointer"
+            className="material-symbols-outlined text-gray-400 hover:text-[#b59348] transition-colors cursor-pointer flex items-center justify-center p-2 rounded-full hover:bg-gray-500/10"
           >
             arrow_back
           </button>
@@ -200,10 +200,10 @@ export default function PlanesPage() {
           />
 
           <div className="flex flex-col text-left">
-            <span className="font-black text-[44px] leading-tight">
-              <span className={themeClasses.headerLogoText}>SERÉ</span> <span className="text-[#b59348]">NOTARIO</span>
-            </span>
-            <span className="text-[10px] text-gray-400 leading-none">Excelencia en Gestión Legal</span>
+            <h1 className={`text-xl md:text-2xl font-black uppercase tracking-tight text-[#b59348]`}>
+              Elige tu Plan de Estudio
+            </h1>
+            <span className="text-[10px] text-gray-400 leading-none uppercase tracking-widest font-black">Planes de Suscripción</span>
           </div>
         </div>
         
@@ -227,11 +227,6 @@ export default function PlanesPage() {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col items-center p-6 lg:p-12 relative">
-        <div className="text-center max-w-2xl mx-auto mb-8">
-          <h1 className={`text-3xl md:text-4xl font-black ${themeClasses.textPrimary}`}>
-            Elige tu Plan de Estudio
-          </h1>
-        </div>
 
         {/* Pricing Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl mx-auto items-stretch">
