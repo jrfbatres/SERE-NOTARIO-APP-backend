@@ -1033,7 +1033,7 @@ function SimuladorContent() {
   const options = getShuffledOptions(currentQ);
 
   return (
-    <div className={`min-h-screen flex flex-col ${themeClasses.bg} transition-colors duration-300 h-screen overflow-hidden`}>
+    <div className={`min-h-screen flex flex-col ${themeClasses.bg} transition-colors duration-300 lg:h-screen lg:overflow-hidden`}>
       
       {/* Header Minimalista (Stitch approach) */}
       <header className={`h-16 shrink-0 flex justify-between items-center px-4 md:px-6 shadow-sm sticky top-0 z-50 backdrop-blur-md border-b ${themeClasses.headerBg} transition-colors duration-300`}>
@@ -1094,7 +1094,7 @@ function SimuladorContent() {
       <div className="flex-1 flex flex-col lg:flex-row min-h-0">
         
         {/* Left Side: Question and Options */}
-        <div className="flex-1 flex flex-col overflow-y-auto p-4 md:p-8 lg:p-12 items-center justify-start">
+        <div className="flex-1 flex flex-col lg:overflow-y-auto p-4 md:p-8 lg:p-12 items-center justify-start">
           <div className="w-full max-w-3xl">
             {/* Context/Category Chip and Hands-Free Button */}
             <div className="flex flex-wrap items-center justify-between gap-4 mb-4 border-b border-black/5 dark:border-white/5 pb-3">
@@ -1189,7 +1189,7 @@ function SimuladorContent() {
         </div>
 
         {/* Right Info Sidebar (Linked Articles & Feedback) */}
-        <div className={`w-full lg:w-96 shrink-0 border-t lg:border-t-0 lg:border-l p-6 flex flex-col overflow-y-auto transition-colors duration-300 ${themeClasses.cardSidebarBg}`}>
+        <div className={`w-full lg:w-96 shrink-0 border-t lg:border-t-0 lg:border-l p-6 flex flex-col lg:overflow-y-auto transition-colors duration-300 ${themeClasses.cardSidebarBg}`}>
           
           {/* Exam Source Info (Always visible at top of right panel) */}
           {(currentQ.examen_titulo || currentQ.pdf_url) && (
