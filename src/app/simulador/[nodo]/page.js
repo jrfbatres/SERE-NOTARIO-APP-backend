@@ -142,6 +142,7 @@ function SimuladorContent() {
   const [selectedOption, setSelectedOption] = useState(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [correctAnswers, setCorrectAnswers] = useState(0);
+  const [showAnswerPopup, setShowAnswerPopup] = useState(false);
   
   // To track answers per question (for the end-screen summary and database)
   const [userResponses, setUserResponses] = useState({}); // { index: { selected, correct, isCorrect } }
@@ -540,6 +541,7 @@ function SimuladorContent() {
 
     setIsAnswered(true);
     setSelectedOption(opcion);
+    setShowAnswerPopup(true);
 
     if (correct) {
       setCorrectAnswers(prev => prev + 1);
@@ -604,6 +606,7 @@ function SimuladorContent() {
     if (typeof window !== 'undefined') window.speechSynthesis.cancel();
     if (playingArticleId) setPlayingArticleId(null);
 
+    setShowAnswerPopup(false);
     if (currentIndex < preguntas.length - 1) {
       setCurrentIndex(currentIndex + 1);
       setSelectedOption(null);
@@ -1223,8 +1226,8 @@ function SimuladorContent() {
           {isAnswered ? (
             <div className="flex-1 flex flex-col justify-start">
               
-              {/* Correct / Incorrect Header Indicator */}
-              <div className={`p-4 rounded-2xl border mb-6 flex flex-col gap-4 ${
+              {/* Correct / Incorrect Header Indicator - Desktop only */}
+              <div className={`hidden lg:flex p-4 rounded-2xl border mb-6 flex-col gap-4 ${
                 selectedOption === currentQ.respuesta_correcta 
                   ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-500' 
                   : 'border-rose-500/30 bg-rose-500/10 text-rose-500'
@@ -1316,9 +1319,9 @@ function SimuladorContent() {
             </div>
           )}
 
-          {/* Persistent Action Footer */}
+          {/* Persistent Action Footer - Desktop only */}
           {!isAnswered && (
-            <div className={`mt-6 pt-4 border-t ${isDarkMode ? 'border-white/10' : 'border-gray-100'}`}>
+            <div className={`mt-6 pt-4 border-t hidden lg:block ${isDarkMode ? 'border-white/10' : 'border-gray-100'}`}>
               <button
                 onClick={handleConfirmSubmit}
                 disabled={!selectedOption}
@@ -1337,6 +1340,95 @@ function SimuladorContent() {
 
       </div>
 
+      {/* ===== MOBILE BOTTOM SHEET: Confirmar + Feedback ===== */}
+      
+      {/* Mobile Confirm Button (shown when NOT yet answered) */}
+      {!isAnswered && (
+        <div className={`lg:hidden fixed bottom-0 left-0 right-0 z-40 p-4 border-t shadow-2xl ${isDarkMode ? 'bg-[#001a2e] border-white/10' : 'bg-white border-gray-200'}`}>
+          <button
+            onClick={handleConfirmSubmit}
+            disabled={!selectedOption}
+            className={`w-full py-4 rounded-2xl font-black transition-all text-sm uppercase tracking-wider cursor-pointer ${
+              selectedOption 
+                ? (isDarkMode ? 'bg-[#b59348] text-[#002b49] hover:bg-[#a1813b] shadow-lg' : 'bg-[#002b49] hover:bg-[#001c30] text-white shadow-lg') 
+                : (isDarkMode ? 'bg-white/5 text-gray-500 cursor-not-allowed border border-white/10' : 'bg-gray-100 text-gray-400 cursor-not-allowed')
+            }`}
+          >
+            Confirmar Respuesta
+          </button>
+        </div>
+      )}
+
+      {/* Mobile Answer Feedback Popup (shown when answered) */}
+      {isAnswered && showAnswerPopup && (
+        <div className="lg:hidden fixed inset-0 z-50 flex items-end pointer-events-none">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/40 pointer-events-auto"
+            onClick={() => setShowAnswerPopup(false)}
+          />
+          {/* Sheet */}
+          <div className={`relative w-full pointer-events-auto rounded-t-3xl shadow-2xl border-t p-6 flex flex-col gap-4 animate-slide-up ${
+            selectedOption === currentQ.respuesta_correcta
+              ? (isDarkMode ? 'bg-[#001a2e] border-emerald-500/40' : 'bg-white border-emerald-400')
+              : (isDarkMode ? 'bg-[#001a2e] border-rose-500/40' : 'bg-white border-rose-400')
+          }`}>
+            {/* Drag handle */}
+            <div className="w-10 h-1 rounded-full bg-gray-300 mx-auto mb-1" />
+
+            {/* Result indicator */}
+            <div className={`flex items-center gap-3 ${
+              selectedOption === currentQ.respuesta_correcta ? 'text-emerald-500' : 'text-rose-500'
+            }`}>
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${
+                selectedOption === currentQ.respuesta_correcta ? 'bg-emerald-500/15' : 'bg-rose-500/15'
+              }`}>
+                <span className="material-symbols-outlined text-[28px] font-bold">
+                  {selectedOption === currentQ.respuesta_correcta ? 'check_circle' : 'cancel'}
+                </span>
+              </div>
+              <div className="flex flex-col text-left">
+                <span className="font-black text-base uppercase tracking-wider">
+                  {selectedOption === currentQ.respuesta_correcta ? '¡Respuesta Correcta!' : 'Respuesta Incorrecta'}
+                </span>
+                <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                  {selectedOption === currentQ.respuesta_correcta 
+                    ? 'Excelente dominio de la norma jurídica.' 
+                    : `La opción correcta era la ${currentQ.respuesta_correcta}`}
+                </span>
+              </div>
+            </div>
+
+            {/* Quick info snippet if available */}
+            {currentQ.referencia_legal && (
+              <div className={`text-xs px-3 py-2 rounded-xl border ${
+                isDarkMode ? 'bg-[#b59348]/10 border-[#b59348]/20 text-gray-300' : 'bg-[#b59348]/5 border-[#b59348]/20 text-gray-700'
+              }`}>
+                <span className="font-bold text-[#b59348] block text-[10px] uppercase tracking-wider mb-0.5">Base Legal</span>
+                {currentQ.referencia_legal}
+              </div>
+            )}
+
+            {/* Action buttons */}
+            <div className="flex flex-col gap-3 mt-1">
+              <button
+                onClick={handleNext}
+                className="w-full py-4 bg-[#b59348] hover:bg-[#a1813b] text-[#002b49] rounded-2xl font-black shadow-lg transition-all text-sm uppercase tracking-wider cursor-pointer active:scale-95"
+              >
+                {currentIndex < preguntas.length - 1 ? '→ Siguiente Pregunta' : '✓ Ver Resultados'}
+              </button>
+              <button
+                onClick={() => setShowAnswerPopup(false)}
+                className={`w-full py-3 rounded-2xl font-bold text-xs uppercase tracking-wider cursor-pointer active:scale-95 ${
+                  isDarkMode ? 'bg-white/5 text-gray-300 border border-white/10' : 'bg-gray-100 text-gray-600'
+                }`}
+              >
+                Ver explicación completa ↑
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Grid tracker of questions and blocks at the bottom */}
       <footer className={`min-h-16 shrink-0 flex flex-col sm:flex-row items-center justify-between px-6 py-2 border-t gap-3 ${themeClasses.footerBg} transition-colors duration-300`}>
         {/* Block Selector */}

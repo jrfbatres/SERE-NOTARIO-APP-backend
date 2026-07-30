@@ -93,6 +93,7 @@ body {
   src: url('/fonts/material-symbols-outlined.woff2') format('woff2');
 }
 
+
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined';
   font-weight: normal;
@@ -108,4 +109,28 @@ body {
   -webkit-font-feature-settings: 'liga';
   -webkit-font-smoothing: antialiased;
 }
+
+/* Mobile bottom sheet slide-up animation */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Add bottom padding to scroll content when mobile confirm bar is visible */
+@media (max-width: 1023px) {
+  .pb-mobile-bar {
+    padding-bottom: 88px;
+  }
+}
+
 
