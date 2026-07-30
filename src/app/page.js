@@ -188,14 +188,6 @@ export default function DashboardPage() {
   }, [router]);
 
   const goToStudy = (leyId) => {
-    if (userProfile && userProfile.rol === 'DEMO') {
-      const selectedLey = leyes.find(l => l.id === leyId);
-      if (!selectedLey || !selectedLey.name.toUpperCase().includes('CÓDIGO CIVIL')) {
-        setToast("Acceso Limitado. Como usuario DEMO, tu acceso está restringido al Código Civil. Actualiza tu plan para liberar todo el contenido.");
-        setTimeout(() => setToast(null), 5000);
-        return;
-      }
-    }
     router.push(`/estudio/${leyId}`);
   };
 
@@ -296,14 +288,37 @@ export default function DashboardPage() {
             <span className="flex-1 text-left">Planes de Pago</span>
           </button>
 
-          {userProfile?.rol === 'Administrador' && (
-            <button
-              onClick={() => router.push('/admin/auditoria')}
-              className={`w-full flex items-center gap-3 px-4 py-3.5 mt-4 rounded-xl font-bold transition-all active:scale-[0.98] text-[13px] uppercase tracking-wider border border-[#ba1a1a]/40 ${isDarkMode ? 'bg-[#ba1a1a]/10 hover:bg-[#ba1a1a]/20 text-[#ffdad6]' : 'bg-[#ba1a1a]/10 hover:bg-[#ba1a1a]/20 text-[#93000a]'}`}
-            >
-              <span className="material-symbols-outlined text-[20px]">admin_panel_settings</span>
-              <span className="flex-1 text-left">Auditoría Admin</span>
-            </button>
+          {(userProfile?.rol === 'Administrador' || userProfile?.rol === 'ADMINISTRADOR') && (
+            <>
+              <button
+                onClick={() => router.push('/admin/auditoria')}
+                className={`w-full flex items-center gap-3 px-4 py-3.5 mt-4 rounded-xl font-bold transition-all active:scale-[0.98] text-[13px] uppercase tracking-wider border border-[#ba1a1a]/40 ${isDarkMode ? 'bg-[#ba1a1a]/10 hover:bg-[#ba1a1a]/20 text-[#ffdad6]' : 'bg-[#ba1a1a]/10 hover:bg-[#ba1a1a]/20 text-[#93000a]'}`}
+              >
+                <span className="material-symbols-outlined text-[20px]">admin_panel_settings</span>
+                <span className="flex-1 text-left">Auditoría Admin</span>
+              </button>
+              <button
+                onClick={() => router.push('/admin/pagos')}
+                className={`w-full flex items-center gap-3 px-4 py-3.5 mt-2 rounded-xl font-bold transition-all active:scale-[0.98] text-[13px] uppercase tracking-wider border border-blue-500/40 ${isDarkMode ? 'bg-blue-600/10 hover:bg-blue-600/20 text-blue-400' : 'bg-blue-600/10 hover:bg-blue-600/20 text-blue-700'}`}
+              >
+                <span className="material-symbols-outlined text-[20px]">payments</span>
+                <span className="flex-1 text-left">Administrar Pagos</span>
+              </button>
+              <button
+                onClick={() => router.push('/admin/usuarios')}
+                className={`w-full flex items-center gap-3 px-4 py-3.5 mt-2 rounded-xl font-bold transition-all active:scale-[0.98] text-[13px] uppercase tracking-wider border border-green-500/40 ${isDarkMode ? 'bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400' : 'bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-700'}`}
+              >
+                <span className="material-symbols-outlined text-[20px]">group</span>
+                <span className="flex-1 text-left">Reporte de Usuarios</span>
+              </button>
+              <button
+                onClick={() => router.push('/admin/mensajes')}
+                className={`w-full flex items-center gap-3 px-4 py-3.5 mt-2 rounded-xl font-bold transition-all active:scale-[0.98] text-[13px] uppercase tracking-wider border border-amber-500/40 ${isDarkMode ? 'bg-amber-600/10 hover:bg-amber-600/20 text-amber-400' : 'bg-amber-600/10 hover:bg-amber-600/20 text-amber-700'}`}
+              >
+                <span className="material-symbols-outlined text-[20px]">forum</span>
+                <span className="flex-1 text-left">Mensajes de Soporte</span>
+              </button>
+            </>
           )}
 
         </nav>
@@ -347,7 +362,7 @@ export default function DashboardPage() {
           <UserProfilePopup userProfile={userProfile} />
         </header>
 
-        <div className="p-4 md:p-8 flex-1 flex flex-col gap-6 max-w-6xl mx-auto w-full">
+        <div className="p-4 md:p-8 flex-1 flex flex-col gap-6 w-full">
           
           {/* Carousel */}
           <section className="hidden flex-col text-left justify-center relative w-full lg:w-3/4 mx-auto text-center mt-2">
@@ -374,16 +389,40 @@ export default function DashboardPage() {
           </section>
 
           {/* Study Route Buttons */}
-          <section className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full lg:w-3/4 mx-auto mt-4 mb-2 z-10 relative">
+          <section className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full mt-4 mb-2 z-10 relative">
             <button
-              onClick={() => router.push('/ruta-estudio/express')}
+              onClick={() => {
+                if (userProfile) {
+                  const isAdmin = userProfile.correo === 'admin@serenotario.com' || userProfile.rol === 'Administrador' || userProfile.rol === 'ADMINISTRADOR';
+                  const isDemo = userProfile.rol === 'DEMO' || userProfile.rol === 'DEMOS';
+                  const userPlan = (userProfile.ban_plan || '').toUpperCase();
+                  if (!isAdmin && !isDemo && userPlan !== 'B' && userPlan !== 'C') {
+                    setToast("Acceso Limitado. Esta sección solo está disponible para usuarios con suscripción activa de plan Lite o Completo.");
+                    setTimeout(() => setToast(null), 5000);
+                    return;
+                  }
+                }
+                router.push('/ruta-estudio/express');
+              }}
               className={`flex-1 flex flex-col items-center justify-center px-4 py-3 rounded-xl border border-[#b59348]/40 shadow-sm transition-all active:scale-[0.98] ${isDarkMode ? 'bg-[#b59348]/10 hover:bg-[#b59348]/20 text-[#e5d7b3]' : 'bg-[#b59348]/10 hover:bg-[#b59348]/20 text-[#765a13]'}`}
             >
               <span className="text-[11px] font-bold uppercase tracking-widest opacity-80 mb-0.5">Ruta de Estudio</span>
               <span className="text-[14px] font-black uppercase tracking-wider">Express 20 Días</span>
             </button>
             <button
-              onClick={() => router.push('/ruta-estudio/profundo')}
+              onClick={() => {
+                if (userProfile) {
+                  const isAdmin = userProfile.correo === 'admin@serenotario.com' || userProfile.rol === 'Administrador' || userProfile.rol === 'ADMINISTRADOR';
+                  const isDemo = userProfile.rol === 'DEMO' || userProfile.rol === 'DEMOS';
+                  const userPlan = (userProfile.ban_plan || '').toUpperCase();
+                  if (!isAdmin && !isDemo && userPlan !== 'P' && userPlan !== 'C') {
+                    setToast("Acceso Limitado. Esta sección solo está disponible para usuarios con plan Profundo o Completo.");
+                    setTimeout(() => setToast(null), 5000);
+                    return;
+                  }
+                }
+                router.push('/ruta-estudio/profundo');
+              }}
               className="flex-1 flex flex-col items-center justify-center px-4 py-3 rounded-xl border border-[#b59348]/40 shadow-sm transition-all active:scale-[0.98] bg-gradient-to-r from-[#001524] to-[#002b49] text-white group relative overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#b59348]/20 to-transparent translate-x-[-100%] group-hover:animate-[shimmer_2s_infinite]" />

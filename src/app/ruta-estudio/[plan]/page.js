@@ -182,6 +182,10 @@ export default function RutaEstudioPage() {
               const firstUncompletedIndex = data.dias.findIndex(d => !d.completado);
               
               const isDayLocked = (idx) => {
+                const rol = userProfile?.rol;
+                if ((rol === 'DEMO' || rol === 'DEMOS') && idx > 0) {
+                  return true;
+                }
                 for (let i = 0; i < idx; i++) {
                   if (!data.dias[i].completado) {
                     return true;

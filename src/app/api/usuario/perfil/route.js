@@ -33,22 +33,22 @@ export async function GET(request) {
     let computedRol = userData.rol || 'Estándar';
     const now = new Date();
     
-    if (userData.correo === 'admin@serenotario.com') {
-      computedRol = 'Administrador';
+    if (userData.correo === 'admin@serenotario.com' || userData.rol === 'Administrador' || userData.rol === 'ADMINISTRADOR') {
+      computedRol = 'ADMINISTRADOR';
     } else if (!userData.fecha_vence) {
-      computedRol = 'DEMO';
+      computedRol = 'DEMOS';
     } else if (new Date(userData.fecha_vence) < now) {
-      computedRol = 'Vencido';
+      computedRol = 'VENCIDO';
     } else {
       // Vigente
       if (userData.ban_fundador) {
-        computedRol = 'Fundador';
+        computedRol = 'FUNDADOR';
       } else if (userData.ban_plan === 'C' || userData.ban_plan === 'c') {
-        computedRol = 'Completo';
+        computedRol = 'PREMIUN';
       } else if (userData.ban_plan === 'P' || userData.ban_plan === 'p') {
-        computedRol = 'Premium';
+        computedRol = 'PROFUNDO';
       } else if (userData.ban_plan === 'B' || userData.ban_plan === 'b') {
-        computedRol = 'Básico';
+        computedRol = 'LITE';
       }
     }
 

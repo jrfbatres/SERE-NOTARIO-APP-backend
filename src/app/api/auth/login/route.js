@@ -39,11 +39,7 @@ export async function POST(request) {
       return NextResponse.json({ success: false, error: 'Credenciales inválidas' }, { status: 401 });
     }
 
-    // Check subscription status
-    // For now, we just verify they have a plan. You can add date checks later.
-    if (!user.ban_pago) {
-       return NextResponse.json({ success: false, error: 'Suscripción inactiva' }, { status: 403 });
-    }
+
 
     // Generate token
     const token = jwt.sign(

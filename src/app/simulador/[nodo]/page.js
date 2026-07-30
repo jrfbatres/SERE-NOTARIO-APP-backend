@@ -232,10 +232,18 @@ function SimuladorContent() {
           
           // Check if user has access to "Ley por Ley" (free mode)
           const isPlanSession = pensumId !== null && dia !== null;
-          const isAdmin = profile.correo === 'admin@serenotario.com' || profile.rol === 'Administrador';
-          const isPrivileged = isAdmin || profile.rol === 'Fundador';
+          const isAdmin = profile.correo === 'admin@serenotario.com' || profile.rol === 'Administrador' || profile.rol === 'ADMINISTRADOR';
+          const isPrivileged = isAdmin || profile.rol === 'Fundador' || profile.rol === 'FUNDADOR';
           const userPlan = (profile.ban_plan || '').toUpperCase();
           
+          if (!isPrivileged && (profile.rol === 'DEMO' || profile.rol === 'DEMOS')) {
+            if (isPlanSession && String(dia) !== '1') {
+              alert("Acceso Denegado. Como usuario de prueba, solo puedes realizar las evaluaciones correspondientes al Día 1.");
+              router.push('/');
+              return;
+            }
+          }
+
           if (!isPlanSession && !isPrivileged && userPlan !== 'C') {
             alert("Acceso Denegado. La evaluación libre Ley por Ley (simuladores individuales) solo está disponible en el plan Completo (Acceso Total). Adquiérelo en la sección de Planes de Pago.");
             router.push('/');
@@ -1105,9 +1113,9 @@ function SimuladorContent() {
               <button 
                 onClick={() => {
                   if (!userProfile) return;
-                  const isAdmin = userProfile.correo === 'admin@serenotario.com' || userProfile.rol === 'Administrador';
+                  const isAdmin = userProfile.correo === 'admin@serenotario.com' || userProfile.rol === 'Administrador' || userProfile.rol === 'ADMINISTRADOR';
                   const userPlan = (userProfile.ban_plan || '').toUpperCase();
-                  if (!isAdmin && userProfile.rol !== 'Fundador' && userPlan !== 'C') {
+                  if (!isAdmin && userProfile.rol !== 'Fundador' && userProfile.rol !== 'FUNDADOR' && userPlan !== 'C') {
                     alert("Acceso Denegado. La función Manos Libres solo está disponible en el plan Completo (Acceso Total). Adquiérelo en la sección de Planes de Pago.");
                     return;
                   }

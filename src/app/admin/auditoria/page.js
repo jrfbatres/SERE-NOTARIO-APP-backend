@@ -30,7 +30,7 @@ export default function AuditoriaExamenes() {
     })
     .then(r => r.json())
     .then(data => {
-      if (data.success && data.data.rol === 'Administrador') {
+      if (data.success && (data.data.rol === 'Administrador' || data.data.rol === 'ADMINISTRADOR')) {
         setIsAdmin(true);
         loadExamenes(token);
       } else {

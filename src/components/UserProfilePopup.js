@@ -119,7 +119,7 @@ export default function UserProfilePopup({ userProfile, position = 'bottom' }) {
                       {profile.cantidad_invitaciones || 0}
                     </span>
                   </div>
-                  {(profile.cantidad_invitaciones > 0 || profile.rol === 'Administrador') && (
+                  {(profile.cantidad_invitaciones > 0 || profile.rol === 'Administrador' || profile.rol === 'ADMINISTRADOR') && (
                     <div className="mt-2 pt-2">
                       <button 
                         onClick={() => {
@@ -133,6 +133,7 @@ export default function UserProfilePopup({ userProfile, position = 'bottom' }) {
                       </button>
                     </div>
                   )}
+
                 </>
               ) : (
                 <div className="text-center text-sm text-red-500 py-2">Error al cargar datos</div>

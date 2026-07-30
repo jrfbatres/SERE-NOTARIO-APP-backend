@@ -179,26 +179,16 @@ export default function EstudioPage() {
     
     // Premium and Administrador bypass all locks
     const rol = userProfile?.rol;
-    if (rol === 'Premium' || rol === 'Administrador') {
+    if (rol === 'Premium' || rol === 'PREMIUN' || rol === 'Administrador' || rol === 'ADMINISTRADOR') {
       return true;
     }
 
-    const firstUncompleted = studySequence.find(n => !n.completado);
-    
-    // Vencido logic: only completed nodes are unlocked
-    if (rol === 'Vencido') {
-      const index = studySequence.findIndex(n => n.id === nodeId);
-      if (index === -1) return true;
-      return !!studySequence[index].completado;
+    // DEMO logic: limit to ONLY the first node of the study sequence
+    if (rol === 'DEMO' || rol === 'DEMOS') {
+      return studySequence.length > 0 && nodeId === studySequence[0].id;
     }
 
-    // DEMO logic: limit to first 4 questions nodes
-    if (rol === 'DEMO') {
-      const index = studySequence.findIndex(n => n.id === nodeId);
-      if (index >= 4) {
-        return false; // Force lock from 5th node onwards
-      }
-    }
+    const firstUncompleted = studySequence.find(n => !n.completado);
 
     if (!firstUncompleted) return true; // If everything is completed, all are unlocked
     if (nodeId === firstUncompleted.id) return true;
@@ -907,9 +897,9 @@ export default function EstudioPage() {
     } else {
       // Access control check for Hands-Free mode
       if (userProfile) {
-        const isAdmin = userProfile.correo === 'admin@serenotario.com' || userProfile.rol === 'Administrador';
+        const isAdmin = userProfile.correo === 'admin@serenotario.com' || userProfile.rol === 'Administrador' || userProfile.rol === 'ADMINISTRADOR';
         const userPlan = (userProfile.ban_plan || '').toUpperCase();
-        if (!isAdmin && userProfile.rol !== 'Fundador' && userPlan !== 'C') {
+        if (!isAdmin && userProfile.rol !== 'Fundador' && userProfile.rol !== 'FUNDADOR' && userPlan !== 'C') {
           alert("Acceso Denegado. La función Manos Libres solo está disponible en el plan Completo (Acceso Total). Adquiérelo en la sección de Planes de Pago.");
           return;
         }
@@ -1149,15 +1139,10 @@ export default function EstudioPage() {
       fetch('/api/usuario/perfil', { headers, cache: 'no-store' }).then(res => res.json())
     ])
       .then(([mapData, profileData]) => {
+        let loadedProfile = null;
         if (profileData && profileData.success) {
-          const profile = profileData.data;
-          setUserProfile(profile);
-          
-          const isAdmin = profile.correo === 'admin@serenotario.com' || profile.rol === 'Administrador';
-          const userPlan = (profile.ban_plan || '').toUpperCase();
-          if (!isAdmin && profile.rol !== 'Fundador' && userPlan !== 'C') {
-            setActiveTab('info');
-          }
+          loadedProfile = profileData.data;
+          setUserProfile(loadedProfile);
         }
 
         if (mapData.success) {
@@ -1183,6 +1168,16 @@ export default function EstudioPage() {
           
           setSelectedNodeId(initialSelectedId);
           setExpandedNodes(initialExpanded);
+
+          // Force default active tab to info if not allowed to evaluate
+          if (loadedProfile) {
+            const isAdmin = loadedProfile.correo === 'admin@serenotario.com' || loadedProfile.rol === 'Administrador' || loadedProfile.rol === 'ADMINISTRADOR';
+            const userPlan = (loadedProfile.ban_plan || '').toUpperCase();
+            const isFirstNode = sequence.length > 0 && initialSelectedId === sequence[0].id;
+            if (!isAdmin && loadedProfile.rol !== 'Fundador' && loadedProfile.rol !== 'FUNDADOR' && userPlan !== 'C' && userPlan !== 'B' && userPlan !== 'P' && !isFirstNode) {
+              setActiveTab('info');
+            }
+          }
         }
         setLoading(false);
       })
@@ -1546,6 +1541,10 @@ export default function EstudioPage() {
   const handleNodeClick = (node) => {
     const isLocked = node.total_preguntas > 0 && !isNodeUnlocked(node.id);
     if (isLocked) {
+      if (userProfile && (userProfile.rol === 'DEMO' || userProfile.rol === 'DEMOS')) {
+        showToast("Acceso Limitado. Como usuario de prueba, solo puedes acceder al primer tema de cada ley. Adquiere un plan de pago para liberar todo el contenido.");
+        return;
+      }
       const firstUncompleted = getFirstUncompletedNodeBefore(node.id);
       if (firstUncompleted) {
         showToast(`Para acceder a este tema, primero debes completar y aprobar: ${firstUncompleted.nombre}`);
@@ -1917,9 +1916,9 @@ export default function EstudioPage() {
           <button 
             onClick={() => {
               if (userProfile) {
-                const isAdmin = userProfile.correo === 'admin@serenotario.com' || userProfile.rol === 'Administrador';
+                const isAdmin = userProfile.correo === 'admin@serenotario.com' || userProfile.rol === 'Administrador' || userProfile.rol === 'ADMINISTRADOR';
                 const userPlan = (userProfile.ban_plan || '').toUpperCase();
-                if (!isAdmin && userProfile.rol !== 'Fundador' && userPlan !== 'C') {
+                if (!isAdmin && userProfile.rol !== 'Fundador' && userProfile.rol !== 'FUNDADOR' && userPlan !== 'C') {
                   alert("Acceso Denegado. La evaluación libre Ley por Ley (Examinar Ley) solo está disponible en el plan Completo (Acceso Total). Adquiérelo en la sección de Planes de Pago.");
                   return;
                 }
@@ -1998,9 +1997,10 @@ export default function EstudioPage() {
                   <button
                     onClick={() => {
                       if (userProfile) {
-                        const isAdmin = userProfile.correo === 'admin@serenotario.com' || userProfile.rol === 'Administrador';
+                        const isAdmin = userProfile.correo === 'admin@serenotario.com' || userProfile.rol === 'Administrador' || userProfile.rol === 'ADMINISTRADOR';
                         const userPlan = (userProfile.ban_plan || '').toUpperCase();
-                        if (!isAdmin && userProfile.rol !== 'Fundador' && userPlan !== 'C') {
+                        const isFirstNode = studySequence.length > 0 && selectedNodeId === studySequence[0].id;
+                        if (!isAdmin && userProfile.rol !== 'Fundador' && userProfile.rol !== 'FUNDADOR' && userPlan !== 'C' && userPlan !== 'B' && userPlan !== 'P' && !isFirstNode) {
                           alert("Acceso Denegado. La evaluación por temas individuales (Ley por Ley) solo está disponible en el plan Completo (Acceso Total). Adquiérelo en la sección de Planes de Pago.");
                           return;
                         }

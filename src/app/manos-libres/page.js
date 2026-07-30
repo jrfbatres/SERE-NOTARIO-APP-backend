@@ -315,10 +315,10 @@ export default function ManosLibresPage() {
             const profile = profileData.data;
             setUserProfile(profile);
             
-            const isAdmin = profile.correo === 'admin@serenotario.com' || profile.rol === 'Administrador';
+            const isAdmin = profile.correo === 'admin@serenotario.com' || profile.rol === 'Administrador' || profile.rol === 'ADMINISTRADOR';
             const userPlan = (profile.ban_plan || '').toUpperCase();
             
-            if (!isAdmin && profile.rol !== 'Fundador' && userPlan !== 'C') {
+            if (!isAdmin && profile.rol !== 'Fundador' && profile.rol !== 'FUNDADOR' && userPlan !== 'C') {
               alert("Acceso Denegado. La función Manos Libres solo está disponible en el plan Completo (Acceso Total). Adquiérelo en la sección de Planes de Pago.");
               router.push('/');
               return;
@@ -356,7 +356,10 @@ export default function ManosLibresPage() {
         if (data.success && data.data) {
           setMapa(data.data);
           const seq = getStudySequence(data.data);
-          const firstUncompleted = seq.find(n => !n.completado);
+          let firstUncompleted = seq.find(n => !n.completado);
+          if (userProfile && (userProfile.rol === 'DEMO' || userProfile.rol === 'DEMOS')) {
+            firstUncompleted = seq[0];
+          }
           if (firstUncompleted) {
             setCurrentNode(firstUncompleted);
             setStage('LOADING_NODE');
@@ -614,13 +617,6 @@ export default function ManosLibresPage() {
   };
 
   const handleLeyClick = (ley) => {
-    if (userProfile && userProfile.rol === 'DEMO') {
-      if (!ley.nombre.toUpperCase().includes('CÓDIGO CIVIL')) {
-        setBlockedLaw(ley);
-        speakText("Acceso Limitado. Esta ley está bloqueada. Como usuario DEMO, tu acceso está restringido al Código Civil.");
-        return;
-      }
-    }
 
     // total_preguntas comes from the API now. If 0, it means no questions loaded in DB.
     if (!ley.total_preguntas || parseInt(ley.total_preguntas) === 0) {

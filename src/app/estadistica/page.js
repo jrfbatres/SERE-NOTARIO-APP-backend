@@ -155,14 +155,37 @@ export default function EstadisticaPage() {
             <span className="flex-1 text-left">Planes de Pago</span>
           </button>
 
-          {userProfile?.rol === 'Administrador' && (
-            <button
-              onClick={() => router.push('/admin/auditoria')}
-              className={`w-full flex items-center gap-3 px-4 py-3.5 mt-4 rounded-xl font-bold transition-all active:scale-[0.98] text-[13px] uppercase tracking-wider border border-[#ba1a1a]/40 ${isDarkMode ? 'bg-[#ba1a1a]/10 hover:bg-[#ba1a1a]/20 text-[#ffdad6]' : 'bg-[#ba1a1a]/10 hover:bg-[#ba1a1a]/20 text-[#93000a]'}`}
-            >
-              <span className="material-symbols-outlined text-[20px]">admin_panel_settings</span>
-              <span className="flex-1 text-left">Auditoría Admin</span>
-            </button>
+          {(userProfile?.rol === 'Administrador' || userProfile?.rol === 'ADMINISTRADOR') && (
+            <>
+              <button
+                onClick={() => router.push('/admin/auditoria')}
+                className={`w-full flex items-center gap-3 px-4 py-3.5 mt-4 rounded-xl font-bold transition-all active:scale-[0.98] text-[13px] uppercase tracking-wider border border-[#ba1a1a]/40 ${isDarkMode ? 'bg-[#ba1a1a]/10 hover:bg-[#ba1a1a]/20 text-[#ffdad6]' : 'bg-[#ba1a1a]/10 hover:bg-[#ba1a1a]/20 text-[#93000a]'}`}
+              >
+                <span className="material-symbols-outlined text-[20px]">admin_panel_settings</span>
+                <span className="flex-1 text-left">Auditoría Admin</span>
+              </button>
+              <button
+                onClick={() => router.push('/admin/pagos')}
+                className={`w-full flex items-center gap-3 px-4 py-3.5 mt-2 rounded-xl font-bold transition-all active:scale-[0.98] text-[13px] uppercase tracking-wider border border-blue-500/40 ${isDarkMode ? 'bg-blue-600/10 hover:bg-blue-600/20 text-blue-400' : 'bg-blue-600/10 hover:bg-blue-600/20 text-blue-700'}`}
+              >
+                <span className="material-symbols-outlined text-[20px]">payments</span>
+                <span className="flex-1 text-left">Administrar Pagos</span>
+              </button>
+              <button
+                onClick={() => router.push('/admin/usuarios')}
+                className={`w-full flex items-center gap-3 px-4 py-3.5 mt-2 rounded-xl font-bold transition-all active:scale-[0.98] text-[13px] uppercase tracking-wider border border-green-500/40 ${isDarkMode ? 'bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400' : 'bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-700'}`}
+              >
+                <span className="material-symbols-outlined text-[20px]">group</span>
+                <span className="flex-1 text-left">Reporte de Usuarios</span>
+              </button>
+              <button
+                onClick={() => router.push('/admin/mensajes')}
+                className={`w-full flex items-center gap-3 px-4 py-3.5 mt-2 rounded-xl font-bold transition-all active:scale-[0.98] text-[13px] uppercase tracking-wider border border-amber-500/40 ${isDarkMode ? 'bg-amber-600/10 hover:bg-amber-600/20 text-amber-400' : 'bg-amber-600/10 hover:bg-amber-600/20 text-amber-700'}`}
+              >
+                <span className="material-symbols-outlined text-[20px]">forum</span>
+                <span className="flex-1 text-left">Mensajes de Soporte</span>
+              </button>
+            </>
           )}
         </nav>
 

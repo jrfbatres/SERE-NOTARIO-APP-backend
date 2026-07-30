@@ -35,15 +35,8 @@ export async function GET(request, { params }) {
 
     const user = userRes.rows[0];
     const now = new Date();
-    const isAdmin = user.correo === 'admin@serenotario.com' || user.rol === 'Administrador';
+    const isAdmin = user.correo === 'admin@serenotario.com' || user.rol === 'Administrador' || user.rol === 'ADMINISTRADOR';
     const isPrivileged = isAdmin || user.ban_fundador;
-
-    // Verificar vigencia de suscripción
-    if (!isPrivileged && (!user.fecha_vence || new Date(user.fecha_vence) < now)) {
-      return NextResponse.json({ success: false, error: 'Tu suscripción ha vencido o está inactiva. Por favor, adquiere un plan de pago.' }, { status: 403 });
-    }
-
-    const userPlan = (user.ban_plan || '').toUpperCase();
 
     // Determinar el código del plan ('B' para express, 'P' para profundo, 'M' para magistral)
     let planCode = '';
@@ -54,18 +47,25 @@ export async function GET(request, { params }) {
       return NextResponse.json({ success: false, error: 'Plan no válido' }, { status: 400 });
     }
 
-    // Control de acceso por plan de pago
-    if (!isPrivileged && userPlan !== 'C') {
-      if (planCode === 'B' && userPlan !== 'B') {
+    const userPlan = (user.ban_plan || '').toUpperCase();
+    const isDemo = !user.fecha_vence;
+    if (!isPrivileged && !isDemo) {
+      // 1. Verify subscription is active
+      if (!user.fecha_vence || new Date(user.fecha_vence) < now) {
+        return NextResponse.json({ success: false, error: 'Tu suscripción ha vencido o está inactiva. Por favor, adquiere un plan de pago.' }, { status: 403 });
+      }
+
+      // 2. Control access by plan type
+      if (planCode === 'B' && userPlan !== 'B' && userPlan !== 'C') {
         return NextResponse.json({ 
           success: false, 
-          error: 'Acceso Denegado. Tu suscripción activa es de plan Profundo. Para estudiar la ruta Express/Lite, adquiere el plan Completo (Acceso Total).' 
+          error: 'Acceso Denegado. Esta sección solo está disponible para usuarios con plan Lite o Completo (Acceso Total).' 
         }, { status: 403 });
       }
-      if (planCode === 'P' && userPlan !== 'P') {
+      if (planCode === 'P' && userPlan !== 'P' && userPlan !== 'C') {
         return NextResponse.json({ 
           success: false, 
-          error: 'Acceso Denegado. Tu suscripción activa es de plan Lite/Express. Para estudiar la ruta Profunda, adquiere el plan Profundo o Completo (Acceso Total).' 
+          error: 'Acceso Denegado. Esta sección solo está disponible para usuarios con plan Profundo o Completo (Acceso Total).' 
         }, { status: 403 });
       }
     }
