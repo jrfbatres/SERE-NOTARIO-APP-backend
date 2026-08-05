@@ -875,7 +875,15 @@ function SimuladorContent() {
               </p>
             )}
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-4">
+            <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 mt-4">
+              <button
+                onClick={handleClose}
+                className="w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold uppercase text-xs tracking-wider transition-all duration-200 inline-flex items-center justify-center gap-1.5 shadow-md cursor-pointer bg-transparent border border-white/30 text-white hover:bg-white/10"
+              >
+                <span className="material-symbols-outlined text-sm font-bold">arrow_back</span>
+                Regresar
+              </button>
+
               {!isPassed && (
                 <button
                   onClick={handleRestart}
@@ -1188,6 +1196,32 @@ function SimuladorContent() {
               <span>Haz clic para seleccionar, y doble clic para confirmar y avanzar de inmediato</span>
             </div>
 
+            {/* Action buttons - Mobile inline */}
+            <div className="flex lg:hidden justify-end gap-3 mt-6 border-t border-black/5 dark:border-white/5 pt-6">
+              {!isAnswered ? (
+                <button
+                  onClick={handleConfirmSubmit}
+                  disabled={!selectedOption}
+                  className={`px-6 py-2.5 rounded-xl font-bold transition-all text-xs uppercase tracking-wider flex items-center gap-2 ${
+                    selectedOption 
+                      ? (isDarkMode ? 'bg-[#b59348] text-[#002b49] hover:bg-[#a1813b] shadow' : 'bg-[#002b49] hover:bg-[#001c30] text-white shadow') 
+                      : (isDarkMode ? 'bg-white/5 text-gray-500 cursor-not-allowed border border-white/10' : 'bg-gray-100 text-gray-400 cursor-not-allowed')
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[16px]">check</span>
+                  Confirmar
+                </button>
+              ) : (
+                <button
+                  onClick={handleNext}
+                  className={`px-6 py-2.5 rounded-xl font-bold transition-all text-xs uppercase tracking-wider flex items-center gap-2 ${isDarkMode ? 'bg-[#b59348] text-[#002b49] hover:bg-[#a1813b] shadow' : 'bg-[#002b49] text-white hover:bg-[#001c30] shadow'}`}
+                >
+                  <span>Siguiente</span>
+                  <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                </button>
+              )}
+            </div>
+
           </div>
         </div>
 
@@ -1226,8 +1260,8 @@ function SimuladorContent() {
           {isAnswered ? (
             <div className="flex-1 flex flex-col justify-start">
               
-              {/* Correct / Incorrect Header Indicator - Desktop only */}
-              <div className={`hidden lg:flex p-4 rounded-2xl border mb-6 flex-col gap-4 ${
+              {/* Correct / Incorrect Header Indicator */}
+              <div className={`flex p-4 rounded-2xl border mb-6 flex-col gap-4 ${
                 selectedOption === currentQ.respuesta_correcta 
                   ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-500' 
                   : 'border-rose-500/30 bg-rose-500/10 text-rose-500'
@@ -1248,10 +1282,10 @@ function SimuladorContent() {
                   </div>
                 </div>
 
-                {/* Siguiente Pregunta button at the top */}
+                {/* Siguiente Pregunta button at the top - Desktop only */}
                 <button
                   onClick={handleNext}
-                  className="w-full py-2.5 bg-[#b59348] hover:bg-[#a1813b] text-[#002b49] rounded-xl font-black shadow transition-all text-xs uppercase tracking-wider cursor-pointer"
+                  className="hidden lg:block w-full py-2.5 bg-[#b59348] hover:bg-[#a1813b] text-[#002b49] rounded-xl font-black shadow transition-all text-xs uppercase tracking-wider cursor-pointer"
                 >
                   Siguiente Pregunta
                 </button>
@@ -1340,95 +1374,8 @@ function SimuladorContent() {
 
       </div>
 
-      {/* ===== MOBILE BOTTOM SHEET: Confirmar + Feedback ===== */}
-      
-      {/* Mobile Confirm Button (shown when NOT yet answered) */}
-      {!isAnswered && (
-        <div className={`lg:hidden fixed bottom-0 left-0 right-0 z-40 p-4 border-t shadow-2xl ${isDarkMode ? 'bg-[#001a2e] border-white/10' : 'bg-white border-gray-200'}`}>
-          <button
-            onClick={handleConfirmSubmit}
-            disabled={!selectedOption}
-            className={`w-full py-4 rounded-2xl font-black transition-all text-sm uppercase tracking-wider cursor-pointer ${
-              selectedOption 
-                ? (isDarkMode ? 'bg-[#b59348] text-[#002b49] hover:bg-[#a1813b] shadow-lg' : 'bg-[#002b49] hover:bg-[#001c30] text-white shadow-lg') 
-                : (isDarkMode ? 'bg-white/5 text-gray-500 cursor-not-allowed border border-white/10' : 'bg-gray-100 text-gray-400 cursor-not-allowed')
-            }`}
-          >
-            Confirmar Respuesta
-          </button>
-        </div>
-      )}
+      {/* Mobile Answer Feedback Popup (removed in favor of inline UI) */}
 
-      {/* Mobile Answer Feedback Popup (shown when answered) */}
-      {isAnswered && showAnswerPopup && (
-        <div className="lg:hidden fixed inset-0 z-50 flex items-end pointer-events-none">
-          {/* Backdrop */}
-          <div 
-            className="absolute inset-0 bg-black/40 pointer-events-auto"
-            onClick={() => setShowAnswerPopup(false)}
-          />
-          {/* Sheet */}
-          <div className={`relative w-full pointer-events-auto rounded-t-3xl shadow-2xl border-t p-6 flex flex-col gap-4 animate-slide-up ${
-            selectedOption === currentQ.respuesta_correcta
-              ? (isDarkMode ? 'bg-[#001a2e] border-emerald-500/40' : 'bg-white border-emerald-400')
-              : (isDarkMode ? 'bg-[#001a2e] border-rose-500/40' : 'bg-white border-rose-400')
-          }`}>
-            {/* Drag handle */}
-            <div className="w-10 h-1 rounded-full bg-gray-300 mx-auto mb-1" />
-
-            {/* Result indicator */}
-            <div className={`flex items-center gap-3 ${
-              selectedOption === currentQ.respuesta_correcta ? 'text-emerald-500' : 'text-rose-500'
-            }`}>
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${
-                selectedOption === currentQ.respuesta_correcta ? 'bg-emerald-500/15' : 'bg-rose-500/15'
-              }`}>
-                <span className="material-symbols-outlined text-[28px] font-bold">
-                  {selectedOption === currentQ.respuesta_correcta ? 'check_circle' : 'cancel'}
-                </span>
-              </div>
-              <div className="flex flex-col text-left">
-                <span className="font-black text-base uppercase tracking-wider">
-                  {selectedOption === currentQ.respuesta_correcta ? '¡Respuesta Correcta!' : 'Respuesta Incorrecta'}
-                </span>
-                <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                  {selectedOption === currentQ.respuesta_correcta 
-                    ? 'Excelente dominio de la norma jurídica.' 
-                    : `La opción correcta era la ${currentQ.respuesta_correcta}`}
-                </span>
-              </div>
-            </div>
-
-            {/* Quick info snippet if available */}
-            {currentQ.referencia_legal && (
-              <div className={`text-xs px-3 py-2 rounded-xl border ${
-                isDarkMode ? 'bg-[#b59348]/10 border-[#b59348]/20 text-gray-300' : 'bg-[#b59348]/5 border-[#b59348]/20 text-gray-700'
-              }`}>
-                <span className="font-bold text-[#b59348] block text-[10px] uppercase tracking-wider mb-0.5">Base Legal</span>
-                {currentQ.referencia_legal}
-              </div>
-            )}
-
-            {/* Action buttons */}
-            <div className="flex flex-col gap-3 mt-1">
-              <button
-                onClick={handleNext}
-                className="w-full py-4 bg-[#b59348] hover:bg-[#a1813b] text-[#002b49] rounded-2xl font-black shadow-lg transition-all text-sm uppercase tracking-wider cursor-pointer active:scale-95"
-              >
-                {currentIndex < preguntas.length - 1 ? '→ Siguiente Pregunta' : '✓ Ver Resultados'}
-              </button>
-              <button
-                onClick={() => setShowAnswerPopup(false)}
-                className={`w-full py-3 rounded-2xl font-bold text-xs uppercase tracking-wider cursor-pointer active:scale-95 ${
-                  isDarkMode ? 'bg-white/5 text-gray-300 border border-white/10' : 'bg-gray-100 text-gray-600'
-                }`}
-              >
-                Ver explicación completa ↑
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
       {/* Grid tracker of questions and blocks at the bottom */}
       <footer className={`min-h-16 shrink-0 flex flex-col sm:flex-row items-center justify-between px-6 py-2 border-t gap-3 ${themeClasses.footerBg} transition-colors duration-300`}>
         {/* Block Selector */}
