@@ -1247,9 +1247,11 @@ function SimuladorContent() {
                 onClick={() => {
                   if (!userProfile) return;
                   const isAdmin = userProfile.correo === 'admin@serenotario.com' || userProfile.rol === 'Administrador' || userProfile.rol === 'ADMINISTRADOR';
+                  const isDemo = userProfile.rol === 'DEMO' || userProfile.rol === 'DEMOS';
                   const userPlan = (userProfile.ban_plan || '').toUpperCase();
-                  if (!isAdmin && userProfile.rol !== 'Fundador' && userProfile.rol !== 'FUNDADOR' && userPlan !== 'C') {
-                    alert("Acceso Denegado. La función Manos Libres solo está disponible en el plan Completo (Acceso Total). Adquiérelo en la sección de Planes de Pago.");
+                  const hasPlan = userPlan === 'B' || userPlan === 'P' || userPlan === 'C';
+                  if (!isAdmin && userProfile.rol !== 'Fundador' && userProfile.rol !== 'FUNDADOR' && !isDemo && !hasPlan) {
+                    alert("Acceso Denegado. La función Manos Libres solo está disponible con un plan activo (Lite, Profundo o Completo) o como prueba DEMO.");
                     return;
                   }
                   setIsHandsFreeActive(!isHandsFreeActive);

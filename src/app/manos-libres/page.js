@@ -125,8 +125,8 @@ export default function ManosLibresPage() {
         };
 
         recognition.onerror = (event) => {
-          console.error("Mic error:", event.error);
-          if (event.error !== 'no-speech') {
+          if (event.error !== 'no-speech' && event.error !== 'aborted') {
+            console.error("Mic error:", event.error);
             setMicError(true);
           }
           setIsListening(false);
@@ -325,10 +325,12 @@ export default function ManosLibresPage() {
             setUserProfile(profile);
             
             const isAdmin = profile.correo === 'admin@serenotario.com' || profile.rol === 'Administrador' || profile.rol === 'ADMINISTRADOR';
+            const isDemo = profile.rol === 'DEMO' || profile.rol === 'DEMOS';
             const userPlan = (profile.ban_plan || '').toUpperCase();
+            const hasPlan = userPlan === 'B' || userPlan === 'P' || userPlan === 'C';
             
-            if (!isAdmin && profile.rol !== 'Fundador' && profile.rol !== 'FUNDADOR' && userPlan !== 'C') {
-              alert("Acceso Denegado. La función Manos Libres solo está disponible en el plan Completo (Acceso Total). Adquiérelo en la sección de Planes de Pago.");
+            if (!isAdmin && profile.rol !== 'Fundador' && profile.rol !== 'FUNDADOR' && !isDemo && !hasPlan) {
+              alert("Acceso Denegado. La función Manos Libres solo está disponible con un plan activo (Lite, Profundo o Completo) o como prueba DEMO.");
               router.push('/');
               return;
             }
@@ -364,10 +366,11 @@ export default function ManosLibresPage() {
       .then(data => {
         if (data.success && data.data) {
           setMapa(data.data);
-          const seq = getStudySequence(data.data);
+          let seq = getStudySequence(data.data);
           let firstUncompleted = seq.find(n => !n.completado);
           if (userProfile && (userProfile.rol === 'DEMO' || userProfile.rol === 'DEMOS')) {
-            firstUncompleted = seq[0];
+            seq = seq.slice(0, 2);
+            firstUncompleted = seq.find(n => !n.completado) || seq[0];
           }
           if (firstUncompleted) {
             setCurrentNode(firstUncompleted);
@@ -626,6 +629,12 @@ export default function ManosLibresPage() {
   };
 
   const handleLeyClick = (ley) => {
+    if (userProfile && (userProfile.rol === 'DEMO' || userProfile.rol === 'DEMOS')) {
+      if (!ley.nombre.toLowerCase().includes('civil')) {
+        setBlockedLaw(ley);
+        return;
+      }
+    }
 
     // total_preguntas comes from the API now. If 0, it means no questions loaded in DB.
     if (!ley.total_preguntas || parseInt(ley.total_preguntas) === 0) {

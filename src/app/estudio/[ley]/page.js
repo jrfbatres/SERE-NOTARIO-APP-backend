@@ -183,9 +183,10 @@ export default function EstudioPage() {
       return true;
     }
 
-    // DEMO logic: limit to ONLY the first node of the study sequence
+    // DEMO logic: limit to ONLY the first 2 nodes of the study sequence
     if (rol === 'DEMO' || rol === 'DEMOS') {
-      return studySequence.length > 0 && nodeId === studySequence[0].id;
+      const demoSequence = studySequence.slice(0, 2);
+      return demoSequence.some(s => s.id === nodeId);
     }
 
     const firstUncompleted = studySequence.find(n => !n.completado);
@@ -999,9 +1000,11 @@ export default function EstudioPage() {
       // Access control check for Hands-Free mode
       if (userProfile) {
         const isAdmin = userProfile.correo === 'admin@serenotario.com' || userProfile.rol === 'Administrador' || userProfile.rol === 'ADMINISTRADOR';
+        const isDemo = userProfile.rol === 'DEMO' || userProfile.rol === 'DEMOS';
         const userPlan = (userProfile.ban_plan || '').toUpperCase();
-        if (!isAdmin && userProfile.rol !== 'Fundador' && userProfile.rol !== 'FUNDADOR' && userPlan !== 'C') {
-          alert("Acceso Denegado. La función Manos Libres solo está disponible en el plan Completo (Acceso Total). Adquiérelo en la sección de Planes de Pago.");
+        const hasPlan = userPlan === 'B' || userPlan === 'P' || userPlan === 'C';
+        if (!isAdmin && userProfile.rol !== 'Fundador' && userProfile.rol !== 'FUNDADOR' && !isDemo && !hasPlan) {
+          alert("Acceso Denegado. La función Manos Libres solo está disponible con un plan activo (Lite, Profundo o Completo) o como prueba DEMO.");
           return;
         }
       }

@@ -436,6 +436,16 @@ export default function DashboardPage() {
               <span className="text-[11px] font-bold uppercase tracking-widest text-[#b59348] mb-0.5">Ruta de Estudio</span>
               <span className="text-[14px] font-black uppercase tracking-wider relative z-10 group-hover:text-[#e5d7b3] transition-colors">Profundo 60 Días</span>
             </button>
+            <button
+              onClick={() => router.push('/manos-libres')}
+              className="flex-1 flex flex-col items-center justify-center px-4 py-3 rounded-xl border border-[#b59348] shadow-[0_0_15px_rgba(181,147,72,0.3)] transition-all active:scale-[0.98] bg-gradient-to-r from-[#001524] to-[#002b49] text-white group relative overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#b59348]/20 to-transparent translate-x-[-100%] animate-[shimmer_2s_infinite]" />
+              <span className="text-[11px] font-bold uppercase tracking-widest text-[#b59348] mb-0.5 flex items-center gap-1">
+                <span className="material-symbols-outlined text-[14px]">headphones</span> Audio interactivo
+              </span>
+              <span className="text-[14px] font-black uppercase tracking-wider relative z-10 group-hover:text-[#e5d7b3] transition-colors">Manos Libres</span>
+            </button>
           </section>
 
           {/* Treemap */}
