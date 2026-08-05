@@ -882,11 +882,19 @@ export default function ManosLibresPage() {
             <button
               onClick={() => {
                 stopSpeech();
-                setStage('QUIZ_INTRO');
+                if (stage === 'QUIZ_INTRO') {
+                  setQuizIndex(0);
+                  setCorrectCount(0);
+                  setFeedback(null);
+                  setSelectedOption(null);
+                  setStage('QUIZ_QUESTION');
+                } else {
+                  setStage('QUIZ_INTRO');
+                }
               }}
               className="mt-6 px-6 py-3 rounded-xl bg-[#191c1e] shadow-[6px_6px_12px_#0a0b0c,-6px_-6px_12px_#282d30] active:shadow-[inset_3px_3px_6px_#0a0b0c,inset_-3px_-3px_6px_#282d30] text-[#c6c6cd] hover:text-[#ffe088] transition-all duration-300 text-[10px] font-bold uppercase tracking-[0.2em]"
             >
-              Saltar Lectura
+              {stage === 'QUIZ_INTRO' ? 'Empezar Quiz' : 'Saltar Lectura'}
             </button>
           </div>
         )}
