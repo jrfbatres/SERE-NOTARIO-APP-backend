@@ -269,6 +269,7 @@ export default function EstudioPage() {
 
   // Hands-free (Manos Libres) states and refs
   const [isHandsFreeActive, setIsHandsFreeActive] = useState(false);
+  const [isMicListening, setIsMicListening] = useState(false);
   const isHandsFreeActiveRef = useRef(false);
   const micDisabledRef = useRef(false);
   const handsFreeStateRef = useRef('idle'); // 'idle' | 'speaking_question' | 'listening' | 'reading_articles' | 'speaking_feedback'
@@ -293,6 +294,18 @@ export default function EstudioPage() {
   useEffect(() => {
     isHandsFreeActiveRef.current = isHandsFreeActive;
   }, [isHandsFreeActive]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        try { recognitionRef.current.abort(); } catch(e) {}
+      }
+      if (handsFreeTickIntervalRef.current) clearInterval(handsFreeTickIntervalRef.current);
+      if (handsFreeTimeoutRef.current) clearTimeout(handsFreeTimeoutRef.current);
+      if (typeof window !== 'undefined') window.speechSynthesis.cancel();
+    };
+  }, []);
 
   useEffect(() => {
     miniPreguntasRef.current = miniPreguntas;
@@ -649,8 +662,89 @@ export default function EstudioPage() {
 
   // Starts SpeechRecognition listening (recreating instance each time for browser stability)
   const startListeningForResponse = () => {
-    // Micrófono desactivado por petición del usuario (solo lectura)
-    handsFreeStateRef.current = 'idle';
+    if (typeof window === 'undefined') return;
+    
+    // Si hay un timeout de silencio previo, limpiarlo
+    if (handsFreeTimeoutRef.current) clearTimeout(handsFreeTimeoutRef.current);
+    if (handsFreeTickIntervalRef.current) clearInterval(handsFreeTickIntervalRef.current);
+    
+    // Cancelar instancias previas si existen
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.abort();
+      } catch (e) {}
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      console.error("Speech Recognition not supported in this browser.");
+      return;
+    }
+
+    const rec = new SpeechRecognition();
+    rec.lang = 'es-MX';
+    rec.continuous = true; // Permite escuchar por más tiempo sin que el navegador lo corte rápido
+    rec.interimResults = false;
+
+    rec.onstart = () => {
+      handsFreeStateRef.current = 'listening';
+      setIsMicListening(true);
+      // Iniciar el reloj de cuenta regresiva
+      let ticks = 0;
+      handsFreeTickIntervalRef.current = setInterval(() => {
+        ticks++;
+        if (ticks % 2 === 0) playTickSound();
+        
+        if (!isHandsFreeActiveRef.current && ticks >= 45) {
+           if (recognitionRef.current) {
+             try { recognitionRef.current.abort(); } catch (e) {}
+           }
+           setIsMicListening(false);
+           if (handsFreeTickIntervalRef.current) clearInterval(handsFreeTickIntervalRef.current);
+           
+           handsFreeStateRef.current = 'speaking_feedback';
+           speakHandsFreeText("No te entendí.", () => {
+             handleMiniNext();
+           }, () => {
+             handleMiniNext();
+           });
+        } else if (isHandsFreeActiveRef.current && ticks >= 10) {
+          handleSilenceTimeout();
+        }
+      }, 1000);
+    };
+
+    rec.onresult = (event) => {
+      const lastIdx = event.results.length - 1;
+      const transcript = event.results[lastIdx][0].transcript;
+      setHandsFreeTranscript(transcript);
+      handleSpeechInput(transcript);
+    };
+
+    rec.onerror = (event) => {
+      console.warn("Speech Recognition Error in hands free (ignored):", event.error);
+      setIsMicListening(false);
+      if (handsFreeTickIntervalRef.current) clearInterval(handsFreeTickIntervalRef.current);
+      if (event.error !== 'no-speech' && event.error !== 'aborted') {
+        handsFreeStateRef.current = 'idle';
+      }
+    };
+
+    rec.onend = () => {
+      setIsMicListening(false);
+      if (handsFreeStateRef.current === 'listening') {
+        handsFreeStateRef.current = 'idle';
+      }
+      if (handsFreeTickIntervalRef.current) clearInterval(handsFreeTickIntervalRef.current);
+    };
+
+    recognitionRef.current = rec;
+    
+    try {
+      rec.start();
+    } catch (e) {
+      console.warn("Speech Recognition failed to start (ignored):", e);
+    }
   };
 
   // Handles silence timeout after 10 seconds
@@ -678,7 +772,6 @@ export default function EstudioPage() {
 
   // Parses voice commands
   const handleSpeechInput = (inputText) => {
-    if (!isHandsFreeActiveRef.current) return;
 
     const text = inputText.toLowerCase().trim();
 
@@ -692,18 +785,34 @@ export default function EstudioPage() {
 
     // Leer artículos asociados
     if (text.includes('artículo') || text.includes('articulo') || text.includes('artículos') || text.includes('articulos') || text.includes('ley')) {
+      if (handsFreeTickIntervalRef.current) clearInterval(handsFreeTickIntervalRef.current);
       readArticlesVoice();
       return;
     }
 
+    // Siguiente
+    if (text.includes('siguiente') || text.includes('avanzar') || text.includes('próxima') || text.includes('proxima') || text.includes('sigue')) {
+      if (miniAnsweredRef.current) {
+        if (handsFreeTickIntervalRef.current) clearInterval(handsFreeTickIntervalRef.current);
+        if (recognitionRef.current) {
+          try { recognitionRef.current.abort(); } catch(e) {}
+        }
+        setIsMicListening(false);
+        handleMiniNext();
+        return;
+      }
+    }
+
     // Repetir pregunta
     if (text.includes('repetir') || text.includes('repite') || text.includes('pregunta')) {
+      if (handsFreeTickIntervalRef.current) clearInterval(handsFreeTickIntervalRef.current);
       speakCurrentHandsFreeQuestion();
       return;
     }
 
     // Leer opciones
     if (text.includes('opciones') || text.includes('lee opciones') || text.includes('leer opciones')) {
+      if (handsFreeTickIntervalRef.current) clearInterval(handsFreeTickIntervalRef.current);
       speakOptionsVoice();
       return;
     }
@@ -773,28 +882,20 @@ export default function EstudioPage() {
           handsFreeTimeoutRef.current = setTimeout(() => {
             advanceToNextHandsFree();
           }, 2500);
+        } else {
+          if (handsFreeTimeoutRef.current) clearTimeout(handsFreeTimeoutRef.current);
+          handsFreeTimeoutRef.current = setTimeout(() => {
+            startListeningForResponse();
+          }, 500); // 0.5s en lugar de 5s para que puedan decir "siguiente" rápido
         }
       }, () => {
         if (isHandsFreeActiveRef.current) {
           advanceToNextHandsFree();
-        }
-      });
-    } else {
-      // Repetir instrucciones si no se entendió
-      handsFreeStateRef.current = 'speaking_feedback';
-      if (recognitionRef.current) {
-        try {
-          recognitionRef.current.abort();
-        } catch (e) {}
-      }
-      if (handsFreeTickIntervalRef.current) clearInterval(handsFreeTickIntervalRef.current);
-      speakHandsFreeText("No te entendí. Por favor di opción A, opción B, opción C, o leer artículo.", () => {
-        if (isHandsFreeActiveRef.current) {
-          startListeningForResponse();
-        }
-      }, () => {
-        if (isHandsFreeActiveRef.current) {
-          startListeningForResponse();
+        } else {
+          if (handsFreeTimeoutRef.current) clearTimeout(handsFreeTimeoutRef.current);
+          handsFreeTimeoutRef.current = setTimeout(() => {
+            startListeningForResponse();
+          }, 500); // 0.5s en lugar de 5s para que puedan decir "siguiente" rápido
         }
       });
     }
@@ -1360,7 +1461,28 @@ export default function EstudioPage() {
   // Handle automatic question reading in hands-free mode
   useEffect(() => {
     if (isHandsFreeActive && activeTab === 'simulacro' && miniPreguntas.length > 0 && !miniFinished) {
-      speakCurrentHandsFreeQuestion();
+      if (handsFreeTimeoutRef.current) clearTimeout(handsFreeTimeoutRef.current);
+      handsFreeTimeoutRef.current = setTimeout(() => {
+        speakCurrentHandsFreeQuestion();
+      }, 1000); // Pequeña pausa antes de leer la siguiente
+    }
+  }, [miniIndex, isHandsFreeActive, activeTab, miniPreguntas, miniFinished]);
+
+  // Auto-activate mic 5 seconds after a new question appears (manual voice mode)
+  useEffect(() => {
+    if (!isHandsFreeActive && activeTab === 'simulacro' && miniPreguntas.length > 0 && !miniFinished) {
+      if (handsFreeTimeoutRef.current) clearTimeout(handsFreeTimeoutRef.current);
+      // Turn off mic while they read the question
+      if (recognitionRef.current) {
+        try { recognitionRef.current.abort(); } catch (e) {}
+      }
+      setIsMicListening(false);
+      
+      handsFreeTimeoutRef.current = setTimeout(() => {
+        if (!isHandsFreeActiveRef.current && !miniAnsweredRef.current) {
+          startListeningForResponse();
+        }
+      }, 5000);
     }
   }, [miniIndex, isHandsFreeActive, activeTab, miniPreguntas, miniFinished]);
 
@@ -2678,6 +2800,26 @@ export default function EstudioPage() {
                               <span>PDF</span>
                             </button>
                           )}
+                          <button
+                            onClick={() => {
+                              if (isMicListening) {
+                                if (recognitionRef.current) recognitionRef.current.abort();
+                                setIsMicListening(false);
+                              } else {
+                                startListeningForResponse();
+                              }
+                            }}
+                            className={`p-1.5 border rounded-lg font-bold uppercase text-[9px] tracking-wider flex items-center transition-all duration-200 cursor-pointer ${
+                              isMicListening
+                                ? 'bg-red-600 text-white border-red-600 animate-pulse shadow-sm'
+                                : isDarkMode ? 'bg-white/10 text-white/90 border-white/20 hover:bg-white/20' : 'bg-white text-navy-brand border-outline-variant hover:bg-slate-50'
+                            }`}
+                            title="Responder con voz (diga opción A, B, C...)"
+                          >
+                            <span className="material-symbols-outlined text-[16px]">
+                              mic
+                            </span>
+                          </button>
                           <button
                             onClick={toggleHandsFree}
                             className={`p-1.5 border rounded-lg font-bold uppercase text-[9px] tracking-wider flex items-center transition-all duration-200 cursor-pointer ${

@@ -158,6 +158,10 @@ function SimuladorContent() {
   const selectedOptionRef = useRef(null);
   const [handsFreeTranscript, setHandsFreeTranscript] = useState('');
   const [playingArticleId, setPlayingArticleId] = useState(null);
+  
+  const [isMicListening, setIsMicListening] = useState(false);
+  const handsFreeTickIntervalRef = useRef(null);
+  const handsFreeTimeoutRef = useRef(null);
 
   function cleanOptionText(text) {
     if (!text) return '';
@@ -276,6 +280,18 @@ function SimuladorContent() {
     }
   }, [isHandsFreeActive]);
 
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        try { recognitionRef.current.abort(); } catch(e) {}
+      }
+      if (handsFreeTickIntervalRef.current) clearInterval(handsFreeTickIntervalRef.current);
+      if (handsFreeTimeoutRef.current) clearTimeout(handsFreeTimeoutRef.current);
+      if (typeof window !== 'undefined') window.speechSynthesis.cancel();
+    };
+  }, []);
+
   useEffect(() => {
     currentIndexRef.current = currentIndex;
     if (isHandsFreeActiveRef.current && preguntas.length > 0) {
@@ -292,8 +308,68 @@ function SimuladorContent() {
   }, [selectedOption]);
 
   const startListeningForResponse = () => {
-    // Micrófono desactivado por petición del usuario (solo lectura)
-    handsFreeStateRef.current = 'idle';
+    if (typeof window === 'undefined' || !window.SpeechRecognition && !window.webkitSpeechRecognition) {
+      return;
+    }
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (recognitionRef.current) {
+      try { recognitionRef.current.abort(); } catch(e) {}
+    }
+
+    const rec = new SpeechRecognition();
+    rec.lang = 'es-MX';
+    rec.continuous = true;
+    rec.interimResults = false;
+
+    rec.onstart = () => {
+      handsFreeStateRef.current = 'listening';
+      setIsMicListening(true);
+      let ticks = 0;
+      handsFreeTickIntervalRef.current = setInterval(() => {
+        ticks++;
+        if (ticks % 2 === 0) playSound(false);
+        
+        if (!isHandsFreeActiveRef.current && ticks >= 45) {
+           if (recognitionRef.current) {
+             try { recognitionRef.current.abort(); } catch (e) {}
+           }
+           setIsMicListening(false);
+           if (handsFreeTickIntervalRef.current) clearInterval(handsFreeTickIntervalRef.current);
+           
+           handsFreeStateRef.current = 'speaking_feedback';
+           handleNextVoice();
+        }
+      }, 1000);
+    };
+
+    rec.onresult = (event) => {
+      const lastIdx = event.results.length - 1;
+      const transcript = event.results[lastIdx][0].transcript;
+      setHandsFreeTranscript(transcript);
+      handleSpeechInput(transcript);
+    };
+
+    rec.onerror = (event) => {
+      console.warn("Speech Recognition Error (ignored):", event.error);
+      setIsMicListening(false);
+      if (handsFreeTickIntervalRef.current) clearInterval(handsFreeTickIntervalRef.current);
+      if (event.error !== 'no-speech' && event.error !== 'aborted') {
+        handsFreeStateRef.current = 'idle';
+      }
+    };
+
+    rec.onend = () => {
+      setIsMicListening(false);
+      if (handsFreeStateRef.current === 'listening') {
+        handsFreeStateRef.current = 'idle';
+      }
+      if (handsFreeTickIntervalRef.current) clearInterval(handsFreeTickIntervalRef.current);
+    };
+
+    recognitionRef.current = rec;
+    
+    try { rec.start(); } catch (e) {}
   };
 
   const handleNextVoice = () => {
@@ -384,10 +460,7 @@ function SimuladorContent() {
   };
 
   const handleSpeechInput = (transcript) => {
-    if (!isHandsFreeActiveRef.current) return;
     const lowerTranscript = transcript.toLowerCase();
-
-    if (handsFreeStateRef.current !== 'listening') return;
 
     const answered = isAnsweredRef.current;
 
@@ -400,19 +473,46 @@ function SimuladorContent() {
       else if (/\b(opción e|letra e|la e|e)\b/.test(lowerTranscript)) chosenLabel = 'E';
 
       if (chosenLabel) {
+        if (handsFreeTickIntervalRef.current) clearInterval(handsFreeTickIntervalRef.current);
         handsFreeStateRef.current = 'processing';
         if (recognitionRef.current) try { recognitionRef.current.abort(); } catch(e) {}
         
         handleSubmitOptionVoice(chosenLabel);
+        
+        if (!isHandsFreeActiveRef.current) {
+          if (handsFreeTimeoutRef.current) clearTimeout(handsFreeTimeoutRef.current);
+          handsFreeTimeoutRef.current = setTimeout(() => {
+            startListeningForResponse();
+          }, 500);
+        }
       }
     } else {
-      if (/\b(siguiente|avanzar|continuar|próxima)\b/.test(lowerTranscript)) {
+      if (/\b(siguiente|avanzar|continuar|próxima|sigue|proxima)\b/.test(lowerTranscript)) {
+        if (handsFreeTickIntervalRef.current) clearInterval(handsFreeTickIntervalRef.current);
         handsFreeStateRef.current = 'processing';
         if (recognitionRef.current) try { recognitionRef.current.abort(); } catch(e) {}
+        setIsMicListening(false);
         handleNextVoice();
       }
     }
   };
+
+  // Auto-activate mic 5 seconds after a new question appears (manual voice mode)
+  useEffect(() => {
+    if (!isHandsFreeActive && preguntas && preguntas.length > 0 && !isFinished) {
+      if (handsFreeTimeoutRef.current) clearTimeout(handsFreeTimeoutRef.current);
+      if (recognitionRef.current) {
+        try { recognitionRef.current.abort(); } catch (e) {}
+      }
+      setIsMicListening(false);
+      
+      handsFreeTimeoutRef.current = setTimeout(() => {
+        if (!isHandsFreeActiveRef.current && !isAnsweredRef.current) {
+          startListeningForResponse();
+        }
+      }, 5000);
+    }
+  }, [currentIndex, isHandsFreeActive, preguntas, isFinished]);
 
   const filterValidPreguntas = (list) => {
     if (!list || !Array.isArray(list)) return [];
@@ -1120,6 +1220,28 @@ function SimuladorContent() {
                 )}
               </div>
               
+              {/* Mic Manual Button */}
+              <button 
+                onClick={() => {
+                  if (isMicListening) {
+                    if (recognitionRef.current) try { recognitionRef.current.abort(); } catch(e) {}
+                    setIsMicListening(false);
+                  } else {
+                    startListeningForResponse();
+                  }
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all font-bold text-[10px] uppercase tracking-wider cursor-pointer shadow-sm active:scale-95 ${
+                  isMicListening 
+                    ? 'bg-red-600 border-red-700 text-white animate-pulse' 
+                    : isDarkMode ? 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10' : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
+                }`}
+                title={isMicListening ? "Micrófono encendido" : "Encender micrófono"}
+              >
+                <span className="material-symbols-outlined text-[14px]">
+                  {isMicListening ? 'mic' : 'mic_off'}
+                </span>
+              </button>
+
               {/* Hands-Free Button */}
               <button 
                 onClick={() => {

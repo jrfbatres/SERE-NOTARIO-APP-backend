@@ -92,8 +92,10 @@ export default function ManosLibresPage() {
       if (onEnd) onEnd();
     };
 
-    utterance.onerror = () => {
+    utterance.onerror = (e) => {
+      console.warn("SpeechSynthesis error (ignoring to prevent UI block):", e);
       isSpeakingRef.current = false;
+      if (onEnd) onEnd();
     };
     
     synthesisRef.current = utterance;
@@ -155,7 +157,14 @@ export default function ManosLibresPage() {
   }, []);
 
   const startListening = () => {
-    // Micrófono desactivado por petición del usuario (solo lectura)
+    if (recognitionRef.current && !isListening && !micError) {
+      try {
+        recognitionRef.current.start();
+        setIsListening(true);
+      } catch(e) {
+        console.warn("Mic start error (ignored):", e);
+      }
+    }
   };
 
   const stopListening = () => {
