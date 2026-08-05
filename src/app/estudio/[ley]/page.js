@@ -249,7 +249,7 @@ export default function EstudioPage() {
   };
 
   // Tabs state
-  const [activeTab, setActiveTab] = useState('simulacro'); // 'info' | 'slides' | 'simulacro' | 'preguntas_asociadas'
+  const [activeTab, setActiveTab] = useState('inicio'); // 'inicio' | 'info' | 'slides' | 'simulacro' | 'preguntas_asociadas'
   const [showDerogados, setShowDerogados] = useState(false);
   const [preguntasAsociadas, setPreguntasAsociadas] = useState([]);
   const [loadingPreguntasAsociadas, setLoadingPreguntasAsociadas] = useState(false);
@@ -1219,10 +1219,9 @@ export default function EstudioPage() {
     setMiniIndex(0);
     setMiniSelected(null);
     setMiniAnswered(false);
-    setMiniCorrectCount(0);
     setMiniFinished(false);
     setMiniResponses([]);
-    setActiveTab('simulacro');
+    setActiveTab('inicio');
     setSidebarTab('articulos');
 
     const token = localStorage.getItem('token');
@@ -1996,6 +1995,20 @@ export default function EstudioPage() {
                 <div className={`flex gap-2 p-1 rounded-xl border ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-navy-brand/5 border-navy-brand/10'}`}>
                   <button
                     onClick={() => {
+                      setActiveTab('inicio');
+                      setShowLeftSidebar(false);
+                    }}
+                    className={`py-2 px-4 rounded-lg font-bold text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 ${
+                      activeTab === 'inicio'
+                        ? 'bg-gold-brand text-navy-brand font-black shadow-sm'
+                        : isDarkMode ? 'text-white/60 hover:text-white/80 hover:bg-white/5' : 'text-navy-brand/60 hover:text-navy-brand/80 hover:bg-navy-brand/5'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[18px]">home</span>
+                    Inicio
+                  </button>
+                  <button
+                    onClick={() => {
                       if (userProfile) {
                         const isAdmin = userProfile.correo === 'admin@serenotario.com' || userProfile.rol === 'Administrador' || userProfile.rol === 'ADMINISTRADOR';
                         const userPlan = (userProfile.ban_plan || '').toUpperCase();
@@ -2077,7 +2090,62 @@ export default function EstudioPage() {
               </div>
 
               {/* Tab Content */}
-              {activeTab === 'info' ? (
+              {activeTab === 'inicio' ? (
+                <div className={`w-full p-8 rounded-2xl shadow-sm border ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-white border-outline-variant/50'} text-center flex flex-col items-center justify-center min-h-[400px]`}>
+                  <h2 className={`text-3xl font-black mb-2 tracking-tight ${isDarkMode ? 'text-white' : 'text-navy-brand'}`}>{mapa?.nombre || 'Ley Actual'}</h2>
+                  <p className={`text-sm font-bold uppercase tracking-widest mb-8 px-4 py-1.5 rounded-full ${isDarkMode ? 'bg-white/10 text-white/70' : 'bg-navy-brand/5 text-navy-brand/70'}`}>
+                    Incidencia Global: {mapa?.porcentaje_preguntas || 0}%
+                  </p>
+                  
+                  <div className={`w-full sm:w-[80%] max-w-[500px] min-w-[280px] sm:min-w-[400px] shrink-0 p-6 rounded-2xl border mb-10 text-left mx-auto ${isDarkMode ? 'bg-[#0f0f13]/50 border-white/5' : 'bg-[#f8f9fc] border-navy-brand/10'}`}>
+                    <h3 className={`text-sm font-bold uppercase tracking-wider mb-4 opacity-70 ${isDarkMode ? 'text-white' : 'text-navy-brand'}`}>Detalle del Tema</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <p className={`text-xs uppercase tracking-wider opacity-60 mb-1 font-semibold ${isDarkMode ? 'text-white' : 'text-navy-brand'}`}>Nodo a Evaluar</p>
+                        <p className={`text-lg font-bold leading-tight ${isDarkMode ? 'text-white' : 'text-navy-brand'}`}>{nodeContent?.nombre}</p>
+                      </div>
+                      <div className="flex items-center justify-between border-t border-dashed pt-4 border-gray-500/30">
+                        <div>
+                          <p className={`text-xs uppercase tracking-wider opacity-60 mb-1 font-semibold ${isDarkMode ? 'text-white' : 'text-navy-brand'}`}>Incidencia en el Examen</p>
+                          <p className={`text-xl font-black ${isDarkMode ? 'text-white' : 'text-navy-brand'}`}>{displayPct}%</p>
+                        </div>
+                        <div className="text-right">
+                          <p className={`text-xs uppercase tracking-wider opacity-60 mb-1 font-semibold ${isDarkMode ? 'text-white' : 'text-navy-brand'}`}>Total de Preguntas</p>
+                          <p className={`text-xl font-black ${isDarkMode ? 'text-white' : 'text-navy-brand'}`}>{displayTotalQ}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <button
+                    onClick={() => {
+                      if (userProfile) {
+                        const isAdmin = userProfile.correo === 'admin@serenotario.com' || userProfile.rol === 'Administrador' || userProfile.rol === 'ADMINISTRADOR';
+                        const userPlan = (userProfile.ban_plan || '').toUpperCase();
+                        const isFirstNode = studySequence.length > 0 && selectedNodeId === studySequence[0].id;
+                        if (!isAdmin && userProfile.rol !== 'Fundador' && userProfile.rol !== 'FUNDADOR' && userPlan !== 'C' && userPlan !== 'B' && userPlan !== 'P' && !isFirstNode) {
+                          alert("Acceso Denegado. La evaluación por temas individuales (Ley por Ley) solo está disponible en el plan Completo (Acceso Total). Adquiérelo en la sección de Planes de Pago.");
+                          return;
+                        }
+                      }
+                      const isTabLocked = selectedNode && selectedNode.children && selectedNode.children.length > 0 && !areDescendantsCompleted(selectedNode);
+                      if (isTabLocked) {
+                        showToast("Debes completar y aprobar todos los subtemas antes de poder evaluar este tema principal.");
+                        return;
+                      }
+                      setActiveTab('simulacro');
+                      setSidebarTab('articulos');
+                      setShowLeftSidebar(false);
+                      if (typeof window !== 'undefined' && window.innerWidth >= 1280) {
+                        setShowRightSidebar(true);
+                      }
+                    }}
+                    className={`px-8 py-4 rounded-xl font-black uppercase tracking-wider text-sm transition-all active:scale-[0.98] shadow-lg shadow-gold-brand/20 text-navy-brand bg-gold-brand hover:bg-[#d4a849] ${selectedNode && selectedNode.children && selectedNode.children.length > 0 && !areDescendantsCompleted(selectedNode) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    Comenzar Evaluación
+                  </button>
+                </div>
+              ) : activeTab === 'info' ? (
                 /* Concepto, Análisis y Tips Didácticos */
                 <div className="space-y-4 text-left animate-in fade-in duration-300">
                   {/* Progress Banner Moved to Info Tab */}

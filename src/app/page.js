@@ -305,6 +305,13 @@ export default function DashboardPage() {
                 <span className="flex-1 text-left">Administrar Pagos</span>
               </button>
               <button
+                onClick={() => router.push('/admin/pagos-manuales')}
+                className={`w-full flex items-center gap-3 px-4 py-3.5 mt-2 rounded-xl font-bold transition-all active:scale-[0.98] text-[13px] uppercase tracking-wider border border-purple-500/40 ${isDarkMode ? 'bg-purple-600/10 hover:bg-purple-600/20 text-purple-400' : 'bg-purple-600/10 hover:bg-purple-600/20 text-purple-700'}`}
+              >
+                <span className="material-symbols-outlined text-[20px]">request_quote</span>
+                <span className="flex-1 text-left">Pagos Manuales</span>
+              </button>
+              <button
                 onClick={() => router.push('/admin/usuarios')}
                 className={`w-full flex items-center gap-3 px-4 py-3.5 mt-2 rounded-xl font-bold transition-all active:scale-[0.98] text-[13px] uppercase tracking-wider border border-green-500/40 ${isDarkMode ? 'bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400' : 'bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-700'}`}
               >
