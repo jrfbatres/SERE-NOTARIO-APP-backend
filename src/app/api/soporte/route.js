@@ -206,6 +206,65 @@ async function tool_consultarProgresoPorDia(userId, dia) {
   }
 }
 
+async function tool_consultarExamenesSistema() {
+  try {
+    const res = await query(
+      `SELECT titulo FROM "notarioElite".examenes ORDER BY titulo ASC`
+    );
+    return {
+      cantidadTotal: res.rows.length,
+      examenes: res.rows.map(r => r.titulo)
+    };
+  } catch (err) {
+    console.error("Error in tool_consultarExamenesSistema:", err);
+    return { error: "Error consultando el catálogo de exámenes" };
+  }
+}
+
+async function tool_consultarPreguntasYOpciones(termino) {
+  try {
+    let queryStr = `
+      SELECT p.id as pregunta_id, p.enunciado, p.explicacion, l.nombre as ley_nombre
+      FROM "notarioElite".preguntas p
+      LEFT JOIN "notarioElite".leyes l ON p.ley_id = l.id
+    `;
+    const params = [];
+    if (termino && termino.trim() !== '') {
+      queryStr += ` WHERE p.enunciado ILIKE $1`;
+      params.push(`%${termino}%`);
+    }
+    queryStr += ` LIMIT 3`;
+    
+    const preguntasRes = await query(queryStr, params);
+    
+    if (preguntasRes.rows.length === 0) {
+      return { message: "No se encontraron preguntas que coincidan con ese término." };
+    }
+    
+    const resultado = [];
+    for (const p of preguntasRes.rows) {
+      const opcionesRes = await query(
+        `SELECT texto, es_correcta FROM "notarioElite".opciones WHERE pregunta_id = $1`,
+        [p.pregunta_id]
+      );
+      resultado.push({
+        pregunta: p.enunciado,
+        ley: p.ley_nombre,
+        explicacion: p.explicacion,
+        opciones: opcionesRes.rows.map(o => ({
+          texto: o.texto,
+          es_correcta: o.es_correcta
+        }))
+      });
+    }
+    
+    return resultado;
+  } catch (err) {
+    console.error("Error in tool_consultarPreguntasYOpciones:", err);
+    return { error: "Error consultando las preguntas y opciones en la base de datos." };
+  }
+}
+
 async function tool_verificarYSincronizarPago(userId) {
   try {
     return await sincronizarPagosUsuario(userId);
@@ -369,6 +428,8 @@ Puedes utilizar únicamente las herramientas autorizadas por el sistema para:
 - Consultar el progreso del usuario estructurado por su 'día' de plan de estudio (utiliza la herramienta 'consultar_progreso_por_dia').
 - Consultar la información de la cuenta (utiliza la herramienta 'obtener_progreso_y_membresia').
 - Consultar qué leyes o cuántas leyes existen en SereNotario (utiliza la herramienta 'consultar_leyes_sistema').
+- Consultar la cantidad y lista de exámenes disponibles en el sistema (utiliza la herramienta 'consultar_examenes_sistema').
+- Buscar preguntas específicas y sus respuestas/opciones en la base de datos (utiliza la herramienta 'consultar_preguntas_y_opciones').
 - Consultar los temas o nodos de estudio y su importancia/porcentaje (utiliza la herramienta 'consultar_nodos_temas').
 - Verificar pagos utilizando exclusivamente el webhook autorizado (utiliza la herramienta 'verificar_y_sincronizar_pago').
 - Actualizar únicamente el estado del pago correspondiente al usuario autenticado mediante el webhook autorizado (se realiza automáticamente al ejecutar la herramienta 'verificar_y_sincronizar_pago').
@@ -584,6 +645,24 @@ En caso de duda, considera que la consulta está fuera del alcance de SereNotari
                   }
                 }
               }
+            },
+            {
+              name: "consultar_examenes_sistema",
+              description: "Consulta la cantidad total y la lista de exámenes de notariado disponibles en el sistema."
+            },
+            {
+              name: "consultar_preguntas_y_opciones",
+              description: "Busca una pregunta específica en la base de datos y devuelve su enunciado, opciones y cuál es la respuesta correcta.",
+              parameters: {
+                type: "OBJECT",
+                properties: {
+                  termino: {
+                    type: "STRING",
+                    description: "Palabra clave o frase de la pregunta que se desea buscar."
+                  }
+                },
+                required: ["termino"]
+              }
             }
           ]
         }
@@ -624,6 +703,10 @@ En caso de duda, considera que la consulta está fuera del alcance de SereNotari
             functionResult = await tool_consultarProgresoNodos(userId, args.leyNombre);
           } else if (functionName === 'consultar_progreso_por_dia') {
             functionResult = await tool_consultarProgresoPorDia(userId, args.dia);
+          } else if (functionName === 'consultar_examenes_sistema') {
+            functionResult = await tool_consultarExamenesSistema();
+          } else if (functionName === 'consultar_preguntas_y_opciones') {
+            functionResult = await tool_consultarPreguntasYOpciones(args.termino);
           }
 
           // Send function result back to Gemini
