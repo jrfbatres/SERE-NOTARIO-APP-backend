@@ -126,10 +126,12 @@ export async function GET(request, { params }) {
 
     // 3. Obtener el desglose de días
     const diasRes = await query(`
-      SELECT dia, ley_id, nodo_id, cantidad_preguntas
-      FROM "notarioElite".pensum_dia 
-      WHERE pensum_id = $1 
-      ORDER BY dia ASC
+      SELECT pd.dia, pd.ley_id, pd.nodo_id, pd.cantidad_preguntas,
+             COALESCE(n.porcentaje_preguntas, 0) as porcentaje_preguntas
+      FROM "notarioElite".pensum_dia pd
+      LEFT JOIN "notarioElite".nodos n ON pd.nodo_id = n.id
+      WHERE pd.pensum_id = $1 
+      ORDER BY pd.dia ASC
     `, [pensum.id]);
 
     // 4. Obtener el progreso del usuario desde nodo_dias_usuario unido a pensum_dia
@@ -175,6 +177,8 @@ export async function GET(request, { params }) {
 
     const getLeyName = (id) => leyesData.leyes.find(l => l.id == id)?.nombre || `Ley ${id}`;
     const getNodoName = (id) => leyesData.nodos.find(n => n.id == id)?.nombre || `Nodo ${id}`;
+    const getLeyPorcentaje = (id) => leyesData.leyes.find(l => l.id == id)?.porcentaje || "0";
+    const getNodoTotalPreguntas = (id) => leyesData.nodos.find(n => n.id == id)?.total_preguntas || 0;
 
     // 5. Estructurar la respuesta agrupada por días
     const daysMap = {};
@@ -209,7 +213,10 @@ export async function GET(request, { params }) {
         bloques_totales: totalBlocks,
         bloque_actual: Math.min(prog?.bloque_actual || 1, totalBlocks),
         completado: prog?.completado || false,
-        nota: prog?.nota || null
+        nota: prog?.nota || null,
+        frecuencia: getLeyPorcentaje(row.ley_id),
+        total_preguntas: getNodoTotalPreguntas(row.nodo_id),
+        porcentaje_preguntas: Number(row.porcentaje_preguntas || 0)
       };
 
       if (!nodeData.completado) {
@@ -223,7 +230,18 @@ export async function GET(request, { params }) {
 
     // Si un día no tiene nodos (raro pero posible), considerarlo completado o vacío
     Object.values(daysMap).forEach(d => {
-      if (d.nodos.length === 0) d.completado = false;
+      if (d.nodos.length === 0) {
+        d.completado = false;
+        d.porcentaje_dia = 0;
+      } else {
+        let suma = 0;
+        d.nodos.forEach(node => {
+          const pctNode = Number(node.porcentaje_preguntas || 0);
+          const pctLey = Number(node.frecuencia || 0);
+          suma += pctNode * (pctLey / 100.0);
+        });
+        d.porcentaje_dia = Number(suma.toFixed(4));
+      }
     });
 
     return NextResponse.json({

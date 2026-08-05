@@ -263,10 +263,10 @@ export default function PlanesPage() {
               className={`w-full py-3 rounded-xl font-black uppercase tracking-wider text-xs transition-colors flex items-center justify-center gap-2 ${loadingPlan === 'lite_mensual' ? 'opacity-70 cursor-wait' : 'cursor-pointer'} ${themeClasses.buttonBg}`}
             >
               {loadingPlan === 'lite_mensual' ? <span className="material-symbols-outlined animate-spin text-[16px]">sync</span> : null}
-              {loadingPlan === 'lite_mensual' ? 'Cargando...' : 'Obtener Lite'}
+              {loadingPlan === 'lite_mensual' ? 'Cargando...' : 'Obtener Lite con Wompi'}
             </button>
           </div>
-
+ 
           {/* Plan Profundo (Highlighted) */}
           <div className={`bg-[#002b49] rounded-3xl p-8 border ${isDarkMode ? 'border-white/20' : 'border-[#001c30]'} shadow-xl flex flex-col items-center text-center transform lg:-translate-y-4 relative hover:scale-[1.01] transition-all`}>
             <div className="absolute -top-4 bg-[#b59348] text-[#002b49] px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm">
@@ -302,13 +302,13 @@ export default function PlanesPage() {
               className={`w-full py-3 bg-[#b59348] hover:bg-[#a1813b] text-[#002b49] rounded-xl font-black uppercase tracking-wider text-xs shadow-md transition-colors flex items-center justify-center gap-2 ${loadingPlan === 'profundo_mensual' ? 'opacity-70 cursor-wait' : 'cursor-pointer'}`}
             >
               {loadingPlan === 'profundo_mensual' ? <span className="material-symbols-outlined animate-spin text-[16px]">sync</span> : null}
-              {loadingPlan === 'profundo_mensual' ? 'Cargando...' : 'Obtener Profundo'}
+              {loadingPlan === 'profundo_mensual' ? 'Cargando...' : 'Obtener Profundo con Wompi'}
             </button>
           </div>
-
+ 
           {/* Plan Completo */}
           <div className={`${themeClasses.cardBg} rounded-3xl p-8 border shadow-sm flex flex-col items-center text-center transition-all hover:shadow-md hover:scale-[1.01]`}>
-            <span className={`${themeClasses.textPrimary} text-xs font-black uppercase tracking-widest mb-2 block`}>Completo</span>
+            <span className={`${themeClasses.textPrimary} text-xs font-black uppercase tracking-widest mb-2 block`}>PREMIUM</span>
             <h2 className={`text-xl font-bold mb-6 ${themeClasses.cardText}`}>Acceso Total</h2>
             <div className="mb-8">
               <span className={`text-4xl font-black ${themeClasses.textPrimary}`}>$15</span>
@@ -321,7 +321,7 @@ export default function PlanesPage() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="material-symbols-outlined text-[#b59348] text-[18px]">library_books</span>
-                <span>Estudio libre <strong>Ley por Ley</strong> sin restricciones de cronograma</span>
+                <span>Estudia cualquier <strong>ley</strong> y cualquier <strong>nodo</strong> sin restricción</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="material-symbols-outlined text-[#b59348] text-[18px]">headphones</span>
@@ -338,8 +338,69 @@ export default function PlanesPage() {
               className={`w-full py-3 rounded-xl font-black uppercase tracking-wider text-xs transition-colors flex items-center justify-center gap-2 ${loadingPlan === 'completo_mensual' ? 'opacity-70 cursor-wait' : 'cursor-pointer'} ${themeClasses.buttonBg}`}
             >
               {loadingPlan === 'completo_mensual' ? <span className="material-symbols-outlined animate-spin text-[16px]">sync</span> : null}
-              {loadingPlan === 'completo_mensual' ? 'Cargando...' : 'Obtener Acceso Total'}
+              {loadingPlan === 'completo_mensual' ? 'Cargando...' : 'Obtener Acceso Total con Wompi'}
             </button>
+          </div>
+ 
+        </div>
+
+        {/* Métodos de Pago Alternativos (Transferencia Bancaria) */}
+        <div className={`w-full max-w-6xl mx-auto mt-10 p-8 rounded-3xl border shadow-sm ${themeClasses.cardBg} flex flex-col gap-6 text-left`}>
+          
+          <div className="flex items-center gap-3 border-b pb-4 border-gray-200/20">
+            <span className="material-symbols-outlined text-[#b59348] text-3xl">payments</span>
+            <div>
+              <h3 className={`text-lg font-black uppercase tracking-wider ${themeClasses.textPrimary}`}>
+                Pago por Transferencia Bancaria
+              </h3>
+              <p className={`text-xs mt-0.5 ${themeClasses.cardTextSecondary}`}>
+                Puedes adquirir tu plan realizando una transferencia directa con los siguientes datos:
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+            {/* Banco & Tipo de Cuenta */}
+            <div className={`p-5 rounded-2xl border flex flex-col justify-center ${
+              isDarkMode ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-200'
+            }`}>
+              <span className="text-[#b59348] text-[10px] font-black uppercase tracking-widest mb-1">Banco y Tipo</span>
+              <div className={`text-base font-black ${themeClasses.cardText}`}>Banco Agrícola</div>
+              <div className={`text-xs font-semibold mt-0.5 ${themeClasses.cardTextSecondary}`}>Cuenta de Ahorro</div>
+            </div>
+
+            {/* Número de Cuenta (3x Larger & Highly Visible) */}
+            <div className={`p-5 rounded-2xl border flex flex-col justify-center md:col-span-1 bg-amber-500/10 border-[#b59348]/30`}>
+              <span className="text-[#b59348] text-[10px] font-black uppercase tracking-widest mb-1">Número de Cuenta</span>
+              <div className="text-3xl font-mono font-black text-[#b59348] tracking-wider leading-none my-1">
+                3410785300
+              </div>
+              <span className={`text-[10px] font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                Copiar para transferencia
+              </span>
+            </div>
+
+            {/* Titular */}
+            <div className={`p-5 rounded-2xl border flex flex-col justify-center ${
+              isDarkMode ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-200'
+            }`}>
+              <span className="text-[#b59348] text-[10px] font-black uppercase tracking-widest mb-1">Titular de la Cuenta</span>
+              <div className={`text-base font-black uppercase ${themeClasses.cardText}`}>JOSE FLORES</div>
+              <div className={`text-xs font-semibold mt-0.5 ${themeClasses.cardTextSecondary}`}>Propietario de Licencia</div>
+            </div>
+          </div>
+
+          {/* Notificación de Pago por WhatsApp (Full width alert banner) */}
+          <div className="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-2xl border border-green-500/20 bg-green-500/5 text-left">
+            <span className="material-symbols-outlined text-green-500 text-3xl shrink-0">chat</span>
+            <div className="flex-1">
+              <h4 className="text-xs font-black uppercase tracking-wider text-green-500">
+                ¿Cómo activar tu licencia?
+              </h4>
+              <p className={`text-xs mt-0.5 leading-relaxed ${themeClasses.cardTextSecondary}`}>
+                Una vez realizada la transferencia, envía el comprobante de pago por mensaje de <strong>WhatsApp</strong> al número <a href="https://wa.me/50377866847" target="_blank" rel="noopener noreferrer" className="font-bold underline text-green-600 hover:text-green-500 transition-colors">7786-6847</a> para activar tu acceso de inmediato.
+              </p>
+            </div>
           </div>
 
         </div>

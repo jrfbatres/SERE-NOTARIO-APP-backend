@@ -225,6 +225,15 @@ export default function RutaEstudioPage() {
                       <h3 className={`text-base font-black ${completado ? 'text-green-500' : (isLocked ? 'text-gray-400' : 'text-[#b59348]')}`}>
                         Día de Estudio {day.dia}
                       </h3>
+                      {day.porcentaje_dia !== undefined && day.porcentaje_dia > 0 && (
+                        <span className={`text-[10px] font-black uppercase tracking-wider mt-1 px-2 py-0.5 rounded border ${
+                          completado 
+                            ? 'bg-green-500/10 border-green-500/20 text-green-600 dark:text-green-400' 
+                            : (isLocked ? 'bg-gray-500/5 border-gray-500/10 text-gray-400' : 'bg-[#b59348]/10 border-[#b59348]/20 text-[#b59348]')
+                        }`}>
+                          Frecuencia en que aparece en el Examen: {Number(day.porcentaje_dia || 0).toFixed(2)}%
+                        </span>
+                      )}
                     </div>
 
                     {/* Lista de temas / Nodos a la derecha */}

@@ -73,7 +73,11 @@ export default function SupportChatWidget() {
 
   const handleSend = async (e) => {
     e.preventDefault();
-    if (mensaje.trim() === '' || mensaje.length > 150) return;
+    const textoAEnviar = mensaje.trim();
+    if (textoAEnviar === '' || mensaje.length > 150) return;
+
+    // Limpiar el campo de texto inmediatamente para una mejor experiencia de usuario (UX)
+    setMensaje('');
 
     try {
       const token = localStorage.getItem('token');
@@ -83,16 +87,17 @@ export default function SupportChatWidget() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ mensaje })
+        body: JSON.stringify({ mensaje: textoAEnviar })
       });
       const data = await res.json();
       if (data.success) {
         setHistorial(prev => [...prev, data.data]);
-        setMensaje('');
         setTimeout(fetchChatHistory, 500);
       }
     } catch (err) {
       console.error('Error sending message:', err);
+      // Opcional: restaurar el mensaje en caso de error de red
+      setMensaje(textoAEnviar);
     }
   };
 
@@ -148,7 +153,7 @@ export default function SupportChatWidget() {
                 const alignRight = !msg.es_admin;
                 return (
                   <div 
-                    key={msg.id || index} 
+                    key={`msg-${msg.id || 'temp'}-${index}`} 
                     className={`flex ${alignRight ? 'justify-end' : 'justify-start'}`}
                   >
                     <div className={`max-w-[75%] p-3.5 rounded-2xl text-xs leading-relaxed shadow-sm ${
@@ -156,7 +161,7 @@ export default function SupportChatWidget() {
                         ? 'bg-[#b59348] text-white rounded-tr-none' 
                         : (isDarkMode ? 'bg-white/5 border border-white/10 text-gray-200 rounded-tl-none' : 'bg-gray-100 text-gray-700 rounded-tl-none')
                     }`}>
-                      <p className="break-words">{msg.mensaje}</p>
+                      <p className="break-words whitespace-pre-wrap">{msg.mensaje}</p>
                       <span className={`text-[8px] block text-right mt-1 opacity-60`}>
                         {new Date(msg.creado_en).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
