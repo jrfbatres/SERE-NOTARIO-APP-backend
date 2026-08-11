@@ -398,7 +398,7 @@ export default function PlanesPage() {
                 ¿Cómo activar tu licencia?
               </h4>
               <p className={`text-xs mt-0.5 leading-relaxed ${themeClasses.cardTextSecondary}`}>
-                Una vez realizada la transferencia, envía el comprobante de pago por mensaje de <strong>WhatsApp</strong> al número <a href="https://wa.me/50377866847" target="_blank" rel="noopener noreferrer" className="font-bold underline text-green-600 hover:text-green-500 transition-colors">7786-6847</a> para activar tu acceso de inmediato.
+                Una vez realizada la transferencia, envía el comprobante de pago por mensaje de <strong>WhatsApp</strong> al número <a href="https://wa.me/50375273996" target="_blank" rel="noopener noreferrer" className="font-bold underline text-green-600 hover:text-green-500 transition-colors">7527-3996</a> para activar tu acceso de inmediato.
               </p>
             </div>
           </div>
