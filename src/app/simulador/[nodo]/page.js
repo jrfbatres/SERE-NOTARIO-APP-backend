@@ -133,7 +133,7 @@ function SimuladorContent() {
     } else if (planSlugParam) {
       router.push(`/ruta-estudio/${planSlugParam}`);
     } else {
-      router.push('/');
+      router.push('/dashboard');
     }
   };
 
@@ -244,14 +244,14 @@ function SimuladorContent() {
           if (!isPrivileged && (profile.rol === 'DEMO' || profile.rol === 'DEMOS')) {
             if (isPlanSession && String(dia) !== '1') {
               alert("Acceso Denegado. Como usuario de prueba, solo puedes realizar las evaluaciones correspondientes al Día 1.");
-              router.push('/');
+              router.push('/dashboard');
               return;
             }
           }
 
           if (!isPlanSession && !isPrivileged && userPlan !== 'C') {
             alert("Acceso Denegado. La evaluación libre Ley por Ley (simuladores individuales) solo está disponible en el plan Completo (Acceso Total). Adquiérelo en la sección de Planes de Pago.");
-            router.push('/');
+            router.push('/dashboard');
           }
         }
       })

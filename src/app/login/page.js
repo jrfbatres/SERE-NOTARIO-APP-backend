@@ -32,7 +32,7 @@ export default function LoginPage() {
         // Store token in localStorage
         localStorage.setItem('token', data.token);
         // Redirect to dashboard
-        router.push('/');
+        router.push('/dashboard');
       } else {
         setError(data.error + (data.details ? `: ${data.details}` : ''));
       }
@@ -56,6 +56,12 @@ export default function LoginPage() {
   return (
     <div className={`min-h-screen ${themeClasses.bg} ${themeClasses.text} transition-colors duration-300 flex flex-col items-center justify-center`}>
       <main className="w-full max-w-[440px] flex flex-col items-center mx-auto p-gutter">
+        <div className="w-full mb-6">
+          <Link href="/" className="text-gray-500 hover:text-[#b59348] flex items-center gap-1 transition-colors font-body-md w-fit">
+            <span className="material-symbols-outlined">arrow_back</span>
+            <span>Volver a Inicio</span>
+          </Link>
+        </div>
         <header className="mb-lg text-center">
           <img
             alt="Seré Notario Logo"

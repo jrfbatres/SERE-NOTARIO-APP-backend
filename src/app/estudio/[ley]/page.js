@@ -1818,7 +1818,7 @@ export default function EstudioPage() {
       {/* Top Navbar */}
       <header className={`fixed top-0 left-0 w-full h-20 border-b flex justify-between items-center px-6 z-50 transition-colors duration-300 ${isDarkMode ? 'bg-[#001524]/90 border-white/10 text-white' : 'bg-surface border-outline-variant text-navy-brand'}`}>
         <div className="flex items-center gap-4">
-          <button onClick={() => router.push('/')} className={`material-symbols-outlined transition-colors cursor-pointer ${isDarkMode ? 'text-white/70 hover:text-white' : 'text-on-surface-variant hover:text-navy-brand'}`} title="Volver al Dashboard">arrow_back</button>
+          <button onClick={() => router.push('/dashboard')} className={`material-symbols-outlined transition-colors cursor-pointer ${isDarkMode ? 'text-white/70 hover:text-white' : 'text-on-surface-variant hover:text-navy-brand'}`} title="Volver al Dashboard">arrow_back</button>
           
           {/* Toggle Left Sidebar */}
           <button 

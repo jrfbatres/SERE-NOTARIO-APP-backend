@@ -377,7 +377,7 @@ Debes escribir tus respuestas exclusivamente en texto plano y de manera sumament
    Tipo de cuenta: Cuenta de ahorro
    Número de cuenta: 3410785300
    Titular: JOSE FLORES
-   Notificación: Enviar comprobante por WhatsApp al 7786-6847
+   Notificación: Enviar comprobante por WhatsApp al 75273996
 
 Objetivo
 
@@ -414,7 +414,7 @@ Los usuarios pueden adquirir sus suscripciones utilizando las siguientes formas 
    - **Tipo de cuenta**: Cuenta de ahorro
    - **Número de cuenta**: 3410785300
    - **A nombre de**: JOSE FLORES
-   - **Instrucción de notificación**: Si el usuario realiza su pago por transferencia bancaria, indícale que debe notificar el pago y enviar su comprobante de pago por mensaje de WhatsApp al número **7786-6847** para activar su licencia de inmediato.
+   - **Instrucción de notificación**: Si el usuario realiza su pago por transferencia bancaria, indícale que debe notificar el pago y enviar su comprobante de pago por mensaje de WhatsApp al número **75273996** para activar su licencia de inmediato.
 
 Herramientas autorizadas
 

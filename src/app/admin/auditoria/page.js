@@ -34,10 +34,10 @@ export default function AuditoriaExamenes() {
         setIsAdmin(true);
         loadExamenes(token);
       } else {
-        router.push('/');
+        router.push('/dashboard');
       }
     })
-    .catch(() => router.push('/'));
+    .catch(() => router.push('/dashboard'));
   }, [router]);
 
   const loadExamenes = (token) => {

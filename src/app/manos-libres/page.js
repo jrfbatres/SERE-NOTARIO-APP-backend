@@ -331,7 +331,7 @@ export default function ManosLibresPage() {
             
             if (!isAdmin && profile.rol !== 'Fundador' && profile.rol !== 'FUNDADOR' && !isDemo && !hasPlan) {
               alert("Acceso Denegado. La función Manos Libres solo está disponible con un plan activo (Lite, Profundo o Completo) o como prueba DEMO.");
-              router.push('/');
+              router.push('/dashboard');
               return;
             }
           }
@@ -377,7 +377,7 @@ export default function ManosLibresPage() {
             setStage('LOADING_NODE');
           } else {
             showToast("¡Has completado todo el temario de esta ley!");
-            router.push('/');
+            router.push('/dashboard');
           }
         }
       });
@@ -625,7 +625,7 @@ export default function ManosLibresPage() {
     setIsPaused(false);
     stopSpeech();
     stopListening();
-    router.push('/');
+    router.push('/dashboard');
   };
 
   const handleLeyClick = (ley) => {
@@ -658,7 +658,7 @@ export default function ManosLibresPage() {
     return (
       <div className="min-h-screen bg-[#191c1e] text-[#eff1f3] flex flex-col font-body-md items-center py-10 px-4 relative overflow-y-auto">
         <button 
-          onClick={() => { stopSpeech(); stopListening(); router.push('/'); }}
+          onClick={() => { stopSpeech(); stopListening(); router.push('/dashboard'); }}
           className="absolute top-4 left-4 sm:top-6 sm:left-6 flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#191c1e] shadow-[4px_4px_8px_#0a0b0c,-4px_-4px_8px_#282d30] active:shadow-[inset_2px_2px_4px_#0a0b0c,inset_-2px_-2px_4px_#282d30] text-[#c6c6cd] hover:text-[#ffe088] transition-all z-50 border border-transparent"
           title="Volver al Inicio"
         >
@@ -717,7 +717,7 @@ export default function ManosLibresPage() {
           </div>
           
           <button 
-            onClick={() => { stopSpeech(); stopListening(); router.push('/'); }}
+            onClick={() => { stopSpeech(); stopListening(); router.push('/dashboard'); }}
             className="mt-12 px-8 py-4 rounded-xl bg-[#191c1e] shadow-[8px_8px_16px_#0a0b0c,-8px_-8px_16px_#282d30] active:shadow-[inset_4px_4px_8px_#0a0b0c,inset_-4px_-4px_8px_#282d30] text-[#c6c6cd] hover:text-[#ffe088] transition-all font-bold uppercase tracking-widest text-xs flex items-center gap-3"
           >
             <span className="material-symbols-outlined text-[18px]">arrow_back</span>
@@ -809,7 +809,7 @@ export default function ManosLibresPage() {
       <header className="flex items-center justify-between p-3 sm:p-4 border-b border-[#c6c6cd]/10 shrink-0 bg-[#191c1e] relative z-10 shadow-[0_4px_8px_#0a0b0c]">
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <button 
-            onClick={() => { stopSpeech(); stopListening(); router.push('/'); }}
+            onClick={() => { stopSpeech(); stopListening(); router.push('/dashboard'); }}
             className="w-10 h-10 shrink-0 rounded-full bg-[#191c1e] shadow-[4px_4px_8px_#0a0b0c,-4px_-4px_8px_#282d30] active:shadow-[inset_2px_2px_4px_#0a0b0c,inset_-2px_-2px_4px_#282d30] flex items-center justify-center text-[#c6c6cd] hover:text-[#ffe088] transition-all"
             title="Home"
           >

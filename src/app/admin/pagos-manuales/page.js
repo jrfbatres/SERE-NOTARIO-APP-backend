@@ -17,8 +17,8 @@ export default function AdminPagosManualesPage() {
   const router = useRouter();
   const { isDarkMode } = useTheme();
 
-  const showToast = (msg, duration = 4000) => {
-    setToast(msg);
+  const showToast = (msg, type = 'error', duration = 4000) => {
+    setToast({ msg, type });
     setTimeout(() => setToast(null), duration);
   };
 
@@ -41,7 +41,7 @@ export default function AdminPagosManualesPage() {
           const profile = profileData.data;
           const isAdmin = profile.correo === 'admin@serenotario.com' || profile.rol === 'Administrador' || profile.rol === 'ADMINISTRADOR';
           if (!isAdmin) {
-            router.push('/');
+            router.push('/dashboard');
             return;
           }
         }
@@ -97,7 +97,7 @@ export default function AdminPagosManualesPage() {
       
       const data = await res.json();
       if (data.success) {
-        showToast('Pago manual registrado y plan actualizado exitosamente.');
+        showToast('Pago manual registrado y plan actualizado exitosamente.', 'success');
         setSelectedUser('');
         setSelectedPlan('');
         setSearchTerm('');
@@ -112,10 +112,12 @@ export default function AdminPagosManualesPage() {
     }
   };
 
-  const filteredUsers = usuarios.filter(u => 
-    u.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    u.correo?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredUsers = usuarios
+    .filter(u => 
+      u.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      u.correo?.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
 
   if (loading) {
     return (
@@ -131,8 +133,12 @@ export default function AdminPagosManualesPage() {
       {/* Toast Notification */}
       {toast && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 animate-fade-in">
-          <div className={`px-6 py-3 rounded-full shadow-lg text-sm font-bold tracking-wide ${isDarkMode ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-green-100 text-green-700 border border-green-200'}`}>
-            {toast}
+          <div className={`px-6 py-3 rounded-full shadow-lg text-sm font-bold tracking-wide ${
+            toast.type === 'success' 
+              ? (isDarkMode ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-green-100 text-green-700 border border-green-200')
+              : (isDarkMode ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-red-100 text-red-700 border border-red-200')
+          }`}>
+            {toast.msg}
           </div>
         </div>
       )}
@@ -141,7 +147,7 @@ export default function AdminPagosManualesPage() {
       <div className={`px-6 pt-12 pb-6 relative overflow-hidden ${isDarkMode ? 'bg-gradient-to-b from-blue-900/20 to-transparent' : 'bg-gradient-to-b from-blue-100/50 to-transparent'}`}>
         <div className="flex items-center gap-4 relative z-10">
           <button 
-            onClick={() => router.push('/')}
+            onClick={() => router.push('/dashboard')}
             className={`w-10 h-10 rounded-full flex items-center justify-center transition-transform active:scale-95 ${isDarkMode ? 'bg-white/5 text-white/70 hover:bg-white/10' : 'bg-black/5 text-black/70 hover:bg-black/10'}`}
           >
             <span className="material-symbols-outlined text-[20px]">arrow_back</span>
@@ -174,24 +180,33 @@ export default function AdminPagosManualesPage() {
                 />
               </div>
 
-              <select
-                value={selectedUser}
-                onChange={(e) => setSelectedUser(e.target.value)}
-                size={5}
-                className={`w-full p-3 rounded-xl text-sm transition-all focus:outline-none focus:ring-2 overflow-y-auto custom-scrollbar ${isDarkMode ? 'bg-white/5 border border-white/10 focus:ring-blue-500/50' : 'bg-black/5 border border-black/10 focus:ring-blue-500/50'}`}
-              >
+              <div className={`w-full max-h-64 overflow-y-auto custom-scrollbar rounded-xl transition-all border ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-black/5 border-black/10'}`}>
                 {filteredUsers.length === 0 ? (
-                  <option disabled className="p-2 opacity-50 text-center">No se encontraron usuarios</option>
+                  <div className="p-4 opacity-50 text-center text-sm font-medium">No se encontraron usuarios</div>
                 ) : (
-                  filteredUsers.map(u => (
-                    <option key={u.id} value={u.id} className="p-2 border-b border-gray-500/10 last:border-0 hover:bg-blue-500/10 cursor-pointer">
-                      {u.nombre} - {u.correo} (Plan: {u.rol})
-                    </option>
-                  ))
+                  filteredUsers.map(u => {
+                    const isSelected = String(selectedUser) === String(u.id);
+                    return (
+                      <div 
+                        key={u.id}
+                        onClick={() => setSelectedUser(String(u.id))}
+                        className={`p-3 text-sm border-b cursor-pointer transition-colors ${isDarkMode ? 'border-white/5' : 'border-black/5'} last:border-0 ${
+                          isSelected 
+                            ? 'bg-blue-600 text-white font-medium' 
+                            : isDarkMode ? 'hover:bg-white/10' : 'hover:bg-black/5'
+                        }`}
+                      >
+                        <div className="font-bold">{u.nombre}</div>
+                        <div className={`text-xs ${isSelected ? 'text-blue-100' : 'opacity-70'}`}>
+                          {u.correo} • Plan actual: {u.rol}
+                        </div>
+                      </div>
+                    );
+                  })
                 )}
-              </select>
-              <p className="text-[10px] mt-2 opacity-50 uppercase tracking-wider">
-                {selectedUser ? `Usuario seleccionado: ${usuarios.find(u => u.id === selectedUser)?.nombre}` : 'Ningún usuario seleccionado'}
+              </div>
+              <p className="text-[10px] mt-2 opacity-50 uppercase tracking-wider font-bold">
+                {selectedUser ? `Usuario seleccionado: ${usuarios.find(u => String(u.id) === String(selectedUser))?.nombre}` : 'Ningún usuario seleccionado'}
               </p>
             </div>
 

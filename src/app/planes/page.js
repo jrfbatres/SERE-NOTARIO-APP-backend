@@ -21,7 +21,7 @@ export default function PlanesPage() {
   const [selectedSchedule, setSelectedSchedule] = useState('lite');
 
   const handleClose = () => {
-    router.push('/');
+    router.push('/dashboard');
   };
 
   const planes = {
@@ -228,124 +228,8 @@ export default function PlanesPage() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col items-center p-6 lg:p-12 relative">
 
-        {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl mx-auto items-stretch">
-          
-          {/* Plan Lite */}
-          <div className={`${themeClasses.cardBg} rounded-3xl p-8 border shadow-sm flex flex-col items-center text-center transition-all hover:shadow-md hover:scale-[1.01]`}>
-            <span className={`${themeClasses.textPrimary} text-xs font-black uppercase tracking-widest mb-2 block`}>Lite / Express</span>
-            <h2 className={`text-xl font-bold mb-6 ${themeClasses.cardText}`}>Plan 20 Días</h2>
-            <div className="mb-8">
-              <span className={`text-4xl font-black ${themeClasses.textPrimary}`}>$5</span>
-              <span className={`${themeClasses.textSecondary} text-sm font-medium`}> / mes</span>
-            </div>
-            <ul className={`text-sm ${themeClasses.cardTextSecondary} text-left w-full space-y-4 mb-8 flex-1`}>
-              <li className="flex items-start gap-2">
-                <span className="material-symbols-outlined text-[#b59348] text-[18px]">calendar_today</span>
-                <span>Pensum estructurado para <strong>20 días</strong></span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="material-symbols-outlined text-[#b59348] text-[18px]">schedule</span>
-                <span>Estudio diario de <strong>30 minutos</strong> (Lunes a Viernes)</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="material-symbols-outlined text-[#b59348] text-[18px]">grade</span>
-                <span>Enfoque en los nodos y temas principales (Niveles 0 y 1)</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="material-symbols-outlined text-[#b59348] text-[18px]">bar_chart</span>
-                <span>Métricas de progreso por día</span>
-              </li>
-            </ul>
-            <button 
-              onClick={() => handleSelectPlan('lite_mensual')}
-              disabled={loadingPlan === 'lite_mensual'}
-              className={`w-full py-3 rounded-xl font-black uppercase tracking-wider text-xs transition-colors flex items-center justify-center gap-2 ${loadingPlan === 'lite_mensual' ? 'opacity-70 cursor-wait' : 'cursor-pointer'} ${themeClasses.buttonBg}`}
-            >
-              {loadingPlan === 'lite_mensual' ? <span className="material-symbols-outlined animate-spin text-[16px]">sync</span> : null}
-              {loadingPlan === 'lite_mensual' ? 'Cargando...' : 'Obtener Lite con Wompi'}
-            </button>
-          </div>
- 
-          {/* Plan Profundo (Highlighted) */}
-          <div className={`bg-[#002b49] rounded-3xl p-8 border ${isDarkMode ? 'border-white/20' : 'border-[#001c30]'} shadow-xl flex flex-col items-center text-center transform lg:-translate-y-4 relative hover:scale-[1.01] transition-all`}>
-            <div className="absolute -top-4 bg-[#b59348] text-[#002b49] px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm">
-              Recomendado
-            </div>
-            <span className="text-[#b59348] text-xs font-black uppercase tracking-widest mb-2 block mt-2">Profundo</span>
-            <h2 className="text-xl font-bold text-white mb-6">Plan 60 Días</h2>
-            <div className="mb-8">
-              <span className="text-4xl font-black text-white">$10</span>
-              <span className="text-white/60 text-sm font-medium"> / 3 meses</span>
-            </div>
-            <ul className="text-sm text-white/90 text-left w-full space-y-4 mb-8 flex-1">
-              <li className="flex items-start gap-2">
-                <span className="material-symbols-outlined text-[#b59348] text-[18px]">calendar_today</span>
-                <span>Pensum exhaustivo de <strong>60 días</strong></span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="material-symbols-outlined text-[#b59348] text-[18px]">schedule</span>
-                <span>Estudio diario de <strong>30 minutos</strong> (Lunes a Domingo)</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="material-symbols-outlined text-[#b59348] text-[18px]">zoom_in</span>
-                <span>Examen en profundidad de <strong>todas las leyes y temas</strong> clave</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="material-symbols-outlined text-[#b59348] text-[18px]">lock_open</span>
-                <span>Módulos y preguntas de todos los niveles (Nivel Trampa incluido)</span>
-              </li>
-            </ul>
-            <button 
-              onClick={() => handleSelectPlan('profundo_mensual')}
-              disabled={loadingPlan === 'profundo_mensual'}
-              className={`w-full py-3 bg-[#b59348] hover:bg-[#a1813b] text-[#002b49] rounded-xl font-black uppercase tracking-wider text-xs shadow-md transition-colors flex items-center justify-center gap-2 ${loadingPlan === 'profundo_mensual' ? 'opacity-70 cursor-wait' : 'cursor-pointer'}`}
-            >
-              {loadingPlan === 'profundo_mensual' ? <span className="material-symbols-outlined animate-spin text-[16px]">sync</span> : null}
-              {loadingPlan === 'profundo_mensual' ? 'Cargando...' : 'Obtener Profundo con Wompi'}
-            </button>
-          </div>
- 
-          {/* Plan Completo */}
-          <div className={`${themeClasses.cardBg} rounded-3xl p-8 border shadow-sm flex flex-col items-center text-center transition-all hover:shadow-md hover:scale-[1.01]`}>
-            <span className={`${themeClasses.textPrimary} text-xs font-black uppercase tracking-widest mb-2 block`}>PREMIUM</span>
-            <h2 className={`text-xl font-bold mb-6 ${themeClasses.cardText}`}>Acceso Total</h2>
-            <div className="mb-8">
-              <span className={`text-4xl font-black ${themeClasses.textPrimary}`}>$15</span>
-              <span className={`${themeClasses.textSecondary} text-sm font-medium`}> / 3 meses</span>
-            </div>
-            <ul className={`text-sm ${themeClasses.cardTextSecondary} text-left w-full space-y-4 mb-8 flex-1`}>
-              <li className="flex items-start gap-2">
-                <span className="material-symbols-outlined text-[#b59348] text-[18px]">check_circle</span>
-                <span>Estudia tanto el Plan <strong>Lite</strong> como el Plan <strong>Profundo</strong></span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="material-symbols-outlined text-[#b59348] text-[18px]">library_books</span>
-                <span>Estudia cualquier <strong>ley</strong> y cualquier <strong>nodo</strong> sin restricción</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="material-symbols-outlined text-[#b59348] text-[18px]">headphones</span>
-                <span>Acceso premium al modo <strong>Manos Libres con audio</strong></span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="material-symbols-outlined text-[#b59348] text-[18px]">assignment_turned_in</span>
-                <span>Simuladores de leyes ilimitados con diagnósticos personalizados</span>
-              </li>
-            </ul>
-            <button 
-              onClick={() => handleSelectPlan('completo_mensual')}
-              disabled={loadingPlan === 'completo_mensual'}
-              className={`w-full py-3 rounded-xl font-black uppercase tracking-wider text-xs transition-colors flex items-center justify-center gap-2 ${loadingPlan === 'completo_mensual' ? 'opacity-70 cursor-wait' : 'cursor-pointer'} ${themeClasses.buttonBg}`}
-            >
-              {loadingPlan === 'completo_mensual' ? <span className="material-symbols-outlined animate-spin text-[16px]">sync</span> : null}
-              {loadingPlan === 'completo_mensual' ? 'Cargando...' : 'Obtener Acceso Total con Wompi'}
-            </button>
-          </div>
- 
-        </div>
-
         {/* Métodos de Pago Alternativos (Transferencia Bancaria) */}
-        <div className={`w-full max-w-6xl mx-auto mt-10 p-8 rounded-3xl border shadow-sm ${themeClasses.cardBg} flex flex-col gap-6 text-left`}>
+        <div className={`w-full max-w-6xl mx-auto mb-10 p-8 rounded-3xl border shadow-sm ${themeClasses.cardBg} flex flex-col gap-6 text-left`}>
           
           <div className="flex items-center gap-3 border-b pb-4 border-gray-200/20">
             <span className="material-symbols-outlined text-[#b59348] text-3xl">payments</span>
@@ -391,19 +275,137 @@ export default function PlanesPage() {
           </div>
 
           {/* Notificación de Pago por WhatsApp (Full width alert banner) */}
-          <div className="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-2xl border border-green-500/20 bg-green-500/5 text-left">
-            <span className="material-symbols-outlined text-green-500 text-3xl shrink-0">chat</span>
+          <div className="flex flex-col sm:flex-row items-center gap-4 p-6 rounded-2xl border border-green-500/30 bg-green-500/10 text-left">
+            <span className="material-symbols-outlined text-green-500 text-4xl shrink-0">chat</span>
             <div className="flex-1">
-              <h4 className="text-xs font-black uppercase tracking-wider text-green-500">
+              <h4 className="text-sm font-black uppercase tracking-wider text-green-500">
                 ¿Cómo activar tu licencia?
               </h4>
-              <p className={`text-xs mt-0.5 leading-relaxed ${themeClasses.cardTextSecondary}`}>
-                Una vez realizada la transferencia, envía el comprobante de pago por mensaje de <strong>WhatsApp</strong> al número <a href="https://wa.me/50375273996" target="_blank" rel="noopener noreferrer" className="font-bold underline text-green-600 hover:text-green-500 transition-colors">7527-3996</a> para activar tu acceso de inmediato.
+              <p className={`text-base mt-1.5 leading-relaxed ${themeClasses.cardTextSecondary}`}>
+                Una vez realizada la transferencia, envía el comprobante de pago por mensaje de <strong>WhatsApp</strong> al número <a href="https://wa.me/50375273996" target="_blank" rel="noopener noreferrer" className="text-xl font-black underline text-green-600 hover:text-green-500 transition-colors">75273996</a> para activar tu acceso de inmediato.
               </p>
             </div>
           </div>
 
         </div>
+
+        {/* Pricing Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl mx-auto items-stretch">
+          
+          {/* Plan Lite */}
+          <div className={`${themeClasses.cardBg} rounded-3xl p-8 border shadow-sm flex flex-col items-center text-center transition-all hover:shadow-md hover:scale-[1.01]`}>
+            <span className={`${themeClasses.textPrimary} text-xs font-black uppercase tracking-widest mb-2 block`}>Lite / Express</span>
+            <h2 className={`text-xl font-bold mb-6 ${themeClasses.cardText}`}>Plan 20 Días</h2>
+            <div className="mb-8">
+              <span className={`text-4xl font-black ${themeClasses.textPrimary}`}>$5</span>
+              <span className={`${themeClasses.textSecondary} text-sm font-medium`}> / mes</span>
+            </div>
+            <ul className={`text-sm ${themeClasses.cardTextSecondary} text-left w-full space-y-4 mb-8 flex-1`}>
+              <li className="flex items-start gap-2">
+                <span className="material-symbols-outlined text-[#b59348] text-[18px]">calendar_today</span>
+                <span>Pensum estructurado para <strong>20 días</strong></span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="material-symbols-outlined text-[#b59348] text-[18px]">schedule</span>
+                <span>Estudio diario de <strong>30 minutos</strong> (Lunes a Viernes)</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="material-symbols-outlined text-[#b59348] text-[18px]">grade</span>
+                <span>Enfoque en los nodos y temas principales (Niveles 0 y 1)</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="material-symbols-outlined text-[#b59348] text-[18px]">bar_chart</span>
+                <span>Métricas de progreso por día</span>
+              </li>
+            </ul>
+            <button 
+              onClick={() => handleSelectPlan('lite_mensual')}
+              disabled={loadingPlan === 'lite_mensual'}
+              className={`w-full py-3 rounded-xl font-black uppercase tracking-wider text-xs transition-colors flex items-center justify-center gap-2 ${loadingPlan === 'lite_mensual' ? 'opacity-70 cursor-wait' : 'cursor-pointer'} ${themeClasses.buttonBg}`}
+            >
+              {loadingPlan === 'lite_mensual' ? <span className="material-symbols-outlined animate-spin text-[16px]">sync</span> : null}
+              {loadingPlan === 'lite_mensual' ? 'Cargando...' : 'Pagar con Wompi'}
+            </button>
+          </div>
+ 
+          {/* Plan Profundo (Highlighted) */}
+          <div className={`bg-[#002b49] rounded-3xl p-8 border ${isDarkMode ? 'border-white/20' : 'border-[#001c30]'} shadow-xl flex flex-col items-center text-center transform lg:-translate-y-4 relative hover:scale-[1.01] transition-all`}>
+            <div className="absolute -top-4 bg-[#b59348] text-[#002b49] px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm">
+              Recomendado
+            </div>
+            <span className="text-[#b59348] text-xs font-black uppercase tracking-widest mb-2 block mt-2">Profundo</span>
+            <h2 className="text-xl font-bold text-white mb-6">Plan 60 Días</h2>
+            <div className="mb-8">
+              <span className="text-4xl font-black text-white">$10</span>
+              <span className="text-white/60 text-sm font-medium"> / 3 meses</span>
+            </div>
+            <ul className="text-sm text-white/90 text-left w-full space-y-4 mb-8 flex-1">
+              <li className="flex items-start gap-2">
+                <span className="material-symbols-outlined text-[#b59348] text-[18px]">calendar_today</span>
+                <span>Pensum exhaustivo de <strong>60 días</strong></span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="material-symbols-outlined text-[#b59348] text-[18px]">schedule</span>
+                <span>Estudio diario de <strong>30 minutos</strong> (Lunes a Domingo)</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="material-symbols-outlined text-[#b59348] text-[18px]">zoom_in</span>
+                <span>Examen en profundidad de <strong>todas las leyes y temas</strong> clave</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="material-symbols-outlined text-[#b59348] text-[18px]">lock_open</span>
+                <span>Módulos y preguntas de todos los niveles (Nivel Trampa incluido)</span>
+              </li>
+            </ul>
+            <button 
+              onClick={() => handleSelectPlan('profundo_mensual')}
+              disabled={loadingPlan === 'profundo_mensual'}
+              className={`w-full py-3 bg-[#b59348] hover:bg-[#a1813b] text-[#002b49] rounded-xl font-black uppercase tracking-wider text-xs shadow-md transition-colors flex items-center justify-center gap-2 ${loadingPlan === 'profundo_mensual' ? 'opacity-70 cursor-wait' : 'cursor-pointer'}`}
+            >
+              {loadingPlan === 'profundo_mensual' ? <span className="material-symbols-outlined animate-spin text-[16px]">sync</span> : null}
+              {loadingPlan === 'profundo_mensual' ? 'Cargando...' : 'Pagar con Wompi'}
+            </button>
+          </div>
+ 
+          {/* Plan Completo */}
+          <div className={`${themeClasses.cardBg} rounded-3xl p-8 border shadow-sm flex flex-col items-center text-center transition-all hover:shadow-md hover:scale-[1.01]`}>
+            <span className={`${themeClasses.textPrimary} text-xs font-black uppercase tracking-widest mb-2 block`}>PREMIUM</span>
+            <h2 className={`text-xl font-bold mb-6 ${themeClasses.cardText}`}>Acceso Total</h2>
+            <div className="mb-8">
+              <span className={`text-4xl font-black ${themeClasses.textPrimary}`}>$15</span>
+              <span className={`${themeClasses.textSecondary} text-sm font-medium`}> / 3 meses</span>
+            </div>
+            <ul className={`text-sm ${themeClasses.cardTextSecondary} text-left w-full space-y-4 mb-8 flex-1`}>
+              <li className="flex items-start gap-2">
+                <span className="material-symbols-outlined text-[#b59348] text-[18px]">check_circle</span>
+                <span>Estudia tanto el Plan <strong>Lite</strong> como el Plan <strong>Profundo</strong></span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="material-symbols-outlined text-[#b59348] text-[18px]">library_books</span>
+                <span>Estudia cualquier <strong>ley</strong> y cualquier <strong>nodo</strong> sin restricción</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="material-symbols-outlined text-[#b59348] text-[18px]">headphones</span>
+                <span>Acceso premium al modo <strong>Manos Libres con audio</strong></span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="material-symbols-outlined text-[#b59348] text-[18px]">assignment_turned_in</span>
+                <span>Simuladores de leyes ilimitados con diagnósticos personalizados</span>
+              </li>
+            </ul>
+            <button 
+              onClick={() => handleSelectPlan('completo_mensual')}
+              disabled={loadingPlan === 'completo_mensual'}
+              className={`w-full py-3 rounded-xl font-black uppercase tracking-wider text-xs transition-colors flex items-center justify-center gap-2 ${loadingPlan === 'completo_mensual' ? 'opacity-70 cursor-wait' : 'cursor-pointer'} ${themeClasses.buttonBg}`}
+            >
+              {loadingPlan === 'completo_mensual' ? <span className="material-symbols-outlined animate-spin text-[16px]">sync</span> : null}
+              {loadingPlan === 'completo_mensual' ? 'Cargando...' : 'Pagar con Wompi'}
+            </button>
+          </div>
+ 
+        </div>
+
+
 
         {/* Temario Día a Día */}
         <div className="w-full max-w-4xl mx-auto mt-16">

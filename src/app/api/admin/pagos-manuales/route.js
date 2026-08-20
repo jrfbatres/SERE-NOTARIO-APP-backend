@@ -57,20 +57,19 @@ export async function POST(request) {
     await query(
       `INSERT INTO public.usuario_pagos 
        (usuario_id, monto, estado, fecha_pago, fecha_vencimiento, meses_duracion)
-       VALUES ($1, $2, 'PAGADO', NOW(), NOW() + ($3 || ' months')::interval, $3)`,
-      [usuarioId, montoNum, mesesDuracion]
+       VALUES ($1, $2, 'PAGADO', NOW(), NOW() + $3::interval, $4)`,
+      [usuarioId, montoNum, `${mesesDuracion} months`, mesesDuracion]
     );
 
     // Actualizar usuario en tabla maestro
     await query(
       `UPDATE "notarioElite".usuarios 
        SET fecha_pago = NOW(),
-           fecha_vence = NOW() + ($1 || ' months')::interval,
+           fecha_vence = NOW() + $1::interval,
            ban_pago = 'S',
-           ban_nodos_libres = $2,
-           ban_plan = $3
-       WHERE id = $4`,
-      [mesesDuracion, banNodosLibres, banPlan, usuarioId]
+           ban_plan = $2
+       WHERE id = $3`,
+      [`${mesesDuracion} months`, banPlan, usuarioId]
     );
 
     return NextResponse.json({ success: true, message: 'Pago manual registrado correctamente y usuario actualizado.' });

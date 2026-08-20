@@ -57,7 +57,7 @@ export default function UserProfilePopup({ userProfile, position = 'bottom' }) {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    router.push('/login');
+    router.push('/');
   };
 
   const formatDate = (dateString) => {

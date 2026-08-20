@@ -71,7 +71,7 @@ export default function AdminPagosPage() {
           const profile = profileRes.data;
           const isAdmin = profile.correo === 'admin@serenotario.com' || profile.rol === 'Administrador' || profile.rol === 'ADMINISTRADOR';
           if (!isAdmin) {
-            router.push('/');
+            router.push('/dashboard');
             return;
           }
           setUserProfile(profile);
@@ -168,7 +168,7 @@ export default function AdminPagosPage() {
       <header className={`sticky top-0 z-30 flex items-center justify-between p-4 md:px-8 border-b backdrop-blur-md ${themeClasses.header}`}>
         <div className="flex items-center gap-4">
           <button 
-            onClick={() => router.push('/')}
+            onClick={() => router.push('/dashboard')}
             className="p-2 rounded-full hover:bg-gray-500/20 transition-colors flex items-center justify-center cursor-pointer"
           >
             <span className="material-symbols-outlined text-2xl">arrow_back</span>

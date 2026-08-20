@@ -116,7 +116,7 @@ export default function RankingPage() {
 
         {/* Navigation Menu */}
         <nav className="flex-1 overflow-y-auto px-4 py-2 space-y-2">
-          <button onClick={() => router.push('/')} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all active:scale-[0.98] text-[13px] uppercase tracking-wider ${themeClasses.menuItemHover}`}>
+          <button onClick={() => router.push('/dashboard')} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all active:scale-[0.98] text-[13px] uppercase tracking-wider ${themeClasses.menuItemHover}`}>
             <span className="material-symbols-outlined text-[20px] text-[#b59348]">home</span>
             <span className="flex-1 text-left">Inicio</span>
           </button>
